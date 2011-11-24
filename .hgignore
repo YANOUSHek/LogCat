@@ -1,0 +1,8 @@
+syntax:glob
+
+.DS_Store
+*.log
+*.inf
+.git
+project.xcworkspace
+xcuserdata

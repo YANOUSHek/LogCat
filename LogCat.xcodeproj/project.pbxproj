@@ -1,0 +1,327 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		A53E91C61479C4C100C92015 /* Sheet.xib in Resources */ = {isa = PBXBuildFile; fileRef = A53E91C51479C4C100C92015 /* Sheet.xib */; };
+		A5B4D262147AC6AA00DA2336 /* DBPrefsWindowController.m in Sources */ = {isa = PBXBuildFile; fileRef = A5B4D261147AC6AA00DA2336 /* DBPrefsWindowController.m */; };
+		A5B4D266147AC70300DA2336 /* LogCatPreferences.m in Sources */ = {isa = PBXBuildFile; fileRef = A5B4D265147AC70300DA2336 /* LogCatPreferences.m */; };
+		A5B4D268147AC73800DA2336 /* Preferences.xib in Resources */ = {isa = PBXBuildFile; fileRef = A5B4D267147AC73800DA2336 /* Preferences.xib */; };
+		A5C03BFA147EF72B00D21B0E /* Icon.icns in Resources */ = {isa = PBXBuildFile; fileRef = A5C03BF9147EF72B00D21B0E /* Icon.icns */; };
+		A5FF10F714743296001A3B38 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A5FF10F614743296001A3B38 /* Cocoa.framework */; };
+		A5FF110114743296001A3B38 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = A5FF10FF14743296001A3B38 /* InfoPlist.strings */; };
+		A5FF110314743296001A3B38 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = A5FF110214743296001A3B38 /* main.m */; };
+		A5FF110714743297001A3B38 /* Credits.rtf in Resources */ = {isa = PBXBuildFile; fileRef = A5FF110514743297001A3B38 /* Credits.rtf */; };
+		A5FF110A14743297001A3B38 /* LogCatAppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = A5FF110914743297001A3B38 /* LogCatAppDelegate.m */; };
+		A5FF110D14743297001A3B38 /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = A5FF110B14743297001A3B38 /* MainMenu.xib */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		A53E91C51479C4C100C92015 /* Sheet.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = Sheet.xib; sourceTree = "<group>"; };
+		A5B4D260147AC6AA00DA2336 /* DBPrefsWindowController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DBPrefsWindowController.h; sourceTree = "<group>"; };
+		A5B4D261147AC6AA00DA2336 /* DBPrefsWindowController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DBPrefsWindowController.m; sourceTree = "<group>"; };
+		A5B4D264147AC70300DA2336 /* LogCatPreferences.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LogCatPreferences.h; sourceTree = "<group>"; };
+		A5B4D265147AC70300DA2336 /* LogCatPreferences.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LogCatPreferences.m; sourceTree = "<group>"; };
+		A5B4D267147AC73800DA2336 /* Preferences.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = Preferences.xib; sourceTree = "<group>"; };
+		A5C03BF9147EF72B00D21B0E /* Icon.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = Icon.icns; sourceTree = "<group>"; };
+		A5FF10F214743296001A3B38 /* LogCat.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = LogCat.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		A5FF10F614743296001A3B38 /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
+		A5FF10F914743296001A3B38 /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = System/Library/Frameworks/AppKit.framework; sourceTree = SDKROOT; };
+		A5FF10FA14743296001A3B38 /* CoreData.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreData.framework; path = System/Library/Frameworks/CoreData.framework; sourceTree = SDKROOT; };
+		A5FF10FB14743296001A3B38 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
+		A5FF10FE14743296001A3B38 /* LogCat-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "LogCat-Info.plist"; sourceTree = "<group>"; };
+		A5FF110014743296001A3B38 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		A5FF110214743296001A3B38 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
+		A5FF110414743296001A3B38 /* LogCat-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "LogCat-Prefix.pch"; sourceTree = "<group>"; };
+		A5FF110614743297001A3B38 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.rtf; name = en; path = en.lproj/Credits.rtf; sourceTree = "<group>"; };
+		A5FF110814743297001A3B38 /* LogCatAppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = LogCatAppDelegate.h; sourceTree = "<group>"; };
+		A5FF110914743297001A3B38 /* LogCatAppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = LogCatAppDelegate.m; sourceTree = "<group>"; };
+		A5FF110C14743297001A3B38 /* en */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = en; path = en.lproj/MainMenu.xib; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		A5FF10EF14743295001A3B38 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A5FF10F714743296001A3B38 /* Cocoa.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		A5C27F37147E6E1E00112228 /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Resources;
+			sourceTree = "<group>";
+		};
+		A5FF10E714743294001A3B38 = {
+			isa = PBXGroup;
+			children = (
+				A5C03BF9147EF72B00D21B0E /* Icon.icns */,
+				A5FF10FC14743296001A3B38 /* LogCat */,
+				A5FF10F514743296001A3B38 /* Frameworks */,
+				A5FF10F314743296001A3B38 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		A5FF10F314743296001A3B38 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				A5FF10F214743296001A3B38 /* LogCat.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		A5FF10F514743296001A3B38 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				A5FF10F614743296001A3B38 /* Cocoa.framework */,
+				A5FF10F814743296001A3B38 /* Other Frameworks */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		A5FF10F814743296001A3B38 /* Other Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				A5FF10F914743296001A3B38 /* AppKit.framework */,
+				A5FF10FA14743296001A3B38 /* CoreData.framework */,
+				A5FF10FB14743296001A3B38 /* Foundation.framework */,
+			);
+			name = "Other Frameworks";
+			sourceTree = "<group>";
+		};
+		A5FF10FC14743296001A3B38 /* LogCat */ = {
+			isa = PBXGroup;
+			children = (
+				A5C27F37147E6E1E00112228 /* Resources */,
+				A5B4D260147AC6AA00DA2336 /* DBPrefsWindowController.h */,
+				A5B4D261147AC6AA00DA2336 /* DBPrefsWindowController.m */,
+				A5FF110814743297001A3B38 /* LogCatAppDelegate.h */,
+				A5FF110914743297001A3B38 /* LogCatAppDelegate.m */,
+				A5FF110B14743297001A3B38 /* MainMenu.xib */,
+				A53E91C51479C4C100C92015 /* Sheet.xib */,
+				A5FF10FD14743296001A3B38 /* Supporting Files */,
+				A5B4D264147AC70300DA2336 /* LogCatPreferences.h */,
+				A5B4D265147AC70300DA2336 /* LogCatPreferences.m */,
+				A5B4D267147AC73800DA2336 /* Preferences.xib */,
+			);
+			path = LogCat;
+			sourceTree = "<group>";
+		};
+		A5FF10FD14743296001A3B38 /* Supporting Files */ = {
+			isa = PBXGroup;
+			children = (
+				A5FF10FE14743296001A3B38 /* LogCat-Info.plist */,
+				A5FF10FF14743296001A3B38 /* InfoPlist.strings */,
+				A5FF110214743296001A3B38 /* main.m */,
+				A5FF110414743296001A3B38 /* LogCat-Prefix.pch */,
+				A5FF110514743297001A3B38 /* Credits.rtf */,
+			);
+			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		A5FF10F114743295001A3B38 /* LogCat */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = A5FF111014743297001A3B38 /* Build configuration list for PBXNativeTarget "LogCat" */;
+			buildPhases = (
+				A5FF10EE14743295001A3B38 /* Sources */,
+				A5FF10EF14743295001A3B38 /* Frameworks */,
+				A5FF10F014743295001A3B38 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = LogCat;
+			productName = LogCat;
+			productReference = A5FF10F214743296001A3B38 /* LogCat.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		A5FF10E914743294001A3B38 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 0420;
+				ORGANIZATIONNAME = SplashSoftware.pl;
+			};
+			buildConfigurationList = A5FF10EC14743294001A3B38 /* Build configuration list for PBXProject "LogCat" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+			);
+			mainGroup = A5FF10E714743294001A3B38;
+			productRefGroup = A5FF10F314743296001A3B38 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				A5FF10F114743295001A3B38 /* LogCat */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		A5FF10F014743295001A3B38 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A5FF110114743296001A3B38 /* InfoPlist.strings in Resources */,
+				A5FF110714743297001A3B38 /* Credits.rtf in Resources */,
+				A5FF110D14743297001A3B38 /* MainMenu.xib in Resources */,
+				A53E91C61479C4C100C92015 /* Sheet.xib in Resources */,
+				A5B4D268147AC73800DA2336 /* Preferences.xib in Resources */,
+				A5C03BFA147EF72B00D21B0E /* Icon.icns in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		A5FF10EE14743295001A3B38 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A5FF110314743296001A3B38 /* main.m in Sources */,
+				A5FF110A14743297001A3B38 /* LogCatAppDelegate.m in Sources */,
+				A5B4D262147AC6AA00DA2336 /* DBPrefsWindowController.m in Sources */,
+				A5B4D266147AC70300DA2336 /* LogCatPreferences.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXVariantGroup section */
+		A5FF10FF14743296001A3B38 /* InfoPlist.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				A5FF110014743296001A3B38 /* en */,
+			);
+			name = InfoPlist.strings;
+			sourceTree = "<group>";
+		};
+		A5FF110514743297001A3B38 /* Credits.rtf */ = {
+			isa = PBXVariantGroup;
+			children = (
+				A5FF110614743297001A3B38 /* en */,
+			);
+			name = Credits.rtf;
+			sourceTree = "<group>";
+		};
+		A5FF110B14743297001A3B38 /* MainMenu.xib */ = {
+			isa = PBXVariantGroup;
+			children = (
+				A5FF110C14743297001A3B38 /* en */,
+			);
+			name = MainMenu.xib;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
+
+/* Begin XCBuildConfiguration section */
+		A5FF110E14743297001A3B38 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = "$(ARCHS_STANDARD_64_BIT)";
+				COPY_PHASE_STRIP = NO;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_MISSING_PROTOTYPES = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.7;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = macosx;
+			};
+			name = Debug;
+		};
+		A5FF110F14743297001A3B38 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = "$(ARCHS_STANDARD_64_BIT)";
+				COPY_PHASE_STRIP = YES;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
+				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_MISSING_PROTOTYPES = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.7;
+				SDKROOT = macosx;
+			};
+			name = Release;
+		};
+		A5FF111114743297001A3B38 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "LogCat/LogCat-Prefix.pch";
+				INFOPLIST_FILE = "LogCat/LogCat-Info.plist";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				WRAPPER_EXTENSION = app;
+			};
+			name = Debug;
+		};
+		A5FF111214743297001A3B38 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "LogCat/LogCat-Prefix.pch";
+				INFOPLIST_FILE = "LogCat/LogCat-Info.plist";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				WRAPPER_EXTENSION = app;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		A5FF10EC14743294001A3B38 /* Build configuration list for PBXProject "LogCat" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A5FF110E14743297001A3B38 /* Debug */,
+				A5FF110F14743297001A3B38 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		A5FF111014743297001A3B38 /* Build configuration list for PBXNativeTarget "LogCat" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A5FF111114743297001A3B38 /* Debug */,
+				A5FF111214743297001A3B38 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = A5FF10E914743294001A3B38 /* Project object */;
+}

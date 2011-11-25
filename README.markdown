@@ -42,7 +42,7 @@ Programming: **Janusz Bossy** - [SplashSoftware.pl][splash]
 
 Icon design: **Kamil Tatara** - [cakeshop.pl][cake]
 
-Special thanks: **Dawid Gatti** for emerging with the idea for this project
+Special thanks: **Dawid Gatti** ([Dawid's GitHub profile][dggit]) for emerging with the idea for this project
 
 Roadmap
 =======
@@ -65,3 +65,4 @@ a pull request, welcome to the Credits list. That easy!
 [eclim]: http://eclim.org "Eclim Homepage"
 [splash]: http://splashsoftware.pl "SplashSoftware Homepage"
 [cake]: http://cakeshop.pl "CakeShop"
+[dggit]: https://github.com/dawidgatti "Dawid's GitHub Profile"

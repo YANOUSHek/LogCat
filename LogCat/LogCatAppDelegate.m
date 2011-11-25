@@ -22,6 +22,7 @@
 #define KEY_PREFS_FILTERS @"filters"
 
 @interface LogCatAppDelegate(private)
+- (void)registerDefaults;
 - (BOOL)filterMatchesRow:(NSDictionary*)row;
 - (BOOL)searchMatchesRow:(NSDictionary*)row;
 - (void)readSettings;
@@ -34,7 +35,7 @@
 @synthesize window = _window;
 @synthesize table;
 
-+ (void)initialize
+- (void)registerDefaults
 {
     NSUserDefaults* defaults = [NSUserDefaults standardUserDefaults];
     NSMutableDictionary* s = [NSMutableDictionary dictionary];
@@ -115,6 +116,7 @@
 
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification
 {
+    [self registerDefaults];
     isRunning = NO;
     [self readSettings];
     if ([[NSFileManager defaultManager] fileExistsAtPath:adbPath]) {

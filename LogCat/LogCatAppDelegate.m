@@ -83,12 +83,12 @@
     colors = [[NSDictionary dictionaryWithObjects:[NSArray arrayWithObjects:v, d, i, w, e, f, nil] 
                                           forKeys:typeKeys] retain];
     
-    NSFont* vf = [[defaults objectForKey:@"logVerboseBold"] intValue] == 1 ? [NSFont boldSystemFontOfSize:11] : [NSFont systemFontOfSize:11];
-    NSFont* df = [[defaults objectForKey:@"logDebugBold"] intValue] == 1 ? [NSFont boldSystemFontOfSize:11] : [NSFont systemFontOfSize:11];
-    NSFont* ifont = [[defaults objectForKey:@"logInfoBold"] intValue] == 1 ? [NSFont boldSystemFontOfSize:11] : [NSFont systemFontOfSize:11];
-    NSFont* wf = [[defaults objectForKey:@"logWarningBold"] intValue] == 1 ? [NSFont boldSystemFontOfSize:11] : [NSFont systemFontOfSize:11];
-    NSFont* ef = [[defaults objectForKey:@"logErrorBold"] intValue] == 1 ? [NSFont boldSystemFontOfSize:11] : [NSFont systemFontOfSize:11];
-    NSFont* ff = [[defaults objectForKey:@"logFatalBold"] intValue] == 1 ? [NSFont boldSystemFontOfSize:11] : [NSFont systemFontOfSize:11];
+    NSFont* vf = [[defaults objectForKey:@"logVerboseBold"] boolValue] ? [NSFont boldSystemFontOfSize:11] : [NSFont systemFontOfSize:11];
+    NSFont* df = [[defaults objectForKey:@"logDebugBold"] boolValue] ? [NSFont boldSystemFontOfSize:11] : [NSFont systemFontOfSize:11];
+    NSFont* ifont = [[defaults objectForKey:@"logInfoBold"] boolValue] ? [NSFont boldSystemFontOfSize:11] : [NSFont systemFontOfSize:11];
+    NSFont* wf = [[defaults objectForKey:@"logWarningBold"] boolValue] ? [NSFont boldSystemFontOfSize:11] : [NSFont systemFontOfSize:11];
+    NSFont* ef = [[defaults objectForKey:@"logErrorBold"] boolValue] ? [NSFont boldSystemFontOfSize:11] : [NSFont systemFontOfSize:11];
+    NSFont* ff = [[defaults objectForKey:@"logFatalBold"] boolValue] ? [NSFont boldSystemFontOfSize:11] : [NSFont systemFontOfSize:11];
     
     fonts = [[NSDictionary dictionaryWithObjects:[NSArray arrayWithObjects:vf, df, ifont, wf, ef, ff, nil] 
                                          forKeys:typeKeys] retain];

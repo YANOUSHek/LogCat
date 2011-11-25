@@ -13,9 +13,9 @@
 
 - (void)setupToolbar
 {
-    [self addView:generalView label:@"General"];
-    [self addView:appearanceView label:@"Appearance"];
-    [self addView:aboutView label:@"About"];
+    [self addView:generalView label:@"General" image:[NSImage imageNamed:NSImageNamePreferencesGeneral]];
+    [self addView:appearanceView label:@"Appearance" image:[NSImage imageNamed:NSImageNameQuickLookTemplate]];
+    [self addView:aboutView label:@"About" image:[NSImage imageNamed:NSImageNameInfo]];
 }
 
 - (IBAction)browseForADB:(id)sender 

@@ -42,7 +42,8 @@ Programming: **Janusz Bossy** - [SplashSoftware.pl][splash]
 
 Icon design: **Kamil Tatara** - [cakeshop.pl][cake]
 
-Special thanks: **Dawid Gatti** ([Dawid's GitHub profile][dggit]) for emerging with the idea for this project
+Special thanks: **Dawid Gatti** ([Dawid's GitHub profile][dggit]) for emerging
+with the idea for this project
 
 Roadmap
 =======

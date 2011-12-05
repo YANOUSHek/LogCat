@@ -852,7 +852,7 @@
 											<string key="NSFrameSize">{831, 484}</string>
 											<reference key="NSSuperview" ref="928530079"/>
 											<reference key="NSWindow"/>
-											<reference key="NSNextKeyView" ref="175096873"/>
+											<reference key="NSNextKeyView" ref="118326408"/>
 											<string key="NSReuseIdentifierKey">_NS:1828</string>
 											<bool key="NSEnabled">YES</bool>
 											<object class="NSTableHeaderView" key="NSHeaderView" id="131857914">
@@ -1024,7 +1024,7 @@
 											</object>
 											<reference key="NSGridColor" ref="20799811"/>
 											<double key="NSRowHeight">17</double>
-											<int key="NSTvFlags">2126512128</int>
+											<int key="NSTvFlags">-20971520</int>
 											<reference key="NSDelegate"/>
 											<reference key="NSDataSource"/>
 											<int key="NSGridStyleMask">3</int>
@@ -1063,6 +1063,7 @@
 									<string key="NSFrame">{{1, 262}, {340, 15}}</string>
 									<reference key="NSSuperview" ref="675400260"/>
 									<reference key="NSWindow"/>
+									<reference key="NSNextKeyView"/>
 									<string key="NSReuseIdentifierKey">_NS:1847</string>
 									<int key="NSsFlags">1</int>
 									<reference key="NSTarget" ref="675400260"/>
@@ -1087,7 +1088,7 @@
 							<string key="NSFrame">{{152, -1}, {833, 502}}</string>
 							<reference key="NSSuperview" ref="439893737"/>
 							<reference key="NSWindow"/>
-							<reference key="NSNextKeyView" ref="928530079"/>
+							<reference key="NSNextKeyView" ref="175096873"/>
 							<string key="NSReuseIdentifierKey">_NS:1824</string>
 							<int key="NSsFlags">133682</int>
 							<reference key="NSVScroller" ref="118326408"/>

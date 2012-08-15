@@ -96,6 +96,7 @@
     if (filters == nil) {
         filters = [NSMutableArray new];
     } else {
+        filters = [[NSMutableArray alloc] initWithArray:filters];
         [filterList reloadData];
     }
 }

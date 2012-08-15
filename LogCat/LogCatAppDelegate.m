@@ -64,7 +64,6 @@
     [fonts release];
     [filters release];
     [filtered release];
-    [adbPath release];
     [super dealloc];
 }
 
@@ -93,8 +92,6 @@
     fonts = [[NSDictionary dictionaryWithObjects:[NSArray arrayWithObjects:vf, df, ifont, wf, ef, ff, nil] 
                                          forKeys:typeKeys] retain];
     
-    adbPath = [[defaults objectForKey:@"adbPath"] retain];
-    
     filters = [[NSUserDefaults standardUserDefaults] valueForKey:KEY_PREFS_FILTERS];
     if (filters == nil) {
         filters = [NSMutableArray new];
@@ -119,17 +116,8 @@
     [self registerDefaults];
     isRunning = NO;
     [self readSettings];
-    if ([[NSFileManager defaultManager] fileExistsAtPath:adbPath]) {
-        [self startAdb];
-    } else {
-        NSAlert* alert = [NSAlert alertWithMessageText:@"ADB executable not found"
-                                         defaultButton:@"OK" alternateButton:nil
-                                           otherButton:nil
-                             informativeTextWithFormat:@"Please check your preferences and make sure the path is correct. By default, it's located in the platform-tools folder inside Android SDK."];
-        [alert runModal];
-        [self.window orderOut:self];
-        [[LogCatPreferences sharedPrefsWindowController] showWindow:nil];
-    }
+
+    [self startAdb];
     
     previousString = nil;
     scrollToBottom = YES;
@@ -154,16 +142,6 @@
     [thread start];
     [thread release];
     isRunning = YES;
-}
-
-- (void)adbPathChanged:(NSString*)newPath
-{
-    if (isRunning) {
-        return;
-    }
-    
-    adbPath = [newPath retain];
-    [self startAdb];
 }
 
 - (void)fontsChanged
@@ -199,7 +177,11 @@
     
     NSTask *task;
     task = [[NSTask alloc] init];
-    [task setLaunchPath:adbPath];
+    NSBundle *mainBundle=[NSBundle mainBundle];
+    NSString *path=[mainBundle pathForResource:@"adb" ofType:nil];
+    // NSLog(@"path: %@", path);
+    
+    [task setLaunchPath:path];
     //[task setLaunchPath:@"/bin/cat"];
     
     NSArray *arguments = [NSArray arrayWithObjects: @"logcat", @"-v", @"long", nil];
@@ -512,6 +494,7 @@
     [filters removeObjectAtIndex:[[filterList selectedRowIndexes] firstIndex] - 1];
     [filterList reloadData];
     [[NSUserDefaults standardUserDefaults] setValue:filters forKey:KEY_PREFS_FILTERS];
+    // [[NSUserDefaults standardUserDefaults] synchronize];
 }
 
 - (IBAction)cancelSheet:(id)sender

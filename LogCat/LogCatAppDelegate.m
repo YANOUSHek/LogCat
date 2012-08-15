@@ -242,6 +242,8 @@
         currentString = [NSString stringWithFormat:@"%@", paramString];
     }
     
+    // NSLog(@"currentString: %@", currentString);
+    
     if ([currentString rangeOfString:@"\n"].location == NSNotFound) {
         previousString = [currentString copy];
         return;
@@ -258,7 +260,7 @@
             continue;
         }
         NSRegularExpression* expr = [NSRegularExpression regularExpressionWithPattern:
-                                     @"^\\[\\s(\\d\\d-\\d\\d\\s\\d\\d:\\d\\d:\\d\\d.\\d+)\\s+(\\d*):(0x[0-9a-fA-F]+)\\s(.)/(.*)\\]$"
+                                     @"^\\[\\s(\\d\\d-\\d\\d\\s\\d\\d:\\d\\d:\\d\\d.\\d+)\\s+(\\d*):\\s+(\\d*)\\s(.)/(.*)\\]$"
                                                                               options:0
                                                                                 error:nil];
         
@@ -268,10 +270,16 @@
             pid = [[line substringWithRange:[match rangeAtIndex:2]] retain];
             type = [[line substringWithRange:[match rangeAtIndex:4]] retain];
             name = [[line substringWithRange:[match rangeAtIndex:5]] retain];
+            
+            // NSLog(@"xxx--- 1 time: %@, pid: %@, type: %@, name: %@", time, pid, type, name);
         } else if (match == nil && [line length] != 0 && !([previousString length] > 0 && [line isEqualToString:previousString])) {
             [text appendString:@"\n"];
             [text appendString:line];
+            
+            // NSLog(@"xxx--- 2 text: %@", text);
         } else if ([line length] == 0 && time != nil) {
+            // NSLog(@"xxx--- 3 text: %@", text);
+            
             if ([text rangeOfString:@"\n"].location != NSNotFound) {
                 NSLog(@"JEST!");
                 NSArray* linesOfText = [text componentsSeparatedByString:@"\n"];
@@ -295,6 +303,8 @@
                     }    
                 }
             } else {
+                // NSLog(@"xxx--- 4 text: %@", text);
+                
                 NSArray* values = [NSArray arrayWithObjects: time, pid, type, name, text, nil];
                 NSDictionary* row = [NSDictionary dictionaryWithObjects:values
                                                                 forKeys:keysArray];

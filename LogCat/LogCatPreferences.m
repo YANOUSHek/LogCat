@@ -13,29 +13,8 @@
 
 - (void)setupToolbar
 {
-    [self addView:generalView label:@"General" image:[NSImage imageNamed:NSImageNamePreferencesGeneral]];
     [self addView:appearanceView label:@"Appearance" image:[NSImage imageNamed:NSImageNameQuickLookTemplate]];
     [self addView:aboutView label:@"About" image:[NSImage imageNamed:NSImageNameInfo]];
-}
-
-- (IBAction)browseForADB:(id)sender 
-{
-    NSOpenPanel* panel = [NSOpenPanel openPanel];
-    [panel setDirectoryURL:[NSURL URLWithString:[@"~" stringByExpandingTildeInPath]]];
-    [panel beginSheetModalForWindow:self.window completionHandler:^(NSInteger result) {
-        if (result == NSFileHandlingPanelOKButton) {
-            NSString* newPath = [panel.URL path];
-            NSString* oldPath = [tfAdbPath stringValue];
-            if ([newPath isEqualToString:oldPath]) {
-                return;
-            }
-            
-            [tfAdbPath setStringValue:[panel.URL path]];
-            [[NSUserDefaults standardUserDefaults] setValue:[panel.URL path] forKey:@"adbPath"];
-            LogCatAppDelegate* appDelegate = [NSApp delegate];
-            [appDelegate adbPathChanged:newPath];
-        }
-    }];
 }
 
 - (IBAction)fontChanged:(id)sender 

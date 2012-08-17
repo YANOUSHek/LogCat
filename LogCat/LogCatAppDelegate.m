@@ -64,7 +64,6 @@
     [fonts release];
     [filters release];
     [filtered release];
-    [adbPath release];
     [super dealloc];
 }
 
@@ -93,12 +92,11 @@
     fonts = [[NSDictionary dictionaryWithObjects:[NSArray arrayWithObjects:vf, df, ifont, wf, ef, ff, nil] 
                                          forKeys:typeKeys] retain];
     
-    adbPath = [[defaults objectForKey:@"adbPath"] retain];
-    
     filters = [[NSUserDefaults standardUserDefaults] valueForKey:KEY_PREFS_FILTERS];
     if (filters == nil) {
         filters = [NSMutableArray new];
     } else {
+        filters = [[NSMutableArray alloc] initWithArray:filters];
         [filterList reloadData];
     }
 }
@@ -119,17 +117,8 @@
     [self registerDefaults];
     isRunning = NO;
     [self readSettings];
-    if ([[NSFileManager defaultManager] fileExistsAtPath:adbPath]) {
-        [self startAdb];
-    } else {
-        NSAlert* alert = [NSAlert alertWithMessageText:@"ADB executable not found"
-                                         defaultButton:@"OK" alternateButton:nil
-                                           otherButton:nil
-                             informativeTextWithFormat:@"Please check your preferences and make sure the path is correct. By default, it's located in the platform-tools folder inside Android SDK."];
-        [alert runModal];
-        [self.window orderOut:self];
-        [[LogCatPreferences sharedPrefsWindowController] showWindow:nil];
-    }
+
+    [self startAdb];
     
     previousString = nil;
     scrollToBottom = YES;
@@ -154,16 +143,6 @@
     [thread start];
     [thread release];
     isRunning = YES;
-}
-
-- (void)adbPathChanged:(NSString*)newPath
-{
-    if (isRunning) {
-        return;
-    }
-    
-    adbPath = [newPath retain];
-    [self startAdb];
 }
 
 - (void)fontsChanged
@@ -199,7 +178,11 @@
     
     NSTask *task;
     task = [[NSTask alloc] init];
-    [task setLaunchPath:adbPath];
+    NSBundle *mainBundle=[NSBundle mainBundle];
+    NSString *path=[mainBundle pathForResource:@"adb" ofType:nil];
+    // NSLog(@"path: %@", path);
+    
+    [task setLaunchPath:path];
     //[task setLaunchPath:@"/bin/cat"];
     
     NSArray *arguments = [NSArray arrayWithObjects: @"logcat", @"-v", @"long", nil];
@@ -242,6 +225,8 @@
         currentString = [NSString stringWithFormat:@"%@", paramString];
     }
     
+    // NSLog(@"currentString: %@", currentString);
+    
     if ([currentString rangeOfString:@"\n"].location == NSNotFound) {
         previousString = [currentString copy];
         return;
@@ -258,7 +243,7 @@
             continue;
         }
         NSRegularExpression* expr = [NSRegularExpression regularExpressionWithPattern:
-                                     @"^\\[\\s(\\d\\d-\\d\\d\\s\\d\\d:\\d\\d:\\d\\d.\\d+)\\s+(\\d*):(0x[0-9a-fA-F]+)\\s(.)/(.*)\\]$"
+                                     @"^\\[\\s(\\d\\d-\\d\\d\\s\\d\\d:\\d\\d:\\d\\d.\\d+)\\s+(\\d*):(.*)\\s(.)/(.*)\\]$"
                                                                               options:0
                                                                                 error:nil];
         
@@ -268,10 +253,16 @@
             pid = [[line substringWithRange:[match rangeAtIndex:2]] retain];
             type = [[line substringWithRange:[match rangeAtIndex:4]] retain];
             name = [[line substringWithRange:[match rangeAtIndex:5]] retain];
+            
+            // NSLog(@"xxx--- 1 time: %@, pid: %@, type: %@, name: %@", time, pid, type, name);
         } else if (match == nil && [line length] != 0 && !([previousString length] > 0 && [line isEqualToString:previousString])) {
             [text appendString:@"\n"];
             [text appendString:line];
+            
+            // NSLog(@"xxx--- 2 text: %@", text);
         } else if ([line length] == 0 && time != nil) {
+            // NSLog(@"xxx--- 3 text: %@", text);
+            
             if ([text rangeOfString:@"\n"].location != NSNotFound) {
                 NSLog(@"JEST!");
                 NSArray* linesOfText = [text componentsSeparatedByString:@"\n"];
@@ -295,6 +286,8 @@
                     }    
                 }
             } else {
+                // NSLog(@"xxx--- 4 text: %@", text);
+                
                 NSArray* values = [NSArray arrayWithObjects: time, pid, type, name, text, nil];
                 NSDictionary* row = [NSDictionary dictionaryWithObjects:values
                                                                 forKeys:keysArray];
@@ -502,6 +495,7 @@
     [filters removeObjectAtIndex:[[filterList selectedRowIndexes] firstIndex] - 1];
     [filterList reloadData];
     [[NSUserDefaults standardUserDefaults] setValue:filters forKey:KEY_PREFS_FILTERS];
+    // [[NSUserDefaults standardUserDefaults] synchronize];
 }
 
 - (IBAction)cancelSheet:(id)sender

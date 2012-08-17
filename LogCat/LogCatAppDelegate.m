@@ -243,7 +243,7 @@
             continue;
         }
         NSRegularExpression* expr = [NSRegularExpression regularExpressionWithPattern:
-                                     @"^\\[\\s(\\d\\d-\\d\\d\\s\\d\\d:\\d\\d:\\d\\d.\\d+)\\s+(\\d*):\\s+(\\d*)\\s(.)/(.*)\\]$"
+                                     @"^\\[\\s(\\d\\d-\\d\\d\\s\\d\\d:\\d\\d:\\d\\d.\\d+)\\s+(\\d*):(.*)\\s(.)/(.*)\\]$"
                                                                               options:0
                                                                                 error:nil];
         

@@ -9,13 +9,9 @@
 #import "DBPrefsWindowController.h"
 
 @interface LogCatPreferences : DBPrefsWindowController {
-    IBOutlet NSView *generalView;
     IBOutlet NSView *appearanceView;
     IBOutlet NSView *aboutView;
-    
-    IBOutlet NSTextField *tfAdbPath;
 }
-- (IBAction)browseForADB:(id)sender;
 - (IBAction)fontChanged:(id)sender;
 
 @end

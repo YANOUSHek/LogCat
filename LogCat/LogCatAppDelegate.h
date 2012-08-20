@@ -32,12 +32,10 @@
     
     NSDictionary* colors;
     NSDictionary* fonts;
-    NSString* adbPath;
     
     bool isRunning;
 }
 
-- (void)adbPathChanged:(NSString*)newPath;
 - (void)fontsChanged;
 
 @property (assign) IBOutlet NSTableView *filterList;

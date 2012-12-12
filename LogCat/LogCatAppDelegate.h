@@ -20,6 +20,7 @@
     NSString* time;
     NSString* app;
     NSString* pid;
+    NSString* tid;
     NSString* type;
     NSString* name;
     NSMutableString* text;

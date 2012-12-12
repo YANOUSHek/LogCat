@@ -12,6 +12,7 @@
 #define KEY_TIME @"time"
 #define KEY_APP @"app"
 #define KEY_PID @"pid"
+#define KEY_TID @"tid"
 #define KEY_TYPE @"type"
 #define KEY_NAME @"name"
 #define KEY_TEXT @"text"
@@ -125,7 +126,7 @@
     logcat = [NSMutableArray new];
     search = [NSMutableArray new];
     text = [NSMutableString new];
-    keysArray = [NSArray arrayWithObjects: KEY_TIME, KEY_APP, KEY_PID, KEY_TYPE, KEY_NAME, KEY_TEXT, nil];
+    keysArray = [NSArray arrayWithObjects: KEY_TIME, KEY_APP, KEY_PID, KEY_TID, KEY_TYPE, KEY_NAME, KEY_TEXT, nil];
     
     [filterList selectRowIndexes:[NSIndexSet indexSetWithIndex:0] byExtendingSelection:NO];
     
@@ -343,6 +344,7 @@
         if (match != nil) {
             time = [line substringWithRange:[match rangeAtIndex:1]];
             pid = [line substringWithRange:[match rangeAtIndex:2]];
+            tid = [line substringWithRange:[match rangeAtIndex:3]];
             app = [pidMap objectForKey:pid];
             if (app == nil) {
                 NSLog(@"%@ not found in pid map.", pid);
@@ -358,7 +360,7 @@
             type = [line substringWithRange:[match rangeAtIndex:4]];
             name = [line substringWithRange:[match rangeAtIndex:5]];
             
-            // NSLog(@"xxx--- 1 time: %@, app: %@, pid: %@, type: %@, name: %@", time, app, pid, type, name);
+            // NSLog(@"xxx--- 1 time: %@, app: %@, pid: %@, tid: %@, type: %@, name: %@", time, app, pid, tid, type, name);
         } else if (match == nil && [line length] != 0 && !([previousString length] > 0 && [line isEqualToString:previousString])) {
             [text appendString:@"\n"];
             [text appendString:line];
@@ -374,7 +376,7 @@
                     if ([lineOfText length] == 0) {
                         continue;
                     }
-                    NSArray* values = [NSArray arrayWithObjects: time, app, pid, type, name, lineOfText, nil];
+                    NSArray* values = [NSArray arrayWithObjects: time, app, pid, tid, type, name, lineOfText, nil];
                     NSDictionary* row = [NSDictionary dictionaryWithObjects:values
                                                                     forKeys:keysArray];
                     [logcat addObject:row];
@@ -392,7 +394,7 @@
             } else {
                 // NSLog(@"xxx--- 4 text: %@", text);
                 
-                NSArray* values = [NSArray arrayWithObjects: time, app, pid, type, name, text, nil];
+                NSArray* values = [NSArray arrayWithObjects: time, app, pid, tid, type, name, text, nil];
                 NSDictionary* row = [NSDictionary dictionaryWithObjects:values
                                                                 forKeys:keysArray];
                 [logcat addObject:row];
@@ -411,6 +413,7 @@
             time = nil;
             app = nil;
             pid = nil;
+            tid = nil;
             type = nil;
             name = nil;
             text = [NSMutableString new];
@@ -435,6 +438,8 @@
     NSString* realType = KEY_TEXT;
     if ([selectedType isEqualToString:@"PID"]) {
         realType = KEY_PID;
+    } else if ([selectedType isEqualToString:@"TID"]) {
+        realType = KEY_TID;
     } else if ([selectedType isEqualToString:@"APP"]) {
         realType = KEY_APP;
     } else if ([selectedType isEqualToString:@"Tag"]) {
@@ -561,6 +566,8 @@
         NSString* realType = KEY_TEXT;
         if ([selectedType isEqualToString:@"PID"]) {
             realType = KEY_PID;
+        } else if ([selectedType isEqualToString:@"TID"]) {
+            realType = KEY_TID;
         } else if ([selectedType isEqualToString:@"APP"]) {
             realType = KEY_APP;
         } else if ([selectedType isEqualToString:@"Tag"]) {
@@ -703,10 +710,11 @@
                 rowDetails = [logcat objectAtIndex:currentIndex];
             }
             
-            [rowType appendFormat:@"%@\t%@\t%@\t%@\t%@\t%@",
+            [rowType appendFormat:@"%@\t%@\t%@\t%@\t%@\t%@\t%@",
                      [rowDetails objectForKey:KEY_TIME],
                      [rowDetails objectForKey:KEY_APP],
                      [rowDetails objectForKey:KEY_PID],
+                     [rowDetails objectForKey:KEY_TID],
                      [rowDetails objectForKey:KEY_TYPE],
                      [rowDetails objectForKey:KEY_NAME],
                      [rowDetails objectForKey:KEY_TEXT]];

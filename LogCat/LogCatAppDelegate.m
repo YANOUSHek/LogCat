@@ -10,6 +10,7 @@
 #import "LogCatPreferences.h"
 
 #define KEY_TIME @"time"
+#define KEY_APP @"app"
 #define KEY_PID @"pid"
 #define KEY_TYPE @"type"
 #define KEY_NAME @"name"
@@ -27,6 +28,9 @@
 - (BOOL)searchMatchesRow:(NSDictionary*)row;
 - (void)readSettings;
 - (void)startAdb;
+- (void) loadPid;
+- (void) parsePID: (NSString*) pidInfo;
+- (BOOL)isInteger:(NSString *)toCheck;
 @end
 
 @implementation LogCatAppDelegate
@@ -102,10 +106,12 @@
 
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification
 {
+    pidMap = [NSMutableDictionary dictionary];
     [self registerDefaults];
     isRunning = NO;
     [self readSettings];
 
+    [self loadPID];
     [self startAdb];
     
     previousString = nil;
@@ -113,7 +119,7 @@
     logcat = [NSMutableArray new];
     search = [NSMutableArray new];
     text = [NSMutableString new];
-    keysArray = [NSArray arrayWithObjects: KEY_TIME, KEY_PID, KEY_TYPE, KEY_NAME, KEY_TEXT, nil];
+    keysArray = [NSArray arrayWithObjects: KEY_TIME, KEY_APP, KEY_PID, KEY_TYPE, KEY_NAME, KEY_TEXT, nil];
     
     [filterList selectRowIndexes:[NSIndexSet indexSetWithIndex:0] byExtendingSelection:NO];
     
@@ -122,6 +128,95 @@
                                              selector:@selector(myBoundsChangeNotificationHandler:)
                                                  name:NSViewBoundsDidChangeNotification
                                                object:clipView];
+}
+
+- (void) loadPID {
+    NSTask *task;
+    task = [[NSTask alloc] init];
+    NSBundle *mainBundle=[NSBundle mainBundle];
+    NSString *path=[mainBundle pathForResource:@"adb" ofType:nil];
+    // NSLog(@"path: %@", path);
+    [task setLaunchPath:path];
+    
+    NSArray *arguments = [NSArray arrayWithObjects: @"shell", @"ps", nil];
+    [task setArguments: arguments];
+    
+    NSPipe *pipe;
+    pipe = [NSPipe pipe];
+    [task setStandardOutput: pipe];
+    [task setStandardInput:[NSPipe pipe]];
+    [task setStandardError:pipe];
+    
+    NSFileHandle *file;
+    file = [pipe fileHandleForReading];
+    
+    [task launch];
+    
+    NSMutableData *readData = [[NSMutableData alloc] init];
+    
+    NSData *data = nil;
+    while ((data = [file availableData]) && [data length]) {
+        [readData appendData:data];
+    }
+    
+    NSString *string;
+    string = [[NSString alloc] initWithData: readData encoding: NSUTF8StringEncoding];
+    [self performSelectorOnMainThread:@selector(parsePID:) withObject:string waitUntilDone:YES];
+    
+}
+
+- (void) parsePID: (NSString*) pidInfo {
+    NSLog(@"TODO: parse: \n%@", pidInfo);
+    
+    Boolean isFirstLine = YES;
+    
+    NSArray* lines = [pidInfo componentsSeparatedByString:@"\n"];
+    
+    for (NSString* line in lines) {
+        
+        NSArray* args =  [line componentsSeparatedByString:@" "];
+        if (isFirstLine) {
+            isFirstLine = NO;
+        } else if ([args count] < 4) {
+            
+        } else {
+            
+            // TODO scan header for PID and NAME to get proper indexes
+            //            NSLog(@"ARGS2: %@", args);
+            
+            NSString* aPid = @"";
+            // find first integer and call that PID
+            if (![self isInteger:aPid]) {
+                for (NSString* arg in args) {
+                    if ([self isInteger:arg]) {
+                        aPid = arg;
+                        break;
+                    }
+                }
+            }
+            
+            NSString* aName = [args objectAtIndex:[args count]-1];
+            //            NSLog(@"PID: %@  NAME: %@", aPid, aName);
+            if ([self isInteger:aPid]) {
+                [pidMap setValue:aName forKey:aPid];
+            } else {
+                NSLog(@"Could not get PID: %@", line);
+            }
+            
+            
+        }
+    }
+    
+}
+
+- (BOOL)isInteger:(NSString *)toCheck {
+    if([toCheck intValue] != 0) {
+        return true;
+    } else if([toCheck isEqualToString:@"0"]) {
+        return true;
+    } else {
+        return false;
+    }
 }
 
 - (void)startAdb
@@ -235,10 +330,20 @@
         if (match != nil) {
             time = [line substringWithRange:[match rangeAtIndex:1]];
             pid = [line substringWithRange:[match rangeAtIndex:2]];
+            app = [pidMap objectForKey:pid];
+            if (app == nil) {
+                NSLog(@"%@ not found in pid map.", pid);
+                [self loadPID];
+                app = [pidMap objectForKey:pid];
+                if (app == nil) {
+                    app = @"unknown";
+                    [pidMap setValue:app forKey:pid];
+                }
+            }
             type = [line substringWithRange:[match rangeAtIndex:4]];
             name = [line substringWithRange:[match rangeAtIndex:5]];
             
-            // NSLog(@"xxx--- 1 time: %@, pid: %@, type: %@, name: %@", time, pid, type, name);
+            // NSLog(@"xxx--- 1 time: %@, app: %@, pid: %@, type: %@, name: %@", time, app, pid, type, name);
         } else if (match == nil && [line length] != 0 && !([previousString length] > 0 && [line isEqualToString:previousString])) {
             [text appendString:@"\n"];
             [text appendString:line];
@@ -248,13 +353,13 @@
             // NSLog(@"xxx--- 3 text: %@", text);
             
             if ([text rangeOfString:@"\n"].location != NSNotFound) {
-                NSLog(@"JEST!");
+                // NSLog(@"JEST!");
                 NSArray* linesOfText = [text componentsSeparatedByString:@"\n"];
                 for (NSString* lineOfText in linesOfText) {
                     if ([lineOfText length] == 0) {
                         continue;
                     }
-                    NSArray* values = [NSArray arrayWithObjects: time, pid, type, name, lineOfText, nil];
+                    NSArray* values = [NSArray arrayWithObjects: time, app, pid, type, name, lineOfText, nil];
                     NSDictionary* row = [NSDictionary dictionaryWithObjects:values
                                                                     forKeys:keysArray];
                     [logcat addObject:row];
@@ -272,7 +377,7 @@
             } else {
                 // NSLog(@"xxx--- 4 text: %@", text);
                 
-                NSArray* values = [NSArray arrayWithObjects: time, pid, type, name, text, nil];
+                NSArray* values = [NSArray arrayWithObjects: time, app, pid, type, name, text, nil];
                 NSDictionary* row = [NSDictionary dictionaryWithObjects:values
                                                                 forKeys:keysArray];
                 [logcat addObject:row];
@@ -289,6 +394,7 @@
             }
             
             time = nil;
+            app = nil;
             pid = nil;
             type = nil;
             name = nil;
@@ -314,6 +420,8 @@
     NSString* realType = KEY_TEXT;
     if ([selectedType isEqualToString:@"PID"]) {
         realType = KEY_PID;
+    } else if ([selectedType isEqualToString:@"APP"]) {
+        realType = KEY_APP;
     } else if ([selectedType isEqualToString:@"Tag"]) {
         realType = KEY_NAME;
     } else if ([selectedType isEqualToString:@"Type"]) {
@@ -437,6 +545,8 @@
         NSString* realType = KEY_TEXT;
         if ([selectedType isEqualToString:@"PID"]) {
             realType = KEY_PID;
+        } else if ([selectedType isEqualToString:@"APP"]) {
+            realType = KEY_APP;
         } else if ([selectedType isEqualToString:@"Tag"]) {
             realType = KEY_NAME;
         } else if ([selectedType isEqualToString:@"Type"]) {

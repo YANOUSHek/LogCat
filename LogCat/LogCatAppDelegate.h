@@ -18,6 +18,7 @@
     NSString* searchString;
     
     NSString* time;
+    NSString* app;
     NSString* pid;
     NSString* type;
     NSString* name;
@@ -32,6 +33,8 @@
     
     NSDictionary* colors;
     NSDictionary* fonts;
+    
+    NSMutableDictionary* pidMap;
     
     bool isRunning;
 }

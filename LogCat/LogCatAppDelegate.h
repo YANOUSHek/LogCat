@@ -41,6 +41,7 @@
 
 - (void)fontsChanged;
 
+@property (weak) IBOutlet NSButton *restartAdb;
 @property (weak) IBOutlet NSTableView *filterList;
 @property (weak) IBOutlet NSWindow *window;
 @property (weak) IBOutlet NSTableView *table;
@@ -51,6 +52,7 @@
 - (IBAction)acceptSheet:(id)sender;
 - (IBAction)preferences:(id)sender;
 - (IBAction)clearLog:(id)sender;
+- (IBAction)restartAdb:(id)sender;
 - (IBAction)filterToolbarClicked:(NSSegmentedControl*)sender;
 
 @end

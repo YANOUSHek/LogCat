@@ -93,6 +93,10 @@
     }
 }
 
+- (void) resetConnectButton {
+    [self.restartAdb setEnabled:!isRunning];
+}
+
 - (BOOL) windowShouldClose:(id) sender
 {
     [self.window orderOut:self];
@@ -109,6 +113,7 @@
     pidMap = [NSMutableDictionary dictionary];
     [self registerDefaults];
     isRunning = NO;
+    [self resetConnectButton];
     [self readSettings];
 
     [self loadPID];
@@ -225,6 +230,7 @@
     NSThread* thread = [[NSThread alloc] initWithTarget:self selector:@selector(readLog:) object:nil];
     [thread start];
     isRunning = YES;
+    [self resetConnectButton];
 }
 
 - (void)fontsChanged
@@ -281,16 +287,24 @@
     
     [task launch];
     
-    while (true) {
+    while ([task isRunning]) {
         NSData *data = nil;
         while (data == nil) {
             data = [file availableData];
         }
+        if (data != nil) {
 
-        NSString *string;
-        string = [[NSString alloc] initWithData: data encoding: NSUTF8StringEncoding];
-        [self performSelectorOnMainThread:@selector(appendLog:) withObject:string waitUntilDone:YES];
+            NSString *string;
+            string = [[NSString alloc] initWithData: data encoding: NSUTF8StringEncoding];
+            [self performSelectorOnMainThread:@selector(appendLog:) withObject:string waitUntilDone:YES];
+        } else {
+            NSLog(@"Data was nil...");
+        }
     }
+    
+    isRunning = NO;
+    [self resetConnectButton];
+    NSLog(@"ADB Exited.");
 
 }
 
@@ -336,6 +350,8 @@
                 [self loadPID];
                 app = [pidMap objectForKey:pid];
                 if (app == nil) {
+                    // This is normal during startup because there can be log
+                    // messages from apps that are not running anymore.
                     app = @"unknown";
                     [pidMap setValue:app forKey:pid];
                 }
@@ -608,6 +624,12 @@
         search = [NSMutableArray new];
     }
     [self.table reloadData];
+}
+
+- (IBAction)restartAdb:(id)sender
+{
+    NSLog(@"restartAdb");
+    [self startAdb];
 }
 
 - (IBAction)filterToolbarClicked:(NSSegmentedControl*)sender 

@@ -38,9 +38,9 @@
 
 - (void)fontsChanged;
 
-@property (assign) IBOutlet NSTableView *filterList;
-@property (assign) IBOutlet NSWindow *window;
-@property (assign) IBOutlet NSTableView *table;
+@property (weak) IBOutlet NSTableView *filterList;
+@property (weak) IBOutlet NSWindow *window;
+@property (weak) IBOutlet NSTableView *table;
 - (IBAction)search:(id)sender;
 - (IBAction)addFilter;
 - (IBAction)removeFilter;

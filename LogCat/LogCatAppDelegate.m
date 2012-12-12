@@ -54,18 +54,6 @@
     [defaults registerDefaults:s];
 }
 
-- (void)dealloc
-{
-    [logcat release];
-    [previousString release];
-    [keysArray release];
-    [search release];
-    [colors release];
-    [fonts release];
-    [filters release];
-    [filtered release];
-    [super dealloc];
-}
 
 - (void)readSettings
 {
@@ -79,8 +67,8 @@
     
     NSArray* typeKeys = [NSArray arrayWithObjects:@"V", @"D", @"I", @"W", @"E", @"F", nil];
     
-    colors = [[NSDictionary dictionaryWithObjects:[NSArray arrayWithObjects:v, d, i, w, e, f, nil] 
-                                          forKeys:typeKeys] retain];
+    colors = [NSDictionary dictionaryWithObjects:[NSArray arrayWithObjects:v, d, i, w, e, f, nil] 
+                                          forKeys:typeKeys];
     
     NSFont* vf = [[defaults objectForKey:@"logVerboseBold"] boolValue] ? [NSFont boldSystemFontOfSize:11] : [NSFont systemFontOfSize:11];
     NSFont* df = [[defaults objectForKey:@"logDebugBold"] boolValue] ? [NSFont boldSystemFontOfSize:11] : [NSFont systemFontOfSize:11];
@@ -89,8 +77,8 @@
     NSFont* ef = [[defaults objectForKey:@"logErrorBold"] boolValue] ? [NSFont boldSystemFontOfSize:11] : [NSFont systemFontOfSize:11];
     NSFont* ff = [[defaults objectForKey:@"logFatalBold"] boolValue] ? [NSFont boldSystemFontOfSize:11] : [NSFont systemFontOfSize:11];
     
-    fonts = [[NSDictionary dictionaryWithObjects:[NSArray arrayWithObjects:vf, df, ifont, wf, ef, ff, nil] 
-                                         forKeys:typeKeys] retain];
+    fonts = [NSDictionary dictionaryWithObjects:[NSArray arrayWithObjects:vf, df, ifont, wf, ef, ff, nil] 
+                                         forKeys:typeKeys];
     
     filters = [[NSUserDefaults standardUserDefaults] valueForKey:KEY_PREFS_FILTERS];
     if (filters == nil) {
@@ -125,7 +113,7 @@
     logcat = [NSMutableArray new];
     search = [NSMutableArray new];
     text = [NSMutableString new];
-    keysArray = [[NSArray arrayWithObjects: KEY_TIME, KEY_PID, KEY_TYPE, KEY_NAME, KEY_TEXT, nil] retain];
+    keysArray = [NSArray arrayWithObjects: KEY_TIME, KEY_PID, KEY_TYPE, KEY_NAME, KEY_TEXT, nil];
     
     [filterList selectRowIndexes:[NSIndexSet indexSetWithIndex:0] byExtendingSelection:NO];
     
@@ -141,7 +129,6 @@
     [self.window makeKeyAndOrderFront:self];
     NSThread* thread = [[NSThread alloc] initWithTarget:self selector:@selector(readLog:) object:nil];
     [thread start];
-    [thread release];
     isRunning = YES;
 }
 
@@ -208,10 +195,8 @@
         NSString *string;
         string = [[NSString alloc] initWithData: data encoding: NSUTF8StringEncoding];
         [self performSelectorOnMainThread:@selector(appendLog:) withObject:string waitUntilDone:YES];
-        [string release];
     }
 
-    [task release];
 }
 
 - (void)appendLog:(NSString*)paramString
@@ -219,7 +204,6 @@
     NSString* currentString;
     if (previousString != nil) {
         currentString = [NSString stringWithFormat:@"%@%@", previousString, paramString];
-        [previousString release];
         previousString = nil;
     } else {
         currentString = [NSString stringWithFormat:@"%@", paramString];
@@ -249,10 +233,10 @@
         
         NSTextCheckingResult* match = [expr firstMatchInString:line options:0 range:NSMakeRange(0, [line length])];
         if (match != nil) {
-            time = [[line substringWithRange:[match rangeAtIndex:1]] retain];
-            pid = [[line substringWithRange:[match rangeAtIndex:2]] retain];
-            type = [[line substringWithRange:[match rangeAtIndex:4]] retain];
-            name = [[line substringWithRange:[match rangeAtIndex:5]] retain];
+            time = [line substringWithRange:[match rangeAtIndex:1]];
+            pid = [line substringWithRange:[match rangeAtIndex:2]];
+            type = [line substringWithRange:[match rangeAtIndex:4]];
+            name = [line substringWithRange:[match rangeAtIndex:5]];
             
             // NSLog(@"xxx--- 1 time: %@, pid: %@, type: %@, name: %@", time, pid, type, name);
         } else if (match == nil && [line length] != 0 && !([previousString length] > 0 && [line isEqualToString:previousString])) {
@@ -304,15 +288,10 @@
                 }
             }
             
-            [time release];
-            [pid release];
-            [type release];
-            [name release];
             time = nil;
             pid = nil;
             type = nil;
             name = nil;
-            [text release];
             text = [NSMutableString new];
         }
     }
@@ -409,11 +388,9 @@
 
 - (IBAction)search:(id)sender
 {
-    [search release];
     search = [NSMutableArray new];
     
     if (sender != nil) {
-        [searchString release];
         searchString = [[sender stringValue] copy];
     }
     
@@ -424,9 +401,9 @@
     
     for (NSDictionary* row in rows) {
         if ([[row objectForKey:KEY_NAME] rangeOfString:searchString options:NSCaseInsensitiveSearch].location != NSNotFound) {
-            [search addObject:[[row copy] autorelease]];
+            [search addObject:[row copy]];
         } else if ([[row objectForKey:KEY_TEXT] rangeOfString:searchString options:NSCaseInsensitiveSearch].location != NSNotFound) {
-            [search addObject:[[row copy] autorelease]];
+            [search addObject:[row copy]];
         }
     }
     [self.table reloadData];
@@ -439,10 +416,10 @@
     
     for (NSDictionary* row in logcat) {
         if ([[row objectForKey:key] rangeOfString:string options:NSCaseInsensitiveSearch].location != NSNotFound) {
-            [result addObject:[[row copy] autorelease]];
+            [result addObject:[row copy]];
         }
     }
-    return [result autorelease];
+    return result;
 }
 
 - (BOOL)tableView:(NSTableView *)aTableView shouldSelectRow:(NSInteger)rowIndex
@@ -456,7 +433,6 @@
     
     if (filterSelected) {
         NSDictionary* filter = [filters objectAtIndex:rowIndex-1];
-        [filtered release];
         NSString* selectedType = [filter objectForKey:KEY_FILTER_TYPE];
         NSString* realType = KEY_TEXT;
         if ([selectedType isEqualToString:@"PID"]) {
@@ -466,9 +442,8 @@
         } else if ([selectedType isEqualToString:@"Type"]) {
             realType = KEY_TYPE;
         }
-        filtered = [[self findLogsMatching:[filter objectForKey:KEY_FILTER_TEXT] forKey:realType] retain];
+        filtered = [self findLogsMatching:[filter objectForKey:KEY_FILTER_TEXT] forKey:realType];
     } else {
-        [filtered release];
         filtered = nil;
     }
     if ([searchString length] > 0) {
@@ -515,14 +490,11 @@
 
 - (IBAction)clearLog:(id)sender 
 {
-    [logcat release];
     logcat = [NSMutableArray new];
     if (filtered != nil) {
-        [filtered release];
         filtered = [NSMutableArray new];
     }
     if ([searchString length] > 0) {
-        [search release];
         search = [NSMutableArray new];
     }
     [self.table reloadData];

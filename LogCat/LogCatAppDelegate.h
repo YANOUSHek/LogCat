@@ -7,6 +7,7 @@
 //
 
 #import <Cocoa/Cocoa.h>
+#import "SelectableTableView.h"
 
 @interface LogCatAppDelegate : NSObject <NSApplicationDelegate> {
     NSString* previousString;
@@ -45,7 +46,7 @@
 @property (weak) IBOutlet NSButton *restartAdb;
 @property (weak) IBOutlet NSTableView *filterList;
 @property (weak) IBOutlet NSWindow *window;
-@property (weak) IBOutlet NSTableView *table;
+@property (weak) IBOutlet SelectableTableView *table;
 - (IBAction)search:(id)sender;
 - (IBAction)addFilter;
 - (IBAction)removeFilter;

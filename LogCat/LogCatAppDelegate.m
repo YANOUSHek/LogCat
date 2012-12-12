@@ -500,6 +500,7 @@
     if ([[tableView identifier] isEqualToString:@"filters"]) {
         return [tableColumn dataCell];
     }
+
     NSTextFieldCell *aCell = [tableColumn dataCell];
     NSString* rowType;
     if ([searchString length] > 0) {
@@ -677,6 +678,21 @@
     [tfFilterText setStringValue:@""];
 }
 
+- (IBAction)copyPlain:(id)sender {
+    NSLog(@"copyPlain");
+    [self copySelectedRow:NO];
+}
+
+- (IBAction)copyMessageOnly:(id)sender {
+    NSLog(@"copyMessageOnly");
+    [self copySelectedRow:NO];
+}
+
+- (IBAction)filterBySelected:(id)sender {
+    
+    NSLog(@"filterBySelected: %ld, %ld [%@]", [table clickedColumn], [table clickedRow], sender);
+}
+
 - (void) copy:(id)sender {
     NSLog(@"Copy Selected Rows");
     [self copySelectedRow: NO];
@@ -736,6 +752,18 @@
         [pb declareTypes:@[NSStringPboardType] owner:nil];
         [pb setString:[NSString stringWithString:textBuf] forType:NSStringPboardType];
     }
+}
+
+
+- (NSMenu *)menuForEvent:(NSEvent *)event
+{
+    NSLog(@"Menu Event.");
+//    NSInteger rightClickedRow = 10; //[self rowAtPoint:[self convertPoint:[event locationInWindow] fromView:nil]];
+    
+    NSMenu *menu = [[NSMenu alloc] init];
+    [menu addItem:[[NSMenuItem alloc] initWithTitle:@"Entity Info" action:@selector(getInfoAction) keyEquivalent:@"I"]];
+    
+    return menu;
 }
 
 @end

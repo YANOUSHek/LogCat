@@ -31,6 +31,7 @@
 - (void) loadPid;
 - (void) parsePID: (NSString*) pidInfo;
 - (BOOL)isInteger:(NSString *)toCheck;
+- (void) copySelectedRow: (BOOL) escapeSpecialChars;
 @end
 
 @implementation LogCatAppDelegate
@@ -171,8 +172,6 @@
 }
 
 - (void) parsePID: (NSString*) pidInfo {
-    NSLog(@"TODO: parse: \n%@", pidInfo);
-    
     Boolean isFirstLine = YES;
     
     NSArray* lines = [pidInfo componentsSeparatedByString:@"\n"];
@@ -491,6 +490,7 @@
     }
 }
 
+
 - (NSCell *)tableView:(NSTableView *)tableView dataCellForTableColumn:(NSTableColumn *)tableColumn row:(NSInteger)rowIndex {
     if ([[tableView identifier] isEqualToString:@"filters"]) {
         return [tableColumn dataCell];
@@ -668,6 +668,66 @@
     [tfFilterName setStringValue:@""];
     [puFilterField selectItemAtIndex:0];
     [tfFilterText setStringValue:@""];
+}
+
+- (void) copy:(id)sender {
+    NSLog(@"Copy Selected Rows");
+    [self copySelectedRow: NO];
+}
+
+- (void) copySelectedRow: (BOOL) escapeSpecialChars {
+    
+    int selectedRow = (int)[table selectedRow]-1;
+    int	numberOfRows = (int)[table numberOfRows];
+    
+    NSLog(@"Selected Row: %d, Total Rows: %d", selectedRow, numberOfRows);
+    
+    NSIndexSet* indexSet = [table selectedRowIndexes];
+    if (indexSet != nil && [indexSet firstIndex] != NSNotFound) {
+        NSPasteboard	*pb = [NSPasteboard generalPasteboard];
+        NSMutableString *tabsBuf = [NSMutableString string];
+        NSMutableString *textBuf = [NSMutableString string];
+        
+        // Step through and copy data from each of the selected rows
+        NSUInteger currentIndex = [indexSet firstIndex];
+        
+        while (currentIndex != NSNotFound) {
+            NSDictionary* rowDetails = nil;
+            
+            NSMutableString* rowType = [NSMutableString string];
+            if ([searchString length] > 0) {
+                rowDetails = [search objectAtIndex:currentIndex];
+            } else if (filtered != nil) {
+                rowDetails = [filtered objectAtIndex:currentIndex];
+            } else {
+                rowDetails = [logcat objectAtIndex:currentIndex];
+            }
+            
+            [rowType appendFormat:@"%@\t%@\t%@\t%@\t%@\t%@",
+                     [rowDetails objectForKey:KEY_TIME],
+                     [rowDetails objectForKey:KEY_APP],
+                     [rowDetails objectForKey:KEY_PID],
+                     [rowDetails objectForKey:KEY_TYPE],
+                     [rowDetails objectForKey:KEY_NAME],
+                     [rowDetails objectForKey:KEY_TEXT]];
+            
+            NSString* value = rowType;
+            value = [[value stringByReplacingOccurrencesOfString:@"\n" withString:@" "] stringByReplacingOccurrencesOfString:@"\r" withString:@" "];
+
+            
+            [textBuf appendFormat:@"%@\n", value];
+            [tabsBuf appendFormat:@"%@\n", value];
+            // delete the last tab. (But don't delete the last CR)
+            if ([tabsBuf length]) {
+                [tabsBuf deleteCharactersInRange:NSMakeRange([tabsBuf length]-1, 1)];
+            }
+            
+            // Next Index
+            currentIndex = [indexSet indexGreaterThanIndex: currentIndex];
+        }
+        [pb declareTypes:@[NSStringPboardType] owner:nil];
+        [pb setString:[NSString stringWithString:textBuf] forType:NSStringPboardType];
+    }
 }
 
 @end

@@ -50,7 +50,7 @@
 				<string key="NSWindowRect">{{196, 240}, {312, 158}}</string>
 				<int key="NSWTFlags">1618478080</int>
 				<string key="NSWindowTitle">Window</string>
-				<string key="NSWindowClass">NSWindow</string>
+				<string key="NSWindowClass">FilterSheet</string>
 				<nil key="NSViewClass"/>
 				<nil key="NSUserInterfaceItemIdentifier"/>
 				<object class="NSView" key="NSWindowView" id="1006">
@@ -63,6 +63,7 @@
 							<int key="NSvFlags">268</int>
 							<string key="NSFrame">{{17, 118}, {79, 17}}</string>
 							<reference key="NSSuperview" ref="1006"/>
+							<reference key="NSWindow"/>
 							<reference key="NSNextKeyView" ref="254087587"/>
 							<string key="NSReuseIdentifierKey">_NS:3944</string>
 							<bool key="NSEnabled">YES</bool>
@@ -103,6 +104,7 @@
 							<int key="NSvFlags">268</int>
 							<string key="NSFrame">{{101, 116}, {191, 22}}</string>
 							<reference key="NSSuperview" ref="1006"/>
+							<reference key="NSWindow"/>
 							<reference key="NSNextKeyView" ref="177561883"/>
 							<string key="NSReuseIdentifierKey">_NS:903</string>
 							<bool key="NSEnabled">YES</bool>
@@ -137,6 +139,7 @@
 							<int key="NSvFlags">268</int>
 							<string key="NSFrame">{{101, 48}, {191, 22}}</string>
 							<reference key="NSSuperview" ref="1006"/>
+							<reference key="NSWindow"/>
 							<reference key="NSNextKeyView" ref="174640884"/>
 							<string key="NSReuseIdentifierKey">_NS:903</string>
 							<bool key="NSEnabled">YES</bool>
@@ -158,6 +161,7 @@
 							<int key="NSvFlags">268</int>
 							<string key="NSFrame">{{36, 81}, {60, 17}}</string>
 							<reference key="NSSuperview" ref="1006"/>
+							<reference key="NSWindow"/>
 							<reference key="NSNextKeyView" ref="703093459"/>
 							<string key="NSReuseIdentifierKey">_NS:3944</string>
 							<bool key="NSEnabled">YES</bool>
@@ -178,6 +182,7 @@
 							<int key="NSvFlags">268</int>
 							<string key="NSFrame">{{98, 75}, {197, 26}}</string>
 							<reference key="NSSuperview" ref="1006"/>
+							<reference key="NSWindow"/>
 							<reference key="NSNextKeyView" ref="957178977"/>
 							<string key="NSReuseIdentifierKey">_NS:868</string>
 							<bool key="NSEnabled">YES</bool>
@@ -193,18 +198,17 @@
 								<string key="NSKeyEquivalent"/>
 								<int key="NSPeriodicDelay">400</int>
 								<int key="NSPeriodicInterval">75</int>
-								<object class="NSMenuItem" key="NSMenuItem" id="860545578">
+								<object class="NSMenuItem" key="NSMenuItem" id="1000575612">
 									<reference key="NSMenu" ref="214500686"/>
-									<string key="NSTitle">TID</string>
+									<string key="NSTitle">APP</string>
 									<string key="NSKeyEquiv"/>
-									<int key="NSKeyEquivModMask">1048576</int>
 									<int key="NSMnemonicLoc">2147483647</int>
 									<int key="NSState">1</int>
-									<object class="NSCustomResource" key="NSOnImage" id="567016307">
+									<object class="NSCustomResource" key="NSOnImage" id="728161779">
 										<string key="NSClassName">NSImage</string>
 										<string key="NSResourceName">NSMenuCheckmark</string>
 									</object>
-									<object class="NSCustomResource" key="NSMixedImage" id="1032714804">
+									<object class="NSCustomResource" key="NSMixedImage" id="614548598">
 										<string key="NSClassName">NSImage</string>
 										<string key="NSResourceName">NSMenuMixedState</string>
 									</object>
@@ -222,28 +226,19 @@
 											<string key="NSKeyEquiv"/>
 											<int key="NSKeyEquivModMask">1048576</int>
 											<int key="NSMnemonicLoc">2147483647</int>
-											<reference key="NSOnImage" ref="567016307"/>
-											<reference key="NSMixedImage" ref="1032714804"/>
+											<reference key="NSOnImage" ref="728161779"/>
+											<reference key="NSMixedImage" ref="614548598"/>
 											<string key="NSAction">_popUpItemAction:</string>
 											<reference key="NSTarget" ref="249924958"/>
 										</object>
-										<object class="NSMenuItem" id="1000575612">
-											<reference key="NSMenu" ref="214500686"/>
-											<string key="NSTitle">APP</string>
-											<string key="NSKeyEquiv"/>
-											<int key="NSMnemonicLoc">2147483647</int>
-											<reference key="NSOnImage" ref="567016307"/>
-											<reference key="NSMixedImage" ref="1032714804"/>
-											<string key="NSAction">_popUpItemAction:</string>
-											<reference key="NSTarget" ref="249924958"/>
-										</object>
+										<reference ref="1000575612"/>
 										<object class="NSMenuItem" id="463212510">
 											<reference key="NSMenu" ref="214500686"/>
 											<string key="NSTitle">Type</string>
 											<string key="NSKeyEquiv"/>
 											<int key="NSMnemonicLoc">2147483647</int>
-											<reference key="NSOnImage" ref="567016307"/>
-											<reference key="NSMixedImage" ref="1032714804"/>
+											<reference key="NSOnImage" ref="728161779"/>
+											<reference key="NSMixedImage" ref="614548598"/>
 											<string key="NSAction">_popUpItemAction:</string>
 											<reference key="NSTarget" ref="249924958"/>
 										</object>
@@ -253,8 +248,8 @@
 											<string key="NSKeyEquiv"/>
 											<int key="NSKeyEquivModMask">1048576</int>
 											<int key="NSMnemonicLoc">2147483647</int>
-											<reference key="NSOnImage" ref="567016307"/>
-											<reference key="NSMixedImage" ref="1032714804"/>
+											<reference key="NSOnImage" ref="728161779"/>
+											<reference key="NSMixedImage" ref="614548598"/>
 											<string key="NSAction">_popUpItemAction:</string>
 											<reference key="NSTarget" ref="249924958"/>
 										</object>
@@ -264,16 +259,26 @@
 											<string key="NSKeyEquiv"/>
 											<int key="NSKeyEquivModMask">1048576</int>
 											<int key="NSMnemonicLoc">2147483647</int>
-											<reference key="NSOnImage" ref="567016307"/>
-											<reference key="NSMixedImage" ref="1032714804"/>
+											<reference key="NSOnImage" ref="728161779"/>
+											<reference key="NSMixedImage" ref="614548598"/>
 											<string key="NSAction">_popUpItemAction:</string>
 											<reference key="NSTarget" ref="249924958"/>
 										</object>
-										<reference ref="860545578"/>
+										<object class="NSMenuItem" id="945639014">
+											<reference key="NSMenu" ref="214500686"/>
+											<string key="NSTitle">TID</string>
+											<string key="NSKeyEquiv"/>
+											<int key="NSKeyEquivModMask">1048576</int>
+											<int key="NSMnemonicLoc">2147483647</int>
+											<reference key="NSOnImage" ref="728161779"/>
+											<reference key="NSMixedImage" ref="614548598"/>
+											<string key="NSAction">_popUpItemAction:</string>
+											<reference key="NSTarget" ref="249924958"/>
+										</object>
 									</object>
 									<reference key="NSMenuFont" ref="1061075745"/>
 								</object>
-								<int key="NSSelectedIndex">5</int>
+								<int key="NSSelectedIndex">1</int>
 								<int key="NSPreferredEdge">1</int>
 								<bool key="NSUsesItemFromMenu">YES</bool>
 								<bool key="NSAltersState">YES</bool>
@@ -286,6 +291,7 @@
 							<int key="NSvFlags">12</int>
 							<string key="NSFrame">{{20, 105}, {272, 5}}</string>
 							<reference key="NSSuperview" ref="1006"/>
+							<reference key="NSWindow"/>
 							<reference key="NSNextKeyView" ref="187577977"/>
 							<string key="NSReuseIdentifierKey">_NS:2411</string>
 							<string key="NSOffsets">{0, 0}</string>
@@ -310,6 +316,7 @@
 							<int key="NSvFlags">268</int>
 							<string key="NSFrame">{{26, 50}, {70, 17}}</string>
 							<reference key="NSSuperview" ref="1006"/>
+							<reference key="NSWindow"/>
 							<reference key="NSNextKeyView" ref="641810440"/>
 							<string key="NSReuseIdentifierKey">_NS:3944</string>
 							<bool key="NSEnabled">YES</bool>
@@ -330,6 +337,7 @@
 							<int key="NSvFlags">268</int>
 							<string key="NSFrame">{{216, 12}, {82, 32}}</string>
 							<reference key="NSSuperview" ref="1006"/>
+							<reference key="NSWindow"/>
 							<string key="NSReuseIdentifierKey">_NS:687</string>
 							<bool key="NSEnabled">YES</bool>
 							<object class="NSButtonCell" key="NSCell" id="827442761">
@@ -353,6 +361,7 @@
 							<int key="NSvFlags">268</int>
 							<string key="NSFrame">{{134, 12}, {82, 32}}</string>
 							<reference key="NSSuperview" ref="1006"/>
+							<reference key="NSWindow"/>
 							<reference key="NSNextKeyView" ref="1055995569"/>
 							<string key="NSReuseIdentifierKey">_NS:687</string>
 							<bool key="NSEnabled">YES</bool>
@@ -375,6 +384,7 @@
 					</object>
 					<string key="NSFrameSize">{312, 158}</string>
 					<reference key="NSSuperview"/>
+					<reference key="NSWindow"/>
 					<reference key="NSNextKeyView" ref="64327209"/>
 				</object>
 				<string key="NSScreenRect">{{0, 0}, {1440, 878}}</string>
@@ -432,6 +442,30 @@
 						<reference key="destination" ref="641810440"/>
 					</object>
 					<int key="connectionID">31</int>
+				</object>
+				<object class="IBConnectionRecord">
+					<object class="IBOutletConnection" key="connection">
+						<string key="label">filterName</string>
+						<reference key="source" ref="1005"/>
+						<reference key="destination" ref="254087587"/>
+					</object>
+					<int key="connectionID">35</int>
+				</object>
+				<object class="IBConnectionRecord">
+					<object class="IBOutletConnection" key="connection">
+						<string key="label">filterType</string>
+						<reference key="source" ref="1005"/>
+						<reference key="destination" ref="703093459"/>
+					</object>
+					<int key="connectionID">36</int>
+				</object>
+				<object class="IBConnectionRecord">
+					<object class="IBOutletConnection" key="connection">
+						<string key="label">filterCriteria</string>
+						<reference key="source" ref="1005"/>
+						<reference key="destination" ref="641810440"/>
+					</object>
+					<int key="connectionID">37</int>
 				</object>
 			</object>
 			<object class="IBMutableOrderedSet" key="objectRecords">
@@ -573,7 +607,7 @@
 							<reference ref="357651103"/>
 							<reference ref="463212510"/>
 							<reference ref="1000575612"/>
-							<reference ref="860545578"/>
+							<reference ref="945639014"/>
 						</object>
 						<reference key="parent" ref="249924958"/>
 					</object>
@@ -651,7 +685,7 @@
 					</object>
 					<object class="IBObjectRecord">
 						<int key="objectID">34</int>
-						<reference key="object" ref="860545578"/>
+						<reference key="object" ref="945639014"/>
 						<reference key="parent" ref="214500686"/>
 					</object>
 				</object>
@@ -739,9 +773,245 @@
 				<reference key="dict.values" ref="1002"/>
 			</object>
 			<nil key="sourceID"/>
-			<int key="maxID">34</int>
+			<int key="maxID">37</int>
 		</object>
-		<object class="IBClassDescriber" key="IBDocument.Classes"/>
+		<object class="IBClassDescriber" key="IBDocument.Classes">
+			<object class="NSMutableArray" key="referencedPartialClassDescriptions">
+				<bool key="EncodedWithXMLCoder">YES</bool>
+				<object class="IBPartialClassDescription">
+					<string key="className">FilterSheet</string>
+					<string key="superclassName">NSWindow</string>
+					<object class="NSMutableDictionary" key="outlets">
+						<bool key="EncodedWithXMLCoder">YES</bool>
+						<object class="NSArray" key="dict.sortedKeys">
+							<bool key="EncodedWithXMLCoder">YES</bool>
+							<string>filterCriteria</string>
+							<string>filterName</string>
+							<string>filterType</string>
+						</object>
+						<object class="NSArray" key="dict.values">
+							<bool key="EncodedWithXMLCoder">YES</bool>
+							<string>NSTextField</string>
+							<string>NSTextField</string>
+							<string>NSPopUpButton</string>
+						</object>
+					</object>
+					<object class="NSMutableDictionary" key="toOneOutletInfosByName">
+						<bool key="EncodedWithXMLCoder">YES</bool>
+						<object class="NSArray" key="dict.sortedKeys">
+							<bool key="EncodedWithXMLCoder">YES</bool>
+							<string>filterCriteria</string>
+							<string>filterName</string>
+							<string>filterType</string>
+						</object>
+						<object class="NSArray" key="dict.values">
+							<bool key="EncodedWithXMLCoder">YES</bool>
+							<object class="IBToOneOutletInfo">
+								<string key="name">filterCriteria</string>
+								<string key="candidateClassName">NSTextField</string>
+							</object>
+							<object class="IBToOneOutletInfo">
+								<string key="name">filterName</string>
+								<string key="candidateClassName">NSTextField</string>
+							</object>
+							<object class="IBToOneOutletInfo">
+								<string key="name">filterType</string>
+								<string key="candidateClassName">NSPopUpButton</string>
+							</object>
+						</object>
+					</object>
+					<object class="IBClassDescriptionSource" key="sourceIdentifier">
+						<string key="majorKey">IBProjectSource</string>
+						<string key="minorKey">./Classes/FilterSheet.h</string>
+					</object>
+				</object>
+				<object class="IBPartialClassDescription">
+					<string key="className">LogCatAppDelegate</string>
+					<string key="superclassName">NSObject</string>
+					<object class="NSMutableDictionary" key="actions">
+						<bool key="EncodedWithXMLCoder">YES</bool>
+						<object class="NSArray" key="dict.sortedKeys">
+							<bool key="EncodedWithXMLCoder">YES</bool>
+							<string>acceptSheet:</string>
+							<string>cancelSheet:</string>
+							<string>clearLog:</string>
+							<string>copyMessageOnly:</string>
+							<string>copyPlain:</string>
+							<string>filterBySelected:</string>
+							<string>filterToolbarClicked:</string>
+							<string>preferences:</string>
+							<string>restartAdb:</string>
+							<string>search:</string>
+						</object>
+						<object class="NSArray" key="dict.values">
+							<bool key="EncodedWithXMLCoder">YES</bool>
+							<string>id</string>
+							<string>id</string>
+							<string>id</string>
+							<string>id</string>
+							<string>id</string>
+							<string>id</string>
+							<string>NSSegmentedControl</string>
+							<string>id</string>
+							<string>id</string>
+							<string>id</string>
+						</object>
+					</object>
+					<object class="NSMutableDictionary" key="actionInfosByName">
+						<bool key="EncodedWithXMLCoder">YES</bool>
+						<object class="NSArray" key="dict.sortedKeys">
+							<bool key="EncodedWithXMLCoder">YES</bool>
+							<string>acceptSheet:</string>
+							<string>cancelSheet:</string>
+							<string>clearLog:</string>
+							<string>copyMessageOnly:</string>
+							<string>copyPlain:</string>
+							<string>filterBySelected:</string>
+							<string>filterToolbarClicked:</string>
+							<string>preferences:</string>
+							<string>restartAdb:</string>
+							<string>search:</string>
+						</object>
+						<object class="NSArray" key="dict.values">
+							<bool key="EncodedWithXMLCoder">YES</bool>
+							<object class="IBActionInfo">
+								<string key="name">acceptSheet:</string>
+								<string key="candidateClassName">id</string>
+							</object>
+							<object class="IBActionInfo">
+								<string key="name">cancelSheet:</string>
+								<string key="candidateClassName">id</string>
+							</object>
+							<object class="IBActionInfo">
+								<string key="name">clearLog:</string>
+								<string key="candidateClassName">id</string>
+							</object>
+							<object class="IBActionInfo">
+								<string key="name">copyMessageOnly:</string>
+								<string key="candidateClassName">id</string>
+							</object>
+							<object class="IBActionInfo">
+								<string key="name">copyPlain:</string>
+								<string key="candidateClassName">id</string>
+							</object>
+							<object class="IBActionInfo">
+								<string key="name">filterBySelected:</string>
+								<string key="candidateClassName">id</string>
+							</object>
+							<object class="IBActionInfo">
+								<string key="name">filterToolbarClicked:</string>
+								<string key="candidateClassName">NSSegmentedControl</string>
+							</object>
+							<object class="IBActionInfo">
+								<string key="name">preferences:</string>
+								<string key="candidateClassName">id</string>
+							</object>
+							<object class="IBActionInfo">
+								<string key="name">restartAdb:</string>
+								<string key="candidateClassName">id</string>
+							</object>
+							<object class="IBActionInfo">
+								<string key="name">search:</string>
+								<string key="candidateClassName">id</string>
+							</object>
+						</object>
+					</object>
+					<object class="NSMutableDictionary" key="outlets">
+						<bool key="EncodedWithXMLCoder">YES</bool>
+						<object class="NSArray" key="dict.sortedKeys">
+							<bool key="EncodedWithXMLCoder">YES</bool>
+							<string>filterList</string>
+							<string>filterToolbar</string>
+							<string>puFilterField</string>
+							<string>restartAdb</string>
+							<string>sheetAddFilter</string>
+							<string>table</string>
+							<string>tfFilterName</string>
+							<string>tfFilterText</string>
+							<string>window</string>
+						</object>
+						<object class="NSArray" key="dict.values">
+							<bool key="EncodedWithXMLCoder">YES</bool>
+							<string>NSTableView</string>
+							<string>NSSegmentedControl</string>
+							<string>NSPopUpButton</string>
+							<string>NSButton</string>
+							<string>FilterSheet</string>
+							<string>SelectableTableView</string>
+							<string>NSTextField</string>
+							<string>NSTextField</string>
+							<string>NSWindow</string>
+						</object>
+					</object>
+					<object class="NSMutableDictionary" key="toOneOutletInfosByName">
+						<bool key="EncodedWithXMLCoder">YES</bool>
+						<object class="NSArray" key="dict.sortedKeys">
+							<bool key="EncodedWithXMLCoder">YES</bool>
+							<string>filterList</string>
+							<string>filterToolbar</string>
+							<string>puFilterField</string>
+							<string>restartAdb</string>
+							<string>sheetAddFilter</string>
+							<string>table</string>
+							<string>tfFilterName</string>
+							<string>tfFilterText</string>
+							<string>window</string>
+						</object>
+						<object class="NSArray" key="dict.values">
+							<bool key="EncodedWithXMLCoder">YES</bool>
+							<object class="IBToOneOutletInfo">
+								<string key="name">filterList</string>
+								<string key="candidateClassName">NSTableView</string>
+							</object>
+							<object class="IBToOneOutletInfo">
+								<string key="name">filterToolbar</string>
+								<string key="candidateClassName">NSSegmentedControl</string>
+							</object>
+							<object class="IBToOneOutletInfo">
+								<string key="name">puFilterField</string>
+								<string key="candidateClassName">NSPopUpButton</string>
+							</object>
+							<object class="IBToOneOutletInfo">
+								<string key="name">restartAdb</string>
+								<string key="candidateClassName">NSButton</string>
+							</object>
+							<object class="IBToOneOutletInfo">
+								<string key="name">sheetAddFilter</string>
+								<string key="candidateClassName">FilterSheet</string>
+							</object>
+							<object class="IBToOneOutletInfo">
+								<string key="name">table</string>
+								<string key="candidateClassName">SelectableTableView</string>
+							</object>
+							<object class="IBToOneOutletInfo">
+								<string key="name">tfFilterName</string>
+								<string key="candidateClassName">NSTextField</string>
+							</object>
+							<object class="IBToOneOutletInfo">
+								<string key="name">tfFilterText</string>
+								<string key="candidateClassName">NSTextField</string>
+							</object>
+							<object class="IBToOneOutletInfo">
+								<string key="name">window</string>
+								<string key="candidateClassName">NSWindow</string>
+							</object>
+						</object>
+					</object>
+					<object class="IBClassDescriptionSource" key="sourceIdentifier">
+						<string key="majorKey">IBProjectSource</string>
+						<string key="minorKey">./Classes/LogCatAppDelegate.h</string>
+					</object>
+				</object>
+				<object class="IBPartialClassDescription">
+					<string key="className">SelectableTableView</string>
+					<string key="superclassName">NSTableView</string>
+					<object class="IBClassDescriptionSource" key="sourceIdentifier">
+						<string key="majorKey">IBProjectSource</string>
+						<string key="minorKey">./Classes/SelectableTableView.h</string>
+					</object>
+				</object>
+			</object>
+		</object>
 		<int key="IBDocument.localizationMode">0</int>
 		<string key="IBDocument.TargetRuntimeIdentifier">IBCocoaFramework</string>
 		<object class="NSMutableDictionary" key="IBDocument.PluginDeclaredDevelopmentDependencies">

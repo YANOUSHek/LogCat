@@ -905,7 +905,7 @@
 											<string key="NSFrameSize">{490, 284}</string>
 											<reference key="NSSuperview" ref="928530079"/>
 											<reference key="NSWindow"/>
-											<reference key="NSNextKeyView" ref="118326408"/>
+											<reference key="NSNextKeyView" ref="175096873"/>
 											<string key="NSReuseIdentifierKey">_NS:1828</string>
 											<bool key="NSEnabled">YES</bool>
 											<bool key="NSAllowsLogicalLayoutDirection">NO</bool>
@@ -1177,7 +1177,6 @@
 									<string key="NSFrame">{{1, 285}, {447, 16}}</string>
 									<reference key="NSSuperview" ref="675400260"/>
 									<reference key="NSWindow"/>
-									<reference key="NSNextKeyView"/>
 									<string key="NSReuseIdentifierKey">_NS:1847</string>
 									<bool key="NSEnabled">YES</bool>
 									<bool key="NSAllowsLogicalLayoutDirection">NO</bool>
@@ -1204,7 +1203,7 @@
 							<string key="NSFrame">{{152, -1}, {449, 302}}</string>
 							<reference key="NSSuperview" ref="439893737"/>
 							<reference key="NSWindow"/>
-							<reference key="NSNextKeyView" ref="175096873"/>
+							<reference key="NSNextKeyView" ref="928530079"/>
 							<string key="NSReuseIdentifierKey">_NS:1824</string>
 							<int key="NSsFlags">133810</int>
 							<reference key="NSVScroller" ref="118326408"/>
@@ -2199,6 +2198,33 @@
 		<object class="IBClassDescriber" key="IBDocument.Classes">
 			<array class="NSMutableArray" key="referencedPartialClassDescriptions">
 				<object class="IBPartialClassDescription">
+					<string key="className">FilterSheet</string>
+					<string key="superclassName">NSWindow</string>
+					<dictionary class="NSMutableDictionary" key="outlets">
+						<string key="filterCriteria">NSTextField</string>
+						<string key="filterName">NSTextField</string>
+						<string key="filterType">NSPopUpButton</string>
+					</dictionary>
+					<dictionary class="NSMutableDictionary" key="toOneOutletInfosByName">
+						<object class="IBToOneOutletInfo" key="filterCriteria">
+							<string key="name">filterCriteria</string>
+							<string key="candidateClassName">NSTextField</string>
+						</object>
+						<object class="IBToOneOutletInfo" key="filterName">
+							<string key="name">filterName</string>
+							<string key="candidateClassName">NSTextField</string>
+						</object>
+						<object class="IBToOneOutletInfo" key="filterType">
+							<string key="name">filterType</string>
+							<string key="candidateClassName">NSPopUpButton</string>
+						</object>
+					</dictionary>
+					<object class="IBClassDescriptionSource" key="sourceIdentifier">
+						<string key="majorKey">IBProjectSource</string>
+						<string key="minorKey">./Classes/FilterSheet.h</string>
+					</object>
+				</object>
+				<object class="IBPartialClassDescription">
 					<string key="className">LogCatAppDelegate</string>
 					<string key="superclassName">NSObject</string>
 					<dictionary class="NSMutableDictionary" key="actions">
@@ -2245,8 +2271,8 @@
 						<string key="filterToolbar">NSSegmentedControl</string>
 						<string key="puFilterField">NSPopUpButton</string>
 						<string key="restartAdb">NSButton</string>
-						<string key="sheetAddFilter">NSWindow</string>
-						<string key="table">NSTableView</string>
+						<string key="sheetAddFilter">FilterSheet</string>
+						<string key="table">SelectableTableView</string>
 						<string key="tfFilterName">NSTextField</string>
 						<string key="tfFilterText">NSTextField</string>
 						<string key="window">NSWindow</string>
@@ -2270,11 +2296,11 @@
 						</object>
 						<object class="IBToOneOutletInfo" key="sheetAddFilter">
 							<string key="name">sheetAddFilter</string>
-							<string key="candidateClassName">NSWindow</string>
+							<string key="candidateClassName">FilterSheet</string>
 						</object>
 						<object class="IBToOneOutletInfo" key="table">
 							<string key="name">table</string>
-							<string key="candidateClassName">NSTableView</string>
+							<string key="candidateClassName">SelectableTableView</string>
 						</object>
 						<object class="IBToOneOutletInfo" key="tfFilterName">
 							<string key="name">tfFilterName</string>

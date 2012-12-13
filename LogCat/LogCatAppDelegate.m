@@ -8,6 +8,8 @@
 
 #import "LogCatAppDelegate.h"
 #import "LogCatPreferences.h"
+#import "SelectableTableView.h"
+#import "MenuDelegate.h"
 
 #define KEY_TIME @"time"
 #define KEY_APP @"app"
@@ -33,6 +35,7 @@
 - (void) parsePID: (NSString*) pidInfo;
 - (BOOL)isInteger:(NSString *)toCheck;
 - (void) copySelectedRow: (BOOL) escapeSpecialChars;
+- (NSDictionary*) dataForRow: (NSUInteger) rowIndex;
 @end
 
 @implementation LogCatAppDelegate
@@ -112,6 +115,8 @@
 
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification
 {
+    [table setMenuDelegate:self];
+    
     pidMap = [NSMutableDictionary dictionary];
     [self registerDefaults];
     isRunning = NO;
@@ -185,9 +190,6 @@
         } else if ([args count] < 4) {
             
         } else {
-            
-            // TODO scan header for PID and NAME to get proper indexes
-            //            NSLog(@"ARGS2: %@", args);
             
             NSString* aPid = @"";
             // find first integer and call that PID
@@ -596,6 +598,11 @@
     }
     [tfFilterName becomeFirstResponder];
     
+    [[sheetAddFilter filterName] setStringValue:@""];
+    [[sheetAddFilter filterCriteria]  setStringValue:@""];
+    
+    
+    
     [NSApp beginSheet:sheetAddFilter modalForWindow:self.window modalDelegate:self didEndSelector:@selector(didEndSheet:returnCode:contextInfo:) contextInfo:nil];
 }
 
@@ -680,25 +687,72 @@
 
 - (IBAction)copyPlain:(id)sender {
     NSLog(@"copyPlain");
-    [self copySelectedRow:NO];
+    [self copySelectedRow:NO: NO];
 }
 
 - (IBAction)copyMessageOnly:(id)sender {
     NSLog(@"copyMessageOnly");
-    [self copySelectedRow:NO];
+    [self copySelectedRow:NO: YES];
+    
 }
 
 - (IBAction)filterBySelected:(id)sender {
     
-    NSLog(@"filterBySelected: %ld, %ld [%@]", [table clickedColumn], [table clickedRow], sender);
+    NSLog(@"filterBySelected: %ld, %ld [%@]", [table rightClickedColumn], [table rightClickedRow], sender);
+    if (sheetAddFilter == nil) {
+        [NSBundle loadNibNamed:@"Sheet" owner:self];
+    }
+    NSTableColumn* aColumn = [[table tableColumns] objectAtIndex:[table rightClickedColumn]];
+    //NSCell *aCell = [aColumn dataCellForRow:[table rightClickedRow]];
+    
+    [tfFilterName becomeFirstResponder];
+    NSDictionary* rowDetails = [self dataForRow: [table rightClickedRow]];
+    
+    NSString* columnName = [[aColumn headerCell] title];
+    NSLog(@"ColumnName: %@", columnName);
+    NSString* value = [rowDetails valueForKey:[aColumn identifier]];
+    [[sheetAddFilter filterName] setStringValue:[NSString stringWithFormat:@"%@_%@", columnName, value]];
+    [sheetAddFilter selectItemWithTitie:[aColumn identifier]];
+    [[sheetAddFilter filterCriteria]  setStringValue:value];
+    
+    [NSApp beginSheet:sheetAddFilter modalForWindow:self.window modalDelegate:self didEndSelector:@selector(didEndSheet:returnCode:contextInfo:) contextInfo:nil];
+
+}
+
+- (NSMenu*) menuForTableView: (NSTableView*) tableView column:(NSInteger) column row:(NSInteger) row {
+    
+    NSMenu *menu = [[NSMenu alloc] init];
+    if ([table selectedRow] > 0) {
+        [menu addItem:[[NSMenuItem alloc] initWithTitle:@"Copy" action:@selector(copy:) keyEquivalent:@"C"]];
+        [menu addItem:[[NSMenuItem alloc] initWithTitle:@"Copy Message" action:@selector(copyMessageOnly:) keyEquivalent:@""]];
+    }
+    
+    if (column != 0) {
+                [menu addItem:[[NSMenuItem alloc] initWithTitle:@"Add Filter..." action:@selector(filterBySelected:) keyEquivalent:@""]];
+    }
+    return menu;
+}
+
+- (NSDictionary*) dataForRow: (NSUInteger) rowIndex {
+    NSDictionary* rowDetails = nil;
+    
+    if ([searchString length] > 0) {
+        rowDetails = [search objectAtIndex:rowIndex];
+    } else if (filtered != nil) {
+        rowDetails = [filtered objectAtIndex:rowIndex];
+    } else {
+        rowDetails = [logcat objectAtIndex:rowIndex];
+    }
+    
+    return rowDetails;
 }
 
 - (void) copy:(id)sender {
     NSLog(@"Copy Selected Rows");
-    [self copySelectedRow: NO];
+    [self copySelectedRow: NO: NO];
 }
 
-- (void) copySelectedRow: (BOOL) escapeSpecialChars {
+- (void) copySelectedRow: (BOOL) escapeSpecialChars :(BOOL) messageOnly{
     
     int selectedRow = (int)[table selectedRow]-1;
     int	numberOfRows = (int)[table numberOfRows];
@@ -718,22 +772,22 @@
             NSDictionary* rowDetails = nil;
             
             NSMutableString* rowType = [NSMutableString string];
-            if ([searchString length] > 0) {
-                rowDetails = [search objectAtIndex:currentIndex];
-            } else if (filtered != nil) {
-                rowDetails = [filtered objectAtIndex:currentIndex];
-            } else {
-                rowDetails = [logcat objectAtIndex:currentIndex];
-            }
+            rowDetails = [self dataForRow: currentIndex];
             
-            [rowType appendFormat:@"%@\t%@\t%@\t%@\t%@\t%@\t%@",
-                     [rowDetails objectForKey:KEY_TIME],
-                     [rowDetails objectForKey:KEY_APP],
-                     [rowDetails objectForKey:KEY_PID],
-                     [rowDetails objectForKey:KEY_TID],
-                     [rowDetails objectForKey:KEY_TYPE],
-                     [rowDetails objectForKey:KEY_NAME],
-                     [rowDetails objectForKey:KEY_TEXT]];
+            if (messageOnly) {
+                [rowType appendFormat:@"%@",
+                         [rowDetails objectForKey:KEY_TEXT]];
+                
+            } else {
+                [rowType appendFormat:@"%@\t%@\t%@\t%@\t%@\t%@\t%@",
+                 [rowDetails objectForKey:KEY_TIME],
+                 [rowDetails objectForKey:KEY_APP],
+                 [rowDetails objectForKey:KEY_PID],
+                 [rowDetails objectForKey:KEY_TID],
+                 [rowDetails objectForKey:KEY_TYPE],
+                 [rowDetails objectForKey:KEY_NAME],
+                 [rowDetails objectForKey:KEY_TEXT]];
+            }
             
             NSString* value = rowType;
             value = [[value stringByReplacingOccurrencesOfString:@"\n" withString:@" "] stringByReplacingOccurrencesOfString:@"\r" withString:@" "];
@@ -755,15 +809,5 @@
 }
 
 
-- (NSMenu *)menuForEvent:(NSEvent *)event
-{
-    NSLog(@"Menu Event.");
-//    NSInteger rightClickedRow = 10; //[self rowAtPoint:[self convertPoint:[event locationInWindow] fromView:nil]];
-    
-    NSMenu *menu = [[NSMenu alloc] init];
-    [menu addItem:[[NSMenuItem alloc] initWithTitle:@"Entity Info" action:@selector(getInfoAction) keyEquivalent:@"I"]];
-    
-    return menu;
-}
 
 @end

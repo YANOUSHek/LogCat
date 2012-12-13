@@ -7,9 +7,13 @@
 //
 
 #import <Cocoa/Cocoa.h>
-#import "SelectableTableView.h"
+#import "MenuDelegate.h"
+#import "FilterSheet.h"
 
-@interface LogCatAppDelegate : NSObject <NSApplicationDelegate> {
+@class SelectableTableView;
+
+
+@interface LogCatAppDelegate : NSObject <NSApplicationDelegate, MenuDelegate> {
     NSString* previousString;
     NSMutableArray* logcat;
     NSMutableArray* filtered;
@@ -27,7 +31,7 @@
     NSMutableString* text;
     
     NSMutableArray* filters;
-    IBOutlet NSWindow *sheetAddFilter;
+    IBOutlet FilterSheet *sheetAddFilter;
     IBOutlet NSTextField *tfFilterName;
     IBOutlet NSPopUpButton *puFilterField;
     IBOutlet NSTextField *tfFilterText;

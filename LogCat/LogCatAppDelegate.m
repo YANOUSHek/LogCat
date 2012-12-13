@@ -631,6 +631,17 @@
 
 - (IBAction)clearLog:(id)sender 
 {
+    [self clearLog];
+}
+
+- (IBAction)restartAdb:(id)sender
+{
+    [self clearLog];
+    [self startAdb];
+}
+
+- (void)clearLog
+{
     logcat = [NSMutableArray new];
     if (filtered != nil) {
         filtered = [NSMutableArray new];
@@ -639,12 +650,6 @@
         search = [NSMutableArray new];
     }
     [self.table reloadData];
-}
-
-- (IBAction)restartAdb:(id)sender
-{
-    NSLog(@"restartAdb");
-    [self startAdb];
 }
 
 - (IBAction)filterToolbarClicked:(NSSegmentedControl*)sender 

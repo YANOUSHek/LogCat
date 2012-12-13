@@ -7,8 +7,13 @@
 //
 
 #import <Cocoa/Cocoa.h>
+#import "MenuDelegate.h"
+#import "FilterSheet.h"
 
-@interface LogCatAppDelegate : NSObject <NSApplicationDelegate> {
+@class SelectableTableView;
+
+
+@interface LogCatAppDelegate : NSObject <NSApplicationDelegate, MenuDelegate> {
     NSString* previousString;
     NSMutableArray* logcat;
     NSMutableArray* filtered;
@@ -18,13 +23,15 @@
     NSString* searchString;
     
     NSString* time;
+    NSString* app;
     NSString* pid;
+    NSString* tid;
     NSString* type;
     NSString* name;
     NSMutableString* text;
     
     NSMutableArray* filters;
-    IBOutlet NSWindow *sheetAddFilter;
+    IBOutlet FilterSheet *sheetAddFilter;
     IBOutlet NSTextField *tfFilterName;
     IBOutlet NSPopUpButton *puFilterField;
     IBOutlet NSTextField *tfFilterText;
@@ -33,14 +40,17 @@
     NSDictionary* colors;
     NSDictionary* fonts;
     
+    NSMutableDictionary* pidMap;
+    
     bool isRunning;
 }
 
 - (void)fontsChanged;
 
-@property (assign) IBOutlet NSTableView *filterList;
-@property (assign) IBOutlet NSWindow *window;
-@property (assign) IBOutlet NSTableView *table;
+@property (weak) IBOutlet NSButton *restartAdb;
+@property (weak) IBOutlet NSTableView *filterList;
+@property (weak) IBOutlet NSWindow *window;
+@property (weak) IBOutlet SelectableTableView *table;
 - (IBAction)search:(id)sender;
 - (IBAction)addFilter;
 - (IBAction)removeFilter;
@@ -48,6 +58,7 @@
 - (IBAction)acceptSheet:(id)sender;
 - (IBAction)preferences:(id)sender;
 - (IBAction)clearLog:(id)sender;
+- (IBAction)restartAdb:(id)sender;
 - (IBAction)filterToolbarClicked:(NSSegmentedControl*)sender;
 
 @end

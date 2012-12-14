@@ -636,6 +636,7 @@
 
 - (IBAction)restartAdb:(id)sender
 {
+    [pidMap removeAllObjects];
     [self clearLog];
     [self startAdb];
 }

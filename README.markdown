@@ -38,7 +38,11 @@ Screenshot
 Credits
 -------
 
-Programming: **Janusz Bossy** - [SplashSoftware.pl][splash]
+Programming:
+
+- **Janusz Bossy** - [SplashSoftware.pl][splash]
+- **qhm123** - ([qhm123's GitHub profile][qhmgit])
+- **Chris Wilson** - ([Chris' GitHub profile][cwgit])
 
 Icon design: **Kamil Tatara** - [cakeshop.pl][cake]
 
@@ -67,3 +71,5 @@ a pull request, welcome to the Credits list. That easy!
 [splash]: http://splashsoftware.pl "SplashSoftware Homepage"
 [cake]: http://cakeshop.pl "CakeShop"
 [dggit]: https://github.com/dawidgatti "Dawid's GitHub Profile"
+[cwgit]: https://github.com/yepher "Chris' GitHub profile"
+[qhmgit]: https://github.com/qhm123 "qhm123's GitHub profile"

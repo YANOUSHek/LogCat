@@ -29,6 +29,17 @@ use threads;
 use Thread::Queue;
 use IO::Handle;
 use Time::HiRes;
+use File::Basename;
+
+
+# We need to change the working directory to where
+# the script is. This is how :)
+# Added by Chris.
+use Cwd 'abs_path';
+my $path = abs_path($0);
+$path =~ s/atext//gi;
+chdir($path);
+
 
 #############################
 # Android Const Key Codes
@@ -133,13 +144,13 @@ my $thr = threads->create(sub {
                                 	if ( ord( $char ) <= 32 || ord( $char ) > 126) {
                                 		if (length($buffer) > 0) {
                                 			print "'" . $buffer . "'";
-                                			system("adb shell input text '". $buffer . "'");
+                                			system("./adb shell input text '". $buffer . "'");
                                 			$buffer = "";
                                 		}
 										sendKeyEvent($char);									
 										next;
 									}
-									print "append: ". $char."\n";
+									print "\n\nappend: ". $char."\n";
                                     $buffer .= $char;
                                     
                                 	if ($q->pending() > 0) {
@@ -152,7 +163,7 @@ my $thr = threads->create(sub {
                                 			next;
                                 		}
                                 		print "'" . $buffer . "'";
-	                                	system("adb shell input text '". $buffer . "'");
+	                                	system("./adb shell input text '". $buffer . "'");
 	                                	$buffer = "";
                                 	}
                                 }
@@ -177,7 +188,7 @@ eval {
 		$q->enqueue($char);  
 		
     }
-    print "Main loop ended.";
+    print "\n\nMain loop ended.\n\n";
     system "stty icanon echo isig";
     $thr->detach();
     exit(0);
@@ -254,6 +265,6 @@ sub extendedKeyCode {
 
 sub adbKeyEvent {
 	my $keyCode = $_[0];
-	system("adb shell input keyevent " . $keyCode);
+	system("./adb shell input keyevent " . $keyCode);
 	return;
 }

@@ -699,7 +699,7 @@
 										<object class="NSSegmentedControl" id="330807593">
 											<reference key="NSNextResponder" ref="836567585"/>
 											<int key="NSvFlags">258</int>
-											<string key="NSFrame">{{1, -1}, {168, 23}}</string>
+											<string key="NSFrame">{{1, -1}, {170, 23}}</string>
 											<reference key="NSSuperview" ref="836567585"/>
 											<reference key="NSWindow"/>
 											<reference key="NSNextKeyView" ref="89269519"/>
@@ -751,7 +751,7 @@
 														<object class="NSTableView" id="259279630">
 															<reference key="NSNextResponder" ref="770523661"/>
 															<int key="NSvFlags">4352</int>
-															<string key="NSFrameSize">{167, 311}</string>
+															<string key="NSFrameSize">{169, 311}</string>
 															<reference key="NSSuperview" ref="770523661"/>
 															<reference key="NSWindow"/>
 															<reference key="NSNextKeyView" ref="1012525441"/>
@@ -767,7 +767,7 @@
 															</object>
 															<array class="NSMutableArray" key="NSTableColumns">
 																<object class="NSTableColumn" id="32148862">
-																	<double key="NSWidth">164</double>
+																	<double key="NSWidth">166</double>
 																	<double key="NSMinWidth">40</double>
 																	<double key="NSMaxWidth">1000</double>
 																	<object class="NSTableHeaderCell" key="NSHeaderCell">
@@ -850,7 +850,7 @@
 															<int key="NSTableViewGroupRowStyle">1</int>
 														</object>
 													</array>
-													<string key="NSFrame">{{1, 1}, {167, 311}}</string>
+													<string key="NSFrame">{{1, 1}, {169, 311}}</string>
 													<reference key="NSSuperview" ref="708291011"/>
 													<reference key="NSWindow"/>
 													<reference key="NSNextKeyView" ref="259279630"/>
@@ -887,7 +887,7 @@
 													<double key="NSPercent">0.99019607843137258</double>
 												</object>
 											</array>
-											<string key="NSFrame">{{0, 20}, {169, 313}}</string>
+											<string key="NSFrame">{{0, 20}, {171, 313}}</string>
 											<reference key="NSSuperview" ref="836567585"/>
 											<reference key="NSWindow"/>
 											<reference key="NSNextKeyView" ref="770523661"/>
@@ -902,7 +902,7 @@
 											<double key="NSMagnification">1</double>
 										</object>
 									</array>
-									<string key="NSFrameSize">{169, 333}</string>
+									<string key="NSFrameSize">{171, 333}</string>
 									<reference key="NSSuperview" ref="975164863"/>
 									<reference key="NSWindow"/>
 									<reference key="NSNextKeyView" ref="708291011"/>
@@ -924,7 +924,7 @@
 														<object class="NSTableView" id="832524515">
 															<reference key="NSNextResponder" ref="928530079"/>
 															<int key="NSvFlags">4352</int>
-															<string key="NSFrameSize">{439, 315}</string>
+															<string key="NSFrameSize">{446, 315}</string>
 															<reference key="NSSuperview" ref="928530079"/>
 															<reference key="NSWindow"/>
 															<reference key="NSNextKeyView" ref="118326408"/>
@@ -935,7 +935,7 @@
 															<object class="NSTableHeaderView" key="NSHeaderView" id="131857914">
 																<reference key="NSNextResponder" ref="175096873"/>
 																<int key="NSvFlags">256</int>
-																<string key="NSFrameSize">{439, 17}</string>
+																<string key="NSFrameSize">{446, 17}</string>
 																<reference key="NSSuperview" ref="175096873"/>
 																<reference key="NSWindow"/>
 																<reference key="NSNextKeyView" ref="928530079"/>
@@ -1124,7 +1124,7 @@
 																</object>
 																<object class="NSTableColumn" id="987295685">
 																	<string key="NSIdentifier">text</string>
-																	<double key="NSWidth">47</double>
+																	<double key="NSWidth">54</double>
 																	<double key="NSMinWidth">10</double>
 																	<double key="NSMaxWidth">3.4028234663852886e+38</double>
 																	<object class="NSTableHeaderCell" key="NSHeaderCell">
@@ -1172,7 +1172,7 @@
 															<int key="NSTableViewGroupRowStyle">1</int>
 														</object>
 													</array>
-													<string key="NSFrame">{{1, 17}, {439, 315}}</string>
+													<string key="NSFrame">{{1, 17}, {446, 315}}</string>
 													<reference key="NSSuperview" ref="675400260"/>
 													<reference key="NSWindow"/>
 													<reference key="NSNextKeyView" ref="832524515"/>
@@ -1213,7 +1213,7 @@
 													<array class="NSMutableArray" key="NSSubviews">
 														<reference ref="131857914"/>
 													</array>
-													<string key="NSFrame">{{1, 0}, {439, 17}}</string>
+													<string key="NSFrame">{{1, 0}, {446, 17}}</string>
 													<reference key="NSSuperview" ref="675400260"/>
 													<reference key="NSWindow"/>
 													<reference key="NSNextKeyView" ref="131857914"/>
@@ -1222,7 +1222,7 @@
 													<int key="NScvFlags">4</int>
 												</object>
 											</array>
-											<string key="NSFrameSize">{441, 333}</string>
+											<string key="NSFrameSize">{448, 333}</string>
 											<reference key="NSSuperview" ref="89269519"/>
 											<reference key="NSWindow"/>
 											<reference key="NSNextKeyView" ref="175096873"/>
@@ -1238,7 +1238,7 @@
 											<double key="NSMagnification">1</double>
 										</object>
 									</array>
-									<string key="NSFrame">{{179, 0}, {441, 333}}</string>
+									<string key="NSFrame">{{172, 0}, {448, 333}}</string>
 									<reference key="NSSuperview" ref="975164863"/>
 									<reference key="NSWindow"/>
 									<reference key="NSNextKeyView" ref="675400260"/>
@@ -1252,7 +1252,7 @@
 							<reference key="NSNextKeyView" ref="836567585"/>
 							<string key="NSReuseIdentifierKey">_NS:9</string>
 							<bool key="NSIsVertical">YES</bool>
-							<int key="NSDividerStyle">3</int>
+							<int key="NSDividerStyle">2</int>
 							<string key="NSAutosaveName">splitViewLayer</string>
 						</object>
 					</array>

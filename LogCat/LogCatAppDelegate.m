@@ -782,6 +782,9 @@
         }
         return menu;
     } else {
+        if (row < 0) {
+            return nil;
+        }
         NSMenu *menu = [[NSMenu alloc] init];
 
         [menu addItem:[[NSMenuItem alloc] initWithTitle:@"Edit Filter..." action:@selector(editFilter:) keyEquivalent:@""]];

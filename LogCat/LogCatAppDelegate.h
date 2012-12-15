@@ -48,7 +48,7 @@
 - (void)fontsChanged;
 
 @property (weak) IBOutlet NSButton *restartAdb;
-@property (weak) IBOutlet NSTableView *filterList;
+@property (weak) IBOutlet SelectableTableView *filterList;
 @property (weak) IBOutlet NSWindow *window;
 @property (weak) IBOutlet SelectableTableView *table;
 - (IBAction)search:(id)sender;

@@ -116,6 +116,7 @@
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification
 {
     [table setMenuDelegate:self];
+    [filterList setMenuDelegate:self];
     
     pidMap = [NSMutableDictionary dictionary];
     [self registerDefaults];
@@ -157,7 +158,7 @@
     pipe = [NSPipe pipe];
     [task setStandardOutput: pipe];
     [task setStandardInput:[NSPipe pipe]];
-    [task setStandardError:pipe];
+//    [task setStandardError:pipe];
     
     NSFileHandle *file;
     file = [pipe fileHandleForReading];
@@ -702,6 +703,41 @@
     
 }
 
+- (void) editFilter:(id)sender {
+    NSLog(@"editFilter: %ld, %ld [%@]", [filterList rightClickedColumn], [filterList rightClickedRow], sender);
+    
+    NSDictionary* filter = [filters objectAtIndex:[filterList rightClickedRow]];
+    
+//    NSDictionary* filter = [filters objectAtIndex:[filterList selectedRow]-1];
+    NSString* selectedType = [filter objectForKey:KEY_FILTER_TYPE];
+    NSString* realType = KEY_TEXT;
+    if ([selectedType isEqualToString:@"PID"]) {
+        realType = KEY_PID;
+    } else if ([selectedType isEqualToString:@"TID"]) {
+        realType = KEY_TID;
+    } else if ([selectedType isEqualToString:@"APP"]) {
+        realType = KEY_APP;
+    } else if ([selectedType isEqualToString:@"Tag"]) {
+        realType = KEY_NAME;
+    } else if ([selectedType isEqualToString:@"Type"]) {
+        realType = KEY_TYPE;
+    }
+    
+    if (sheetAddFilter == nil) {
+        [NSBundle loadNibNamed:@"Sheet" owner:self];
+    }
+    
+    //KEY_FILTER_NAME, KEY_FILTER_TYPE, KEY_FILTER_TEXT, 
+
+    [[sheetAddFilter filterName] setStringValue:[filter objectForKey:KEY_FILTER_NAME]];
+    [sheetAddFilter selectItemWithTitie:[filter objectForKey:KEY_FILTER_TYPE]];
+    [[sheetAddFilter filterCriteria]  setStringValue:[filter objectForKey:KEY_FILTER_TEXT]];
+    
+    [NSApp beginSheet:sheetAddFilter modalForWindow:self.window modalDelegate:self didEndSelector:@selector(didEndSheet:returnCode:contextInfo:) contextInfo:nil];
+    
+    
+}
+
 - (IBAction)filterBySelected:(id)sender {
     
     NSLog(@"filterBySelected: %ld, %ld [%@]", [table rightClickedColumn], [table rightClickedRow], sender);
@@ -727,16 +763,24 @@
 
 - (NSMenu*) menuForTableView: (NSTableView*) tableView column:(NSInteger) column row:(NSInteger) row {
     
-    NSMenu *menu = [[NSMenu alloc] init];
-    if ([table selectedRow] > 0) {
-        [menu addItem:[[NSMenuItem alloc] initWithTitle:@"Copy" action:@selector(copy:) keyEquivalent:@"C"]];
-        [menu addItem:[[NSMenuItem alloc] initWithTitle:@"Copy Message" action:@selector(copyMessageOnly:) keyEquivalent:@""]];
+    if (tableView == table) {
+        NSMenu *menu = [[NSMenu alloc] init];
+        if ([table selectedRow] > 0) {
+            [menu addItem:[[NSMenuItem alloc] initWithTitle:@"Copy" action:@selector(copy:) keyEquivalent:@"C"]];
+            [menu addItem:[[NSMenuItem alloc] initWithTitle:@"Copy Message" action:@selector(copyMessageOnly:) keyEquivalent:@""]];
+        }
+        
+        if (column != 0) {
+            [menu addItem:[[NSMenuItem alloc] initWithTitle:@"Add Filter..." action:@selector(filterBySelected:) keyEquivalent:@""]];
+        }
+        return menu;
+    } else {
+        NSMenu *menu = [[NSMenu alloc] init];
+
+        [menu addItem:[[NSMenuItem alloc] initWithTitle:@"Edit Filter..." action:@selector(editFilter:) keyEquivalent:@""]];
+        
+        return menu;
     }
-    
-    if (column != 0) {
-                [menu addItem:[[NSMenuItem alloc] initWithTitle:@"Add Filter..." action:@selector(filterBySelected:) keyEquivalent:@""]];
-    }
-    return menu;
 }
 
 - (NSDictionary*) dataForRow: (NSUInteger) rowIndex {

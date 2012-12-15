@@ -96,6 +96,7 @@
         filters = [[NSMutableArray alloc] initWithArray:filters];
         [filterList reloadData];
     }
+    [self sortFilters];
 }
 
 - (void) resetConnectButton {
@@ -438,6 +439,12 @@
 {
     NSDictionary* filter = [filters objectAtIndex:[filterList selectedRow]-1];
     NSString* selectedType = [filter objectForKey:KEY_FILTER_TYPE];
+    NSString* realType = [self getKeyFromType:selectedType];
+                          
+    return [[row objectForKey:realType] rangeOfString:[filter objectForKey:KEY_FILTER_TEXT] options:NSCaseInsensitiveSearch].location != NSNotFound;
+}
+
+- (NSString*) getKeyFromType: (NSString*) selectedType {
     NSString* realType = KEY_TEXT;
     if ([selectedType isEqualToString:@"PID"]) {
         realType = KEY_PID;
@@ -450,7 +457,8 @@
     } else if ([selectedType isEqualToString:@"Type"]) {
         realType = KEY_TYPE;
     }
-    return [[row objectForKey:realType] rangeOfString:[filter objectForKey:KEY_FILTER_TEXT] options:NSCaseInsensitiveSearch].location != NSNotFound;
+    
+    return realType;
 }
 
 - (BOOL)searchMatchesRow:(NSDictionary*)row
@@ -567,18 +575,8 @@
     if (filterSelected) {
         NSDictionary* filter = [filters objectAtIndex:rowIndex-1];
         NSString* selectedType = [filter objectForKey:KEY_FILTER_TYPE];
-        NSString* realType = KEY_TEXT;
-        if ([selectedType isEqualToString:@"PID"]) {
-            realType = KEY_PID;
-        } else if ([selectedType isEqualToString:@"TID"]) {
-            realType = KEY_TID;
-        } else if ([selectedType isEqualToString:@"APP"]) {
-            realType = KEY_APP;
-        } else if ([selectedType isEqualToString:@"Tag"]) {
-            realType = KEY_NAME;
-        } else if ([selectedType isEqualToString:@"Type"]) {
-            realType = KEY_TYPE;
-        }
+        NSString* realType = [self getKeyFromType:selectedType];
+
         filtered = [self findLogsMatching:[filter objectForKey:KEY_FILTER_TEXT] forKey:realType];
     } else {
         filtered = nil;
@@ -613,6 +611,14 @@
     [filterList reloadData];
     [[NSUserDefaults standardUserDefaults] setValue:filters forKey:KEY_PREFS_FILTERS];
     // [[NSUserDefaults standardUserDefaults] synchronize];
+}
+
+- (void) sortFilters {
+    NSSortDescriptor *sortDescriptor = [[NSSortDescriptor alloc] initWithKey:KEY_FILTER_NAME ascending:YES];
+    NSArray *sortDescriptors = [NSArray arrayWithObject:sortDescriptor];
+    [filters sortUsingDescriptors:sortDescriptors];
+    
+    [filterList reloadData];
 }
 
 - (IBAction)cancelSheet:(id)sender
@@ -671,6 +677,8 @@
 
 - (void)didEndSheet:(NSWindow *)sheet returnCode:(NSInteger)returnCode contextInfo:(void *)contextInfo
 {
+    NSLog(@"didEndSheet: %ld", returnCode);
+
     [sheetAddFilter orderOut:self];
     if (returnCode == NSCancelButton) {
         return;
@@ -680,16 +688,25 @@
     NSString* filterType = [puFilterField titleOfSelectedItem];
     NSString* filterText = [tfFilterText stringValue];
     
-    NSDictionary* filter = [NSDictionary dictionaryWithObjects:[NSArray arrayWithObjects:filterName, filterType, filterText, nil]
-                                                       forKeys:[NSArray arrayWithObjects:KEY_FILTER_NAME, KEY_FILTER_TYPE, KEY_FILTER_TEXT, nil]];
+    NSDictionary* filter = (__bridge NSDictionary *)contextInfo;
+    if (contextInfo == nil) {
+        filter = [NSDictionary dictionaryWithObjects:[NSArray arrayWithObjects:filterName, filterType, filterText, nil]
+                                        forKeys:[NSArray arrayWithObjects:KEY_FILTER_NAME, KEY_FILTER_TYPE, KEY_FILTER_TEXT, nil]];
+    } else {
+        [filter setValue:filterName forKey:KEY_FILTER_NAME];
+        [filter setValue:filterType forKey:KEY_FILTER_TYPE];
+        [filter setValue:filterText forKey:KEY_FILTER_TEXT];
+        [filters removeObject:filter];
+    }
     
     [filters addObject:filter];
-    [filterList reloadData];
     [[NSUserDefaults standardUserDefaults] setValue:filters forKey:KEY_PREFS_FILTERS];
     
     [tfFilterName setStringValue:@""];
     [puFilterField selectItemAtIndex:0];
     [tfFilterText setStringValue:@""];
+    
+    [self sortFilters];
 }
 
 - (IBAction)copyPlain:(id)sender {
@@ -705,23 +722,15 @@
 
 - (void) editFilter:(id)sender {
     NSLog(@"editFilter: %ld, %ld [%@]", [filterList rightClickedColumn], [filterList rightClickedRow], sender);
+    if ([filterList rightClickedRow] < 1) {
+        return;
+    }
     
-    NSDictionary* filter = [filters objectAtIndex:[filterList rightClickedRow]];
+    NSDictionary* filter = [filters objectAtIndex:[filterList rightClickedRow]-1];
     
 //    NSDictionary* filter = [filters objectAtIndex:[filterList selectedRow]-1];
-    NSString* selectedType = [filter objectForKey:KEY_FILTER_TYPE];
-    NSString* realType = KEY_TEXT;
-    if ([selectedType isEqualToString:@"PID"]) {
-        realType = KEY_PID;
-    } else if ([selectedType isEqualToString:@"TID"]) {
-        realType = KEY_TID;
-    } else if ([selectedType isEqualToString:@"APP"]) {
-        realType = KEY_APP;
-    } else if ([selectedType isEqualToString:@"Tag"]) {
-        realType = KEY_NAME;
-    } else if ([selectedType isEqualToString:@"Type"]) {
-        realType = KEY_TYPE;
-    }
+//    NSString* selectedType = [filter objectForKey:KEY_FILTER_TYPE];
+    //NSString* realType = [self getKeyFromType:selectedType];
     
     if (sheetAddFilter == nil) {
         [NSBundle loadNibNamed:@"Sheet" owner:self];
@@ -733,9 +742,7 @@
     [sheetAddFilter selectItemWithTitie:[filter objectForKey:KEY_FILTER_TYPE]];
     [[sheetAddFilter filterCriteria]  setStringValue:[filter objectForKey:KEY_FILTER_TEXT]];
     
-    [NSApp beginSheet:sheetAddFilter modalForWindow:self.window modalDelegate:self didEndSelector:@selector(didEndSheet:returnCode:contextInfo:) contextInfo:nil];
-    
-    
+    [NSApp beginSheet:sheetAddFilter modalForWindow:self.window modalDelegate:self didEndSelector:@selector(didEndSheet:returnCode:contextInfo:) contextInfo:(__bridge void *)(filter)];
 }
 
 - (IBAction)filterBySelected:(id)sender {

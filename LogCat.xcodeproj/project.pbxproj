@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		83A9961F16794F6B0042425F /* SelectableTableView.m in Sources */ = {isa = PBXBuildFile; fileRef = 83A9961E16794F6B0042425F /* SelectableTableView.m */; };
 		83A99624167973230042425F /* FilterSheet.m in Sources */ = {isa = PBXBuildFile; fileRef = 83A99623167973230042425F /* FilterSheet.m */; };
+		83E99EC6167D199F00ACF31A /* atext in Resources */ = {isa = PBXBuildFile; fileRef = 83E99EC5167D199F00ACF31A /* atext */; };
 		A53E91C61479C4C100C92015 /* Sheet.xib in Resources */ = {isa = PBXBuildFile; fileRef = A53E91C51479C4C100C92015 /* Sheet.xib */; };
 		A5B4D262147AC6AA00DA2336 /* DBPrefsWindowController.m in Sources */ = {isa = PBXBuildFile; fileRef = A5B4D261147AC6AA00DA2336 /* DBPrefsWindowController.m */; };
 		A5B4D266147AC70300DA2336 /* LogCatPreferences.m in Sources */ = {isa = PBXBuildFile; fileRef = A5B4D265147AC70300DA2336 /* LogCatPreferences.m */; };
@@ -29,6 +30,7 @@
 		83A99621167969C60042425F /* MenuDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MenuDelegate.h; sourceTree = "<group>"; };
 		83A99622167973230042425F /* FilterSheet.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FilterSheet.h; sourceTree = "<group>"; };
 		83A99623167973230042425F /* FilterSheet.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FilterSheet.m; sourceTree = "<group>"; };
+		83E99EC5167D199F00ACF31A /* atext */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.perl; path = atext; sourceTree = "<group>"; };
 		A53E91C51479C4C100C92015 /* Sheet.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = Sheet.xib; sourceTree = "<group>"; };
 		A5B4D260147AC6AA00DA2336 /* DBPrefsWindowController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DBPrefsWindowController.h; sourceTree = "<group>"; };
 		A5B4D261147AC6AA00DA2336 /* DBPrefsWindowController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DBPrefsWindowController.m; sourceTree = "<group>"; };
@@ -67,6 +69,8 @@
 		A5C27F37147E6E1E00112228 /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				83E99EC5167D199F00ACF31A /* atext */,
+				B633C06B15DBB99F00B1C056 /* adb */,
 			);
 			name = Resources;
 			sourceTree = "<group>";
@@ -111,15 +115,12 @@
 		A5FF10FC14743296001A3B38 /* LogCat */ = {
 			isa = PBXGroup;
 			children = (
-				B633C06B15DBB99F00B1C056 /* adb */,
-				A5C27F37147E6E1E00112228 /* Resources */,
 				A5B4D260147AC6AA00DA2336 /* DBPrefsWindowController.h */,
 				A5B4D261147AC6AA00DA2336 /* DBPrefsWindowController.m */,
 				A5FF110814743297001A3B38 /* LogCatAppDelegate.h */,
 				A5FF110914743297001A3B38 /* LogCatAppDelegate.m */,
 				A5FF110B14743297001A3B38 /* MainMenu.xib */,
 				A53E91C51479C4C100C92015 /* Sheet.xib */,
-				A5FF10FD14743296001A3B38 /* Supporting Files */,
 				A5B4D264147AC70300DA2336 /* LogCatPreferences.h */,
 				A5B4D265147AC70300DA2336 /* LogCatPreferences.m */,
 				A5B4D267147AC73800DA2336 /* Preferences.xib */,
@@ -128,6 +129,8 @@
 				83A99621167969C60042425F /* MenuDelegate.h */,
 				83A99622167973230042425F /* FilterSheet.h */,
 				83A99623167973230042425F /* FilterSheet.m */,
+				A5C27F37147E6E1E00112228 /* Resources */,
+				A5FF10FD14743296001A3B38 /* Supporting Files */,
 			);
 			path = LogCat;
 			sourceTree = "<group>";
@@ -202,6 +205,7 @@
 				A5B4D268147AC73800DA2336 /* Preferences.xib in Resources */,
 				A5C03BFA147EF72B00D21B0E /* Icon.icns in Resources */,
 				B633C06C15DBB99F00B1C056 /* adb in Resources */,
+				83E99EC6167D199F00ACF31A /* atext in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

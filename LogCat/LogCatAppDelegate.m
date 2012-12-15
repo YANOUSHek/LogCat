@@ -43,6 +43,7 @@
 @synthesize filterList;
 @synthesize window = _window;
 @synthesize table;
+@synthesize textEntry;
 
 - (void)registerDefaults
 {
@@ -673,6 +674,19 @@
         default:
             break;
     }
+}
+
+- (IBAction)openTypingTerminal:(id)sender {
+    NSLog(@"openTypingTerminal");
+    NSBundle *mainBundle=[NSBundle mainBundle];
+    NSString *path=[mainBundle pathForResource:@"atext" ofType:nil];
+    
+    NSString *s = [NSString stringWithFormat: @"tell application \"Terminal\" to do script \"%@\"", path];
+    
+    NSAppleScript *as = [[NSAppleScript alloc] initWithSource: s];
+    [as executeAndReturnError:nil];
+    
+    
 }
 
 - (void)didEndSheet:(NSWindow *)sheet returnCode:(NSInteger)returnCode contextInfo:(void *)contextInfo

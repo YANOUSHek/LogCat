@@ -1,0 +1,259 @@
+#!/usr/bin/perl -w
+
+#
+# By: Chris Wilson
+#     githubprojects [AT] yepher.com
+#
+# Disclaimer
+# I almost never write perl script so don't laugh too hard at this script.
+# Perl was not my original choice
+# for doing this but Java System.in has a terrible problem where yoy
+# can't get characters as they are typed. Objective-C was just too
+# much upfront work to get this working they way I want. Bash is
+# probably a good way to do this but it I have not done much Bash 
+# scripting for years and was not working out very well. I was not
+# able to get PHP to work easy with system in so I finally used Perl.
+#
+#
+# TODO:
+#    - allow to select a device when there are multiple devices
+#    - Fail gracefully when device is not connected
+#    - Fail gracefully if adb is not in path
+#
+#
+
+use strict;
+use warnings;
+
+use threads;
+use Thread::Queue;
+use IO::Handle;
+use Time::HiRes;
+
+#############################
+# Android Const Key Codes
+#############################
+
+my $KEYCODE_UNKNOWN = "0"; 
+my $KEYCODE_MENU = "1"; 
+my $KEYCODE_SOFT_RIGHT = "2";
+my $KEYCODE_HOME = "3";
+my $KEYCODE_BACK = "4";
+my $KEYCODE_CALL = "5";
+my $KEYCODE_ENDCALL = "6";
+my $KEYCODE_0 = "7";
+my $KEYCODE_1 = "8";
+my $KEYCODE_2 = "9";
+my $KEYCODE_3 = "10";
+my $KEYCODE_4 = "11";
+my $KEYCODE_5 = "12";
+my $KEYCODE_6 = "13";
+my $KEYCODE_7 = "14";
+my $KEYCODE_8 = "15";
+my $KEYCODE_9 = "16";
+my $KEYCODE_STAR = "17";
+my $KEYCODE_POUND = "18";
+my $KEYCODE_DPAD_UP = "19";
+my $KEYCODE_DPAD_DOWN = "20";
+my $KEYCODE_DPAD_LEFT = "21";
+my $KEYCODE_DPAD_RIGHT = "22";
+my $KEYCODE_DPAD_CENTER = "23";
+my $KEYCODE_VOLUME_UP = "24";
+my $KEYCODE_VOLUME_DOWN = "25";
+my $KEYCODE_POWER = "26";
+my $KEYCODE_CAMERA = "27";
+my $KEYCODE_CLEAR = "28";
+my $KEYCODE_A = "29";
+my $KEYCODE_B = "30";
+my $KEYCODE_C = "31";
+my $KEYCODE_D = "32";
+my $KEYCODE_E = "33";
+my $KEYCODE_F = "34";
+my $KEYCODE_G = "35";
+my $KEYCODE_H = "36";
+my $KEYCODE_I = "37";
+my $KEYCODE_J = "38";
+my $KEYCODE_K = "39";
+my $KEYCODE_L = "40";
+my $KEYCODE_M = "41";
+my $KEYCODE_N = "42";
+my $KEYCODE_O = "43";
+my $KEYCODE_P = "44";
+my $KEYCODE_Q = "45";
+my $KEYCODE_R = "46";
+my $KEYCODE_S = "47";
+my $KEYCODE_T = "48";
+my $KEYCODE_U = "49";
+my $KEYCODE_V = "50";
+my $KEYCODE_W = "51";
+my $KEYCODE_X = "52";
+my $KEYCODE_Y = "53";
+my $KEYCODE_Z = "54";
+my $KEYCODE_COMMA = "55";
+my $KEYCODE_PERIOD = "56";
+my $KEYCODE_ALT_LEFT = "57";
+my $KEYCODE_ALT_RIGHT = "58";
+my $KEYCODE_SHIFT_LEFT= "59";
+my $KEYCODE_SHIFT_RIGHT = "60";
+my $KEYCODE_TAB = "61";
+my $KEYCODE_SPACE = "62";
+my $KEYCODE_SYM = "63";
+my $KEYCODE_EXPLORER = "64";
+my $KEYCODE_ENVELOPE = "65";
+my $KEYCODE_ENTER = "66";
+my $KEYCODE_DEL = "67";
+my $KEYCODE_GRAVE = "68";
+my $KEYCODE_MINUS = "69";
+my $KEYCODE_EQUALS = "70";
+my $KEYCODE_LEFT_BRACKET = "71"; 
+my $KEYCODE_RIGHT_BRACKET = "72";
+my $KEYCODE_BACKSLASH = "73";
+my $KEYCODE_SEMICOLON = "74";
+my $KEYCODE_APOSTROPHE = "75";
+my $KEYCODE_SLASH = "76";
+my $KEYCODE_AT = "77";
+my $KEYCODE_NUM = "78";
+my $KEYCODE_HEADSETHOOK = "79"; 
+my $KEYCODE_FOCUS = "80";
+my $KEYCODE_PLUS = "81";
+# my $KEYCODE_MENU = "82";
+my $KEYCODE_NOTIFICATION = "83"; 
+my $KEYCODE_SEARCH = "84";
+my $TAG_LAST_KEYCODE = "85";
+
+#############################
+
+my $q = Thread::Queue->new();    # A new empty queue
+
+# Use a thread and queue because adb is so darn slow
+my $thr = threads->create(sub {
+ 								my $buffer = "";
+                                while (1) {
+                                	my $char = $q->dequeue();
+                                	if ( ord( $char ) <= 32 || ord( $char ) > 126) {
+                                		if (length($buffer) > 0) {
+                                			print "'" . $buffer . "'";
+                                			system("adb shell input text '". $buffer . "'");
+                                			$buffer = "";
+                                		}
+										sendKeyEvent($char);									
+										next;
+									}
+									print "append: ". $char."\n";
+                                    $buffer .= $char;
+                                    
+                                	if ($q->pending() > 0) {
+                                		#print "DEBUG: q not empty.\n";
+                                		next;
+                                	}
+                                	if ($q->pending() == 0) {
+                                		Time::HiRes::sleep(0.3);
+                                		if ($q->pending() > 0) {
+                                			next;
+                                		}
+                                		print "'" . $buffer . "'";
+	                                	system("adb shell input text '". $buffer . "'");
+	                                	$buffer = "";
+                                	}
+                                }
+                             });
+
+eval {
+    print "The character typed in this terminal will be sent to the connected device\n";
+    print "To exit press CNTL-C.\n";
+
+    my $stdin = new IO::Handle;
+       $stdin->fdopen( fileno( STDIN ), "r" ) || die "Cannot open STDIN";
+
+    system "stty -icanon -isig -echo min 1 time 0";
+
+    while ( 1 ) {
+        my $char = $stdin->getc();
+        print "char: " . ord( $char ) . "\n";
+		if ( $char =~ /\003/ ) {
+			print "\nEXIT\n";
+			last;
+		}
+		$q->enqueue($char);  
+		
+    }
+    print "Main loop ended.";
+    system "stty icanon echo isig";
+    $thr->detach();
+    exit(0);
+};
+
+if ( $@ ) {
+    print "$@\n";
+    system "stty icanon echo isig";
+    $thr->detach();
+    exit(1);
+}
+
+# Handle things like the arrow keys
+sub sendKeyEvent {
+	my $char = $_[0];
+	
+	if ( ord( $char ) == 32 ) {
+		print " ";
+		adbKeyEvent($KEYCODE_SPACE);
+		return;
+	}
+	if ( ord( $char ) == 9 ) {
+		print "\t";
+		adbKeyEvent($KEYCODE_TAB);
+		return;
+	}
+	if ( ord( $char ) == 10 ) {
+		print "\n";
+		adbKeyEvent($KEYCODE_ENTER);
+		return;
+	}
+	if ( ord( $char ) == 127 ) {
+		print "\b";
+		adbKeyEvent($KEYCODE_DEL);
+		return;
+	}
+	if ( ord( $char ) == 27 ) {
+	    # This is for keys like Arrow keys
+		extendedKeyCode($char);
+		return;
+	}
+	print "\nUnhandled Key: " . ord( $char ) . "\n";
+
+}
+
+sub extendedKeyCode {
+	my $passedChar = $_[0];
+	my $nextChar = $q->dequeue();
+	if (ord($nextChar) == 91) {
+		my $char = $q->dequeue();
+		if (ord( $char ) == 65) {
+			print "[Up]";
+			adbKeyEvent($KEYCODE_DPAD_UP);
+			return;
+		}
+		if (ord( $char ) == 66) {
+			print "[Down]";
+			adbKeyEvent($KEYCODE_DPAD_DOWN);
+			return;
+		}
+		if (ord( $char ) == 68) {
+			 print "[Left]"; 
+			 adbKeyEvent($KEYCODE_DPAD_LEFT);
+			 return;
+		}
+		if (ord( $char ) == 67) {
+			 print "[Right]"; 
+			 adbKeyEvent($KEYCODE_DPAD_RIGHT);
+			 return;
+		}
+	}
+	return;
+}
+
+sub adbKeyEvent {
+	my $keyCode = $_[0];
+	system("adb shell input keyevent " . $keyCode);
+	return;
+}

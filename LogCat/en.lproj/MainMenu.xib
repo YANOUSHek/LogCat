@@ -420,9 +420,11 @@
 							<string key="NSToolbarItemPaletteLabel">Restart ADB</string>
 							<nil key="NSToolbarItemToolTip"/>
 							<object class="NSButton" key="NSToolbarItemView" id="968872158">
-								<nil key="NSNextResponder"/>
+								<reference key="NSNextResponder"/>
 								<int key="NSvFlags">268</int>
 								<string key="NSFrame">{{0, 14}, {92, 32}}</string>
+								<reference key="NSSuperview"/>
+								<reference key="NSWindow"/>
 								<string key="NSReuseIdentifierKey">_NS:687</string>
 								<bool key="NSEnabled">YES</bool>
 								<object class="NSButtonCell" key="NSCell" id="907716433">
@@ -456,6 +458,48 @@
 							<bool key="NSToolbarIsUserRemovable">YES</bool>
 							<int key="NSToolbarItemVisibilityPriority">0</int>
 						</object>
+						<object class="NSToolbarItem" key="5A426851-7D75-485B-9970-78B4C8C2D06F" id="1039900448">
+							<object class="NSMutableString" key="NSToolbarItemIdentifier">
+								<characters key="NS.bytes">5A426851-7D75-485B-9970-78B4C8C2D06F</characters>
+							</object>
+							<string key="NSToolbarItemLabel">Type</string>
+							<string key="NSToolbarItemPaletteLabel">Send Text To Device</string>
+							<nil key="NSToolbarItemToolTip"/>
+							<object class="NSButton" key="NSToolbarItemView" id="696182026">
+								<reference key="NSNextResponder"/>
+								<int key="NSvFlags">268</int>
+								<string key="NSFrame">{{12, 14}, {92, 32}}</string>
+								<reference key="NSSuperview"/>
+								<reference key="NSWindow"/>
+								<string key="NSReuseIdentifierKey">_NS:687</string>
+								<bool key="NSEnabled">YES</bool>
+								<object class="NSButtonCell" key="NSCell" id="14241473">
+									<int key="NSCellFlags">-2080374784</int>
+									<int key="NSCellFlags2">134217728</int>
+									<string key="NSContents">Type</string>
+									<reference key="NSSupport" ref="904282758"/>
+									<string key="NSCellIdentifier">_NS:687</string>
+									<reference key="NSControlView" ref="696182026"/>
+									<int key="NSButtonFlags">-2033303552</int>
+									<int key="NSButtonFlags2">129</int>
+									<string key="NSAlternateContents"/>
+									<string key="NSKeyEquivalent"/>
+									<int key="NSPeriodicDelay">200</int>
+									<int key="NSPeriodicInterval">25</int>
+								</object>
+								<bool key="NSAllowsLogicalLayoutDirection">NO</bool>
+							</object>
+							<nil key="NSToolbarItemImage"/>
+							<nil key="NSToolbarItemTarget"/>
+							<nil key="NSToolbarItemAction"/>
+							<string key="NSToolbarItemMinSize">{54, 32}</string>
+							<string key="NSToolbarItemMaxSize">{100, 32}</string>
+							<bool key="NSToolbarItemEnabled">YES</bool>
+							<bool key="NSToolbarItemAutovalidates">YES</bool>
+							<int key="NSToolbarItemTag">0</int>
+							<bool key="NSToolbarIsUserRemovable">YES</bool>
+							<int key="NSToolbarItemVisibilityPriority">0</int>
+						</object>
 						<object class="NSToolbarItem" key="BA1ED197-EE9E-40F5-8EEE-86E5E2A2CFD5" id="749263580">
 							<object class="NSMutableString" key="NSToolbarItemIdentifier">
 								<characters key="NS.bytes">BA1ED197-EE9E-40F5-8EEE-86E5E2A2CFD5</characters>
@@ -464,9 +508,11 @@
 							<string key="NSToolbarItemPaletteLabel">Search</string>
 							<nil key="NSToolbarItemToolTip"/>
 							<object class="NSSearchField" key="NSToolbarItemView" id="968405569">
-								<nil key="NSNextResponder"/>
+								<reference key="NSNextResponder"/>
 								<int key="NSvFlags">268</int>
 								<string key="NSFrame">{{0, 14}, {150, 22}}</string>
+								<reference key="NSSuperview"/>
+								<reference key="NSWindow"/>
 								<string key="NSReuseIdentifierKey">_NS:918</string>
 								<bool key="NSEnabled">YES</bool>
 								<object class="NSSearchFieldCell" key="NSCell" id="380091620">
@@ -551,9 +597,11 @@
 							<string key="NSToolbarItemPaletteLabel">Clear Log</string>
 							<nil key="NSToolbarItemToolTip"/>
 							<object class="NSButton" key="NSToolbarItemView" id="74607214">
-								<nil key="NSNextResponder"/>
+								<reference key="NSNextResponder"/>
 								<int key="NSvFlags">268</int>
 								<string key="NSFrame">{{0, 14}, {100, 32}}</string>
+								<reference key="NSSuperview"/>
+								<reference key="NSWindow"/>
 								<string key="NSReuseIdentifierKey">_NS:687</string>
 								<bool key="NSEnabled">YES</bool>
 								<object class="NSButtonCell" key="NSCell" id="993804070">
@@ -665,9 +713,10 @@
 							</object>
 						</object>
 					</dictionary>
-					<array key="NSToolbarIBAllowedItems">
+					<array class="NSMutableArray" key="NSToolbarIBAllowedItems">
 						<reference ref="962159787"/>
 						<reference ref="494121794"/>
+						<reference ref="1039900448"/>
 						<reference ref="749263580"/>
 						<reference ref="581329414"/>
 						<reference ref="914577179"/>
@@ -676,6 +725,7 @@
 					<array key="NSToolbarIBDefaultItems">
 						<reference ref="962159787"/>
 						<reference ref="494121794"/>
+						<reference ref="1039900448"/>
 						<reference ref="868335015"/>
 						<reference ref="914577179"/>
 						<reference ref="749263580"/>
@@ -927,7 +977,7 @@
 															<string key="NSFrameSize">{446, 315}</string>
 															<reference key="NSSuperview" ref="928530079"/>
 															<reference key="NSWindow"/>
-															<reference key="NSNextKeyView" ref="118326408"/>
+															<reference key="NSNextKeyView" ref="175096873"/>
 															<string key="NSReuseIdentifierKey">_NS:1828</string>
 															<bool key="NSEnabled">YES</bool>
 															<bool key="NSAllowsLogicalLayoutDirection">NO</bool>
@@ -1225,7 +1275,7 @@
 											<string key="NSFrameSize">{448, 333}</string>
 											<reference key="NSSuperview" ref="89269519"/>
 											<reference key="NSWindow"/>
-											<reference key="NSNextKeyView" ref="175096873"/>
+											<reference key="NSNextKeyView" ref="928530079"/>
 											<string key="NSReuseIdentifierKey">_NS:1824</string>
 											<int key="NSsFlags">133682</int>
 											<reference key="NSVScroller" ref="118326408"/>
@@ -1516,6 +1566,22 @@
 						<reference key="destination" ref="330807593"/>
 					</object>
 					<int key="connectionID">688</int>
+				</object>
+				<object class="IBConnectionRecord">
+					<object class="IBActionConnection" key="connection">
+						<string key="label">openTypingTerminal:</string>
+						<reference key="source" ref="976324537"/>
+						<reference key="destination" ref="1039900448"/>
+					</object>
+					<int key="connectionID">734</int>
+				</object>
+				<object class="IBConnectionRecord">
+					<object class="IBActionConnection" key="connection">
+						<string key="label">openTypingTerminal:</string>
+						<reference key="source" ref="976324537"/>
+						<reference key="destination" ref="696182026"/>
+					</object>
+					<int key="connectionID">735</int>
 				</object>
 				<object class="IBConnectionRecord">
 					<object class="IBOutletConnection" key="connection">
@@ -1864,6 +1930,7 @@
 							<reference ref="749263580"/>
 							<reference ref="962159787"/>
 							<reference ref="494121794"/>
+							<reference ref="1039900448"/>
 						</array>
 						<reference key="parent" ref="972006081"/>
 					</object>
@@ -2156,6 +2223,27 @@
 						<reference key="object" ref="998045937"/>
 						<reference key="parent" ref="330807593"/>
 					</object>
+					<object class="IBObjectRecord">
+						<int key="objectID">730</int>
+						<reference key="object" ref="1039900448"/>
+						<array class="NSMutableArray" key="children">
+							<reference ref="696182026"/>
+						</array>
+						<reference key="parent" ref="131777186"/>
+					</object>
+					<object class="IBObjectRecord">
+						<int key="objectID">731</int>
+						<reference key="object" ref="696182026"/>
+						<array class="NSMutableArray" key="children">
+							<reference ref="14241473"/>
+						</array>
+						<reference key="parent" ref="1039900448"/>
+					</object>
+					<object class="IBObjectRecord">
+						<int key="objectID">732</int>
+						<reference key="object" ref="14241473"/>
+						<reference key="parent" ref="696182026"/>
+					</object>
 				</array>
 			</object>
 			<dictionary class="NSMutableDictionary" key="flattenedProperties">
@@ -2252,6 +2340,9 @@
 				<string key="719.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
 				<string key="720.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
 				<string key="73.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
+				<string key="730.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
+				<string key="731.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
+				<string key="732.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
 				<string key="75.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
 				<string key="81.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
 				<string key="83.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
@@ -2261,7 +2352,7 @@
 			<nil key="activeLocalization"/>
 			<dictionary class="NSMutableDictionary" key="localizations"/>
 			<nil key="sourceID"/>
-			<int key="maxID">720</int>
+			<int key="maxID">735</int>
 		</object>
 		<object class="IBClassDescriber" key="IBDocument.Classes">
 			<array class="NSMutableArray" key="referencedPartialClassDescriptions">
@@ -2299,7 +2390,11 @@
 						<string key="acceptSheet:">id</string>
 						<string key="cancelSheet:">id</string>
 						<string key="clearLog:">id</string>
+						<string key="copyMessageOnly:">id</string>
+						<string key="copyPlain:">id</string>
+						<string key="filterBySelected:">id</string>
 						<string key="filterToolbarClicked:">NSSegmentedControl</string>
+						<string key="openTypingTerminal:">id</string>
 						<string key="preferences:">id</string>
 						<string key="restartAdb:">id</string>
 						<string key="search:">id</string>
@@ -2317,9 +2412,25 @@
 							<string key="name">clearLog:</string>
 							<string key="candidateClassName">id</string>
 						</object>
+						<object class="IBActionInfo" key="copyMessageOnly:">
+							<string key="name">copyMessageOnly:</string>
+							<string key="candidateClassName">id</string>
+						</object>
+						<object class="IBActionInfo" key="copyPlain:">
+							<string key="name">copyPlain:</string>
+							<string key="candidateClassName">id</string>
+						</object>
+						<object class="IBActionInfo" key="filterBySelected:">
+							<string key="name">filterBySelected:</string>
+							<string key="candidateClassName">id</string>
+						</object>
 						<object class="IBActionInfo" key="filterToolbarClicked:">
 							<string key="name">filterToolbarClicked:</string>
 							<string key="candidateClassName">NSSegmentedControl</string>
+						</object>
+						<object class="IBActionInfo" key="openTypingTerminal:">
+							<string key="name">openTypingTerminal:</string>
+							<string key="candidateClassName">id</string>
 						</object>
 						<object class="IBActionInfo" key="preferences:">
 							<string key="name">preferences:</string>
@@ -2341,6 +2452,7 @@
 						<string key="restartAdb">NSButton</string>
 						<string key="sheetAddFilter">FilterSheet</string>
 						<string key="table">SelectableTableView</string>
+						<string key="textEntry">NSTextField</string>
 						<string key="tfFilterName">NSTextField</string>
 						<string key="tfFilterText">NSTextField</string>
 						<string key="window">NSWindow</string>
@@ -2369,6 +2481,10 @@
 						<object class="IBToOneOutletInfo" key="table">
 							<string key="name">table</string>
 							<string key="candidateClassName">SelectableTableView</string>
+						</object>
+						<object class="IBToOneOutletInfo" key="textEntry">
+							<string key="name">textEntry</string>
+							<string key="candidateClassName">NSTextField</string>
 						</object>
 						<object class="IBToOneOutletInfo" key="tfFilterName">
 							<string key="name">tfFilterName</string>

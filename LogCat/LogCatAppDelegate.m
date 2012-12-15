@@ -689,7 +689,7 @@
     NSString* filterText = [tfFilterText stringValue];
     
     NSDictionary* filter = (__bridge NSDictionary *)contextInfo;
-    if (contextInfo == nil) {
+    if (filter == nil) {
         filter = [NSDictionary dictionaryWithObjects:[NSArray arrayWithObjects:filterName, filterType, filterText, nil]
                                         forKeys:[NSArray arrayWithObjects:KEY_FILTER_NAME, KEY_FILTER_TYPE, KEY_FILTER_TEXT, nil]];
     } else {

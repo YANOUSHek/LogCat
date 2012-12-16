@@ -205,7 +205,7 @@
 		A5FF10E914743294001A3B38 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = 0440;
+				LastUpgradeCheck = 0450;
 				ORGANIZATIONNAME = SplashSoftware.pl;
 			};
 			buildConfigurationList = A5FF10EC14743294001A3B38 /* Build configuration list for PBXProject "LogCat" */;

@@ -11,7 +11,7 @@
 		83486929167D630D001BF84D /* NSString_Extension.m in Sources */ = {isa = PBXBuildFile; fileRef = 83486927167D630D001BF84D /* NSString_Extension.m */; };
 		83A99624167973230042425F /* FilterSheet.m in Sources */ = {isa = PBXBuildFile; fileRef = 83A99623167973230042425F /* FilterSheet.m */; };
 		83E99EC6167D199F00ACF31A /* atext in Resources */ = {isa = PBXBuildFile; fileRef = 83E99EC5167D199F00ACF31A /* atext */; };
-		83E99ECD167D470600ACF31A /* typewriter.png in Resources */ = {isa = PBXBuildFile; fileRef = 83E99ECC167D470600ACF31A /* typewriter.png */; };
+		A52B597E167DDB24007B0030 /* Keyboard.png in Resources */ = {isa = PBXBuildFile; fileRef = A52B597D167DDB24007B0030 /* Keyboard.png */; };
 		A53E91C61479C4C100C92015 /* FilterSheet.xib in Resources */ = {isa = PBXBuildFile; fileRef = A53E91C51479C4C100C92015 /* FilterSheet.xib */; };
 		A5B4D262147AC6AA00DA2336 /* DBPrefsWindowController.m in Sources */ = {isa = PBXBuildFile; fileRef = A5B4D261147AC6AA00DA2336 /* DBPrefsWindowController.m */; };
 		A5B4D266147AC70300DA2336 /* LogCatPreferences.m in Sources */ = {isa = PBXBuildFile; fileRef = A5B4D265147AC70300DA2336 /* LogCatPreferences.m */; };
@@ -34,8 +34,8 @@
 		83A99622167973230042425F /* FilterSheet.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FilterSheet.h; sourceTree = "<group>"; };
 		83A99623167973230042425F /* FilterSheet.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FilterSheet.m; sourceTree = "<group>"; };
 		83E99EC5167D199F00ACF31A /* atext */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.perl; path = atext; sourceTree = "<group>"; };
-		83E99ECC167D470600ACF31A /* typewriter.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = typewriter.png; sourceTree = "<group>"; };
 		83E99EDB167D610900ACF31A /* NSString_Extension.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NSString_Extension.h; sourceTree = "<group>"; };
+		A52B597D167DDB24007B0030 /* Keyboard.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Keyboard.png; sourceTree = "<group>"; };
 		A53E91C51479C4C100C92015 /* FilterSheet.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = FilterSheet.xib; sourceTree = "<group>"; };
 		A5B4D260147AC6AA00DA2336 /* DBPrefsWindowController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DBPrefsWindowController.h; sourceTree = "<group>"; };
 		A5B4D261147AC6AA00DA2336 /* DBPrefsWindowController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DBPrefsWindowController.m; sourceTree = "<group>"; };
@@ -71,14 +71,6 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		83E99ECB167D46EB00ACF31A /* graphics */ = {
-			isa = PBXGroup;
-			children = (
-				83E99ECC167D470600ACF31A /* typewriter.png */,
-			);
-			path = graphics;
-			sourceTree = "<group>";
-		};
 		83E99ECE167D4CFC00ACF31A /* helpers */ = {
 			isa = PBXGroup;
 			children = (
@@ -91,9 +83,26 @@
 			name = helpers;
 			sourceTree = "<group>";
 		};
+		A52B597A167DDB14007B0030 /* Images */ = {
+			isa = PBXGroup;
+			children = (
+				A52B597C167DDB1B007B0030 /* Toolbar */,
+			);
+			name = Images;
+			sourceTree = "<group>";
+		};
+		A52B597C167DDB1B007B0030 /* Toolbar */ = {
+			isa = PBXGroup;
+			children = (
+				A52B597D167DDB24007B0030 /* Keyboard.png */,
+			);
+			name = Toolbar;
+			sourceTree = "<group>";
+		};
 		A5C27F37147E6E1E00112228 /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				A52B597A167DDB14007B0030 /* Images */,
 				83E99EC5167D199F00ACF31A /* atext */,
 				B633C06B15DBB99F00B1C056 /* adb */,
 			);
@@ -152,7 +161,6 @@
 				83A99623167973230042425F /* FilterSheet.m */,
 				A53E91C51479C4C100C92015 /* FilterSheet.xib */,
 				83E99ECE167D4CFC00ACF31A /* helpers */,
-				83E99ECB167D46EB00ACF31A /* graphics */,
 				A5C27F37147E6E1E00112228 /* Resources */,
 				A5FF10FD14743296001A3B38 /* Supporting Files */,
 			);
@@ -230,7 +238,7 @@
 				A5C03BFA147EF72B00D21B0E /* Icon.icns in Resources */,
 				B633C06C15DBB99F00B1C056 /* adb in Resources */,
 				83E99EC6167D199F00ACF31A /* atext in Resources */,
-				83E99ECD167D470600ACF31A /* typewriter.png in Resources */,
+				A52B597E167DDB24007B0030 /* Keyboard.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

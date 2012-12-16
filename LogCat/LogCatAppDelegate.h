@@ -43,14 +43,17 @@
     NSMutableDictionary* pidMap;
     
     bool isRunning;
+    __weak NSTextField *textEntry;
 }
 
-- (void)fontsChanged;
 
-@property (weak) IBOutlet NSButton *restartAdb;
-@property (weak) IBOutlet NSTableView *filterList;
 @property (weak) IBOutlet NSWindow *window;
-@property (weak) IBOutlet SelectableTableView *table;
+@property (weak) IBOutlet SelectableTableView *filterListTable;
+@property (weak) IBOutlet SelectableTableView *logDataTable;
+@property (weak) IBOutlet NSTextField *textEntry;
+@property (weak) IBOutlet NSButton *restartAdb;
+
+- (void)fontsChanged;
 - (IBAction)search:(id)sender;
 - (IBAction)addFilter;
 - (IBAction)removeFilter;
@@ -60,5 +63,6 @@
 - (IBAction)clearLog:(id)sender;
 - (IBAction)restartAdb:(id)sender;
 - (IBAction)filterToolbarClicked:(NSSegmentedControl*)sender;
+- (IBAction)openTypingTerminal:(id)sender;
 
 @end

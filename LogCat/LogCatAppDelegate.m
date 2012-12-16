@@ -10,6 +10,7 @@
 #import "LogCatPreferences.h"
 #import "SelectableTableView.h"
 #import "MenuDelegate.h"
+#import "NSString_Extension.h"
 
 #define KEY_TIME @"time"
 #define KEY_APP @"app"
@@ -38,7 +39,6 @@
 - (void)startAdb;
 - (void) loadPid;
 - (void) parsePID: (NSString*) pidInfo;
-- (BOOL)isInteger:(NSString *)toCheck;
 - (void) copySelectedRow: (BOOL) escapeSpecialChars;
 - (NSDictionary*) dataForRow: (NSUInteger) rowIndex;
 @end
@@ -197,9 +197,9 @@
             
             NSString* aPid = @"";
             // find first integer and call that PID
-            if (![self isInteger:aPid]) {
+            if (![aPid isInteger]) {
                 for (NSString* arg in args) {
-                    if ([self isInteger:arg]) {
+                    if ([arg isInteger]) {
                         aPid = arg;
                         break;
                     }
@@ -207,26 +207,15 @@
             }
             
             NSString* aName = [args objectAtIndex:[args count]-1];
-            if ([self isInteger:aPid]) {
+            if ([aPid isInteger]) {
                 [pidMap setValue:aName forKey:aPid];
             } else {
                 NSLog(@"Could not get PID: %@", line);
             }
             
-            
         }
     }
     
-}
-
-- (BOOL)isInteger:(NSString *)toCheck {
-    if([toCheck intValue] != 0) {
-        return true;
-    } else if([toCheck isEqualToString:@"0"]) {
-        return true;
-    } else {
-        return false;
-    }
 }
 
 - (void)startAdb
@@ -425,6 +414,7 @@
             text = [NSMutableString new];
         }
     }
+    
     [self.logDataTable reloadData];
     if (scrollToBottom) {
         if ([searchString length] > 0) {
@@ -435,6 +425,7 @@
             [self.logDataTable scrollRowToVisible:[logcat count]-1];
         }
     }
+
 }
 
 - (BOOL)filterMatchesRow:(NSDictionary*)row

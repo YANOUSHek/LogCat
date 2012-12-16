@@ -10,4 +10,6 @@
 
 @interface AdbTaskHelper : NSObject
 
++ (NSTask*) adbTask: (NSArray*) arguments;
+
 @end

@@ -7,31 +7,14 @@
 //
 
 #import "LogCatAppDelegate.h"
+#import "LogDatasource.h"
 #import "LogCatPreferences.h"
 #import "SelectableTableView.h"
 #import "MenuDelegate.h"
 #import "NSString_Extension.h"
 
-#define KEY_TIME @"time"
-#define KEY_APP @"app"
-#define KEY_PID @"pid"
-#define KEY_TID @"tid"
-#define KEY_TYPE @"type"
-#define KEY_NAME @"name"
-#define KEY_TEXT @"text"
+@interface LogCatAppDelegate (private)
 
-#define KEY_FILTER_TEXT @"text"
-#define KEY_FILTER_NAME @"name"
-#define KEY_FILTER_TYPE @"type"
-
-#define KEY_PREFS_FILTERS @"filters"
-
-#define FILTER_SHEET @"FilterSheet"
-
-#define BOLD_FONT [NSFont boldSystemFontOfSize:11]
-#define REGULAR_FONT [NSFont systemFontOfSize:11]
-
-@interface LogCatAppDelegate(private)
 - (void)registerDefaults;
 - (BOOL)filterMatchesRow:(NSDictionary*)row;
 - (BOOL)searchMatchesRow:(NSDictionary*)row;
@@ -41,10 +24,12 @@
 - (void) parsePID: (NSString*) pidInfo;
 - (void) copySelectedRow: (BOOL) escapeSpecialChars;
 - (NSDictionary*) dataForRow: (NSUInteger) rowIndex;
+
 @end
 
 @implementation LogCatAppDelegate
 
+@synthesize logDatasource = _logDatasource;
 @synthesize filterListTable;
 @synthesize window = _window;
 @synthesize logDataTable;
@@ -106,7 +91,7 @@
 }
 
 - (void) resetConnectButton {
-    if (isRunning) {
+    if ([self.logDatasource isLogging]) {
         [self.restartAdb setTitle:@"Disconnect"];
     } else {
         [self.restartAdb setTitle:@"Connect"];
@@ -126,26 +111,32 @@
 
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification
 {
-    [logDataTable setMenuDelegate:self];
-    [filterListTable setMenuDelegate:self];
+    NSLog(@"applicationDidFinishLaunching: %@", aNotification);
+    LogDatasource* source = [[LogDatasource alloc] init];
+    [self setLogDatasource:source];
+    [self.logDatasource setDelegate:self];
     
-    pidMap = [NSMutableDictionary dictionary];
+    [self.logDataTable setMenuDelegate:self];
+    [self.filterListTable setMenuDelegate:self];
+    
+//    pidMap = [NSMutableDictionary dictionary];
     [self registerDefaults];
-    isRunning = NO;
+
     [self resetConnectButton];
     [self readSettings];
 
-    [self loadPID];
+//    [logDatasource startLogger];
+//    [self loadPID];
     [self startAdb];
     
     previousString = nil;
     scrollToBottom = YES;
-    logcat = [NSMutableArray new];
-    search = [NSMutableArray new];
-    text = [NSMutableString new];
-    keysArray = [NSArray arrayWithObjects: KEY_TIME, KEY_APP, KEY_PID, KEY_TID, KEY_TYPE, KEY_NAME, KEY_TEXT, nil];
+//    logData = [NSMutableArray new];
+//    searchLogData = [NSMutableArray new];
+//    text = [NSMutableString new];
+//    keysArray = [NSArray arrayWithObjects: KEY_TIME, KEY_APP, KEY_PID, KEY_TID, KEY_TYPE, KEY_NAME, KEY_TEXT, nil];
     
-    [filterListTable selectRowIndexes:[NSIndexSet indexSetWithIndex:0] byExtendingSelection:NO];
+    [self.filterListTable selectRowIndexes:[NSIndexSet indexSetWithIndex:0] byExtendingSelection:NO];
     
     id clipView = [[self.logDataTable enclosingScrollView] contentView];
     [[NSNotificationCenter defaultCenter] addObserver:self
@@ -154,77 +145,84 @@
                                                object:clipView];
 }
 
-- (void) loadPID {
-    NSArray *arguments = [NSArray arrayWithObjects: @"shell", @"ps", nil];
-    NSTask *task = [self adbTask: arguments];
-    
-    NSPipe *pipe;
-    pipe = [NSPipe pipe];
-    [task setStandardOutput: pipe];
-    [task setStandardInput:[NSPipe pipe]];
-    
-    NSFileHandle *file;
-    file = [pipe fileHandleForReading];
-    
-    [task launch];
-    
-    NSMutableData *readData = [[NSMutableData alloc] init];
-    
-    NSData *data = nil;
-    while ((data = [file availableData]) && [data length]) {
-        [readData appendData:data];
-    }
-    
-    NSString *string;
-    string = [[NSString alloc] initWithData: readData encoding: NSUTF8StringEncoding];
-    [self performSelectorOnMainThread:@selector(parsePID:) withObject:string waitUntilDone:YES];
-    
-}
-
-- (void) parsePID: (NSString*) pidInfo {
-    Boolean isFirstLine = YES;
-    
-    NSArray* lines = [pidInfo componentsSeparatedByString:@"\n"];
-    
-    for (NSString* line in lines) {
-        
-        NSArray* args =  [line componentsSeparatedByString:@" "];
-        if (isFirstLine) {
-            isFirstLine = NO;
-        } else if ([args count] < 4) {
-            
-        } else {
-            
-            NSString* aPid = @"";
-            // find first integer and call that PID
-            if (![aPid isInteger]) {
-                for (NSString* arg in args) {
-                    if ([arg isInteger]) {
-                        aPid = arg;
-                        break;
-                    }
-                }
-            }
-            
-            NSString* aName = [args objectAtIndex:[args count]-1];
-            if ([aPid isInteger]) {
-                [pidMap setValue:aName forKey:aPid];
-            } else {
-                NSLog(@"Could not get PID: %@", line);
-            }
-            
-        }
-    }
-    
-}
+//- (void) loadPID {
+//    NSArray *arguments = [NSArray arrayWithObjects: @"shell", @"ps", nil];
+//    NSTask *task = [self adbTask: arguments];
+//    
+//    NSPipe *pipe;
+//    pipe = [NSPipe pipe];
+//    [task setStandardOutput: pipe];
+//    [task setStandardInput:[NSPipe pipe]];
+//    
+//    NSFileHandle *file;
+//    file = [pipe fileHandleForReading];
+//    
+//    [task launch];
+//    
+//    NSMutableData *readData = [[NSMutableData alloc] init];
+//    
+//    NSData *data = nil;
+//    while ((data = [file availableData]) && [data length]) {
+//        [readData appendData:data];
+//    }
+//    
+//    NSString *string;
+//    string = [[NSString alloc] initWithData: readData encoding: NSUTF8StringEncoding];
+//    [self performSelectorOnMainThread:@selector(parsePID:) withObject:string waitUntilDone:YES];
+//    
+//}
+//
+//- (void) parsePID: (NSString*) pidInfo {
+//    Boolean isFirstLine = YES;
+//    
+//    NSArray* lines = [pidInfo componentsSeparatedByString:@"\n"];
+//    
+//    for (NSString* line in lines) {
+//        
+//        NSArray* args =  [line componentsSeparatedByString:@" "];
+//        if (isFirstLine) {
+//            isFirstLine = NO;
+//        } else if ([args count] < 4) {
+//            
+//        } else {
+//            
+//            NSString* aPid = @"";
+//            // find first integer and call that PID
+//            if (![aPid isInteger]) {
+//                for (NSString* arg in args) {
+//                    if ([arg isInteger]) {
+//                        aPid = arg;
+//                        break;
+//                    }
+//                }
+//            }
+//            
+//            NSString* aName = [args objectAtIndex:[args count]-1];
+//            if ([aPid isInteger]) {
+//                [pidMap setValue:aName forKey:aPid];
+//            } else {
+//                NSLog(@"Could not get PID: %@", line);
+//            }
+//            
+//        }
+//    }
+//    
+//}
 
 - (void)startAdb
 {
+    NSLog(@"startAdb");
     [self.window makeKeyAndOrderFront:self];
-    NSThread* thread = [[NSThread alloc] initWithTarget:self selector:@selector(readLog:) object:nil];
+    NSThread* thread = [[NSThread alloc] initWithTarget:self selector:@selector(startLogger:) object:nil];
     [thread start];
-    isRunning = YES;
+    
     [self resetConnectButton];
+}
+
+- (void) startLogger: (id)param {
+    NSLog(@"startLogger %@", self.logDatasource);
+    [self.logDatasource startLogger];
+    
 }
 
 - (void)fontsChanged
@@ -235,17 +233,18 @@
 
 - (void)myBoundsChangeNotificationHandler:(NSNotification *)aNotification
 {
+    NSLog(@"myBoundsChangeNotificationHandler");
     if ([aNotification object] == [[self.logDataTable enclosingScrollView] contentView]) {
         NSRect visibleRect = [[[self.logDataTable enclosingScrollView] contentView] visibleRect];
         float maxy = 0;
-        if ([searchString length] > 0) {
-            maxy = [search count] * 19;
-        } else if (filtered != nil) {
-            maxy = [filtered count] * 19;
-        } else {
-            maxy = [logcat count] * 19;
-        }
-        
+//        if ([searchString length] > 0) {
+//            maxy = [searchLogData count] * 19;
+//        } else if (filteredLogData != nil) {
+//            maxy = [filteredLogData count] * 19;
+//        } else {
+//            maxy = [logData count] * 19;
+//        }
+        maxy = [self.logDatasource getDisplayCount] * 19;
         if (visibleRect.origin.y + visibleRect.size.height >= maxy) {
             scrollToBottom = YES;
         } else {
@@ -255,226 +254,228 @@
     }
 }
 
-- (void)readLog:(id)param
-{
-    NSArray *arguments = [NSArray arrayWithObjects: @"logcat", @"-v", @"long", nil];
-    
-    NSTask *task = [self adbTask:arguments];
-    
-    NSPipe *pipe;
-    pipe = [NSPipe pipe];
-    [task setStandardOutput: pipe];
-    [task setStandardInput:[NSPipe pipe]];
-    
-    NSFileHandle *file;
-    file = [pipe fileHandleForReading];
-    
-    [task launch];
-    
-    while (isRunning && [task isRunning]) {
-        NSData *data = nil;
-        while (data == nil) {
-            data = [file availableData];
-        }
-        if (data != nil) {
+//- (void)readLog:(id)param
+//{
+//    NSArray *arguments = [NSArray arrayWithObjects: @"logcat", @"-v", @"long", nil];
+//    
+//    NSTask *task = [self adbTask:arguments];
+//    
+//    NSPipe *pipe;
+//    pipe = [NSPipe pipe];
+//    [task setStandardOutput: pipe];
+//    [task setStandardInput:[NSPipe pipe]];
+//    
+//    NSFileHandle *file;
+//    file = [pipe fileHandleForReading];
+//    
+//    [task launch];
+//    
+//    while (isRunning && [task isRunning]) {
+//        NSData *data = nil;
+//        while (data == nil) {
+//            data = [file availableData];
+//        }
+//        if (data != nil) {
+//
+//            NSString *string;
+//            string = [[NSString alloc] initWithData: data encoding: NSUTF8StringEncoding];
+//            [self performSelectorOnMainThread:@selector(appendLog:) withObject:string waitUntilDone:YES];
+//        } else {
+//            NSLog(@"Data was nil...");
+//        }
+//    }
+//    
+//    [task terminate];
+//    
+//    isRunning = NO;
+//    [self resetConnectButton];
+//    NSLog(@"ADB Exited.");
+//}
 
-            NSString *string;
-            string = [[NSString alloc] initWithData: data encoding: NSUTF8StringEncoding];
-            [self performSelectorOnMainThread:@selector(appendLog:) withObject:string waitUntilDone:YES];
-        } else {
-            NSLog(@"Data was nil...");
-        }
-    }
-    
-    [task terminate];
-    
-    isRunning = NO;
-    [self resetConnectButton];
-    NSLog(@"ADB Exited.");
-}
+//- (NSTask*) adbTask: (NSArray*) arguments {
+//    NSTask *task;
+//    task = [[NSTask alloc] init];
+//    NSBundle *mainBundle=[NSBundle mainBundle];
+//    NSString *path=[mainBundle pathForResource:@"adb" ofType:nil];
+//    
+//    [task setLaunchPath:path];
+//    [task setArguments: arguments];
+//
+//    return task;
+//}
 
-- (NSTask*) adbTask: (NSArray*) arguments {
-    NSTask *task;
-    task = [[NSTask alloc] init];
-    NSBundle *mainBundle=[NSBundle mainBundle];
-    NSString *path=[mainBundle pathForResource:@"adb" ofType:nil];
-    
-    [task setLaunchPath:path];
-    [task setArguments: arguments];
+//- (void)appendLog:(NSString*)paramString
+//{
+//    NSString* currentString;
+//    if (previousString != nil) {
+//        currentString = [NSString stringWithFormat:@"%@%@", previousString, paramString];
+//        previousString = nil;
+//    } else {
+//        currentString = [NSString stringWithFormat:@"%@", paramString];
+//    }
+//    
+//    if ([currentString rangeOfString:@"\n"].location == NSNotFound) {
+//        previousString = [currentString copy];
+//        return;
+//    }
+//    
+//    NSArray* lines = [currentString componentsSeparatedByString:@"\r\n"];
+//    
+//    if (![currentString hasSuffix:@"\r\n"]) {
+//        previousString = [[lines objectAtIndex:[lines count]-1] copy];
+//    }
+//    
+//    for (NSString* line in lines) {
+//        if ([line hasPrefix:@"--"]) {
+//            continue;
+//        }
+//        NSRegularExpression* expr = [NSRegularExpression regularExpressionWithPattern:
+//                                     @"^\\[\\s(\\d\\d-\\d\\d\\s\\d\\d:\\d\\d:\\d\\d.\\d+)\\s+(\\d*):(.*)\\s(.)/(.*)\\]$"
+//                                                                              options:0
+//                                                                                error:nil];
+//        
+//        NSTextCheckingResult* match = [expr firstMatchInString:line options:0 range:NSMakeRange(0, [line length])];
+//        if (match != nil) {
+//            time = [line substringWithRange:[match rangeAtIndex:1]];
+//            pid = [line substringWithRange:[match rangeAtIndex:2]];
+//            tid = [line substringWithRange:[match rangeAtIndex:3]];
+//            app = [pidMap objectForKey:pid];
+//            if (app == nil) {
+//                NSLog(@"%@ not found in pid map.", pid);
+//                [self loadPID];
+//                app = [pidMap objectForKey:pid];
+//                if (app == nil) {
+//                    // This is normal during startup because there can be log
+//                    // messages from apps that are not running anymore.
+//                    app = @"unknown";
+//                    [pidMap setValue:app forKey:pid];
+//                }
+//            }
+//            type = [line substringWithRange:[match rangeAtIndex:4]];
+//            name = [line substringWithRange:[match rangeAtIndex:5]];
+//            
+//            // NSLog(@"xxx--- 1 time: %@, app: %@, pid: %@, tid: %@, type: %@, name: %@", time, app, pid, tid, type, name);
+//        } else if (match == nil && [line length] != 0 && !([previousString length] > 0 && [line isEqualToString:previousString])) {
+//            [text appendString:@"\n"];
+//            [text appendString:line];
+//            
+//            // NSLog(@"xxx--- 2 text: %@", text);
+//        } else if ([line length] == 0 && time != nil) {
+//            // NSLog(@"xxx--- 3 text: %@", text);
+//            
+//            if ([text rangeOfString:@"\n"].location != NSNotFound) {
+//                // NSLog(@"JEST!");
+//                NSArray* linesOfText = [text componentsSeparatedByString:@"\n"];
+//                for (NSString* lineOfText in linesOfText) {
+//                    if ([lineOfText length] == 0) {
+//                        continue;
+//                    }
+//                    NSArray* values = [NSArray arrayWithObjects: time, app, pid, tid, type, name, lineOfText, nil];
+//                    NSDictionary* row = [NSDictionary dictionaryWithObjects:values
+//                                                                    forKeys:keysArray];
+//                    [logData addObject:row];
+//                    
+//                    if (filteredLogData != nil && [self filterMatchesRow:row]) {
+//                        if ([searchString length] > 0 && [self searchMatchesRow:row]) {
+//                            [searchLogData addObject:row];
+//                        } else {
+//                            [filteredLogData addObject:row];
+//                        }
+//                    } else if (filteredLogData == nil && [searchString length] > 0 && [self searchMatchesRow:row]) {
+//                        [searchLogData addObject:row];
+//                    }    
+//                }
+//            } else {
+//                // NSLog(@"xxx--- 4 text: %@", text);
+//                
+//                NSArray* values = [NSArray arrayWithObjects: time, app, pid, tid, type, name, text, nil];
+//                NSDictionary* row = [NSDictionary dictionaryWithObjects:values
+//                                                                forKeys:keysArray];
+//                [logData addObject:row];
+//                
+//                if (filteredLogData != nil && [self filterMatchesRow:row]) {
+//                    if ([searchString length] > 0 && [self searchMatchesRow:row]) {
+//                        [searchLogData addObject:row];
+//                    } else {
+//                        [filteredLogData addObject:row];
+//                    }
+//                } else if (filteredLogData == nil && [searchString length] > 0 && [self searchMatchesRow:row]) {
+//                    [searchLogData addObject:row];
+//                }
+//            }
+//            
+//            time = nil;
+//            app = nil;
+//            pid = nil;
+//            tid = nil;
+//            type = nil;
+//            name = nil;
+//            text = [NSMutableString new];
+//        }
+//    }
+//    
+//    [self.logDataTable reloadData];
+//    if (scrollToBottom) {
+//        if ([searchString length] > 0) {
+//            [self.logDataTable scrollRowToVisible:[searchLogData count]-1];
+//        } else if (filteredLogData != nil) {
+//            [self.logDataTable scrollRowToVisible:[filteredLogData count]-1];
+//        } else {
+//            [self.logDataTable scrollRowToVisible:[logData count]-1];
+//        }
+//    }
+//
+//}
 
-    return task;
-}
+//- (BOOL)filterMatchesRow:(NSDictionary*)row
+//{
+//    NSDictionary* filter = [filters objectAtIndex:[filterListTable selectedRow]-1];
+//    NSString* selectedType = [filter objectForKey:KEY_FILTER_TYPE];
+//    NSString* realType = [self getKeyFromType:selectedType];
+//                          
+//    return [[row objectForKey:realType] rangeOfString:[filter objectForKey:KEY_FILTER_TEXT] options:NSCaseInsensitiveSearch].location != NSNotFound;
+//}
 
-- (void)appendLog:(NSString*)paramString
-{
-    NSString* currentString;
-    if (previousString != nil) {
-        currentString = [NSString stringWithFormat:@"%@%@", previousString, paramString];
-        previousString = nil;
-    } else {
-        currentString = [NSString stringWithFormat:@"%@", paramString];
-    }
-    
-    if ([currentString rangeOfString:@"\n"].location == NSNotFound) {
-        previousString = [currentString copy];
-        return;
-    }
-    
-    NSArray* lines = [currentString componentsSeparatedByString:@"\r\n"];
-    
-    if (![currentString hasSuffix:@"\r\n"]) {
-        previousString = [[lines objectAtIndex:[lines count]-1] copy];
-    }
-    
-    for (NSString* line in lines) {
-        if ([line hasPrefix:@"--"]) {
-            continue;
-        }
-        NSRegularExpression* expr = [NSRegularExpression regularExpressionWithPattern:
-                                     @"^\\[\\s(\\d\\d-\\d\\d\\s\\d\\d:\\d\\d:\\d\\d.\\d+)\\s+(\\d*):(.*)\\s(.)/(.*)\\]$"
-                                                                              options:0
-                                                                                error:nil];
-        
-        NSTextCheckingResult* match = [expr firstMatchInString:line options:0 range:NSMakeRange(0, [line length])];
-        if (match != nil) {
-            time = [line substringWithRange:[match rangeAtIndex:1]];
-            pid = [line substringWithRange:[match rangeAtIndex:2]];
-            tid = [line substringWithRange:[match rangeAtIndex:3]];
-            app = [pidMap objectForKey:pid];
-            if (app == nil) {
-                NSLog(@"%@ not found in pid map.", pid);
-                [self loadPID];
-                app = [pidMap objectForKey:pid];
-                if (app == nil) {
-                    // This is normal during startup because there can be log
-                    // messages from apps that are not running anymore.
-                    app = @"unknown";
-                    [pidMap setValue:app forKey:pid];
-                }
-            }
-            type = [line substringWithRange:[match rangeAtIndex:4]];
-            name = [line substringWithRange:[match rangeAtIndex:5]];
-            
-            // NSLog(@"xxx--- 1 time: %@, app: %@, pid: %@, tid: %@, type: %@, name: %@", time, app, pid, tid, type, name);
-        } else if (match == nil && [line length] != 0 && !([previousString length] > 0 && [line isEqualToString:previousString])) {
-            [text appendString:@"\n"];
-            [text appendString:line];
-            
-            // NSLog(@"xxx--- 2 text: %@", text);
-        } else if ([line length] == 0 && time != nil) {
-            // NSLog(@"xxx--- 3 text: %@", text);
-            
-            if ([text rangeOfString:@"\n"].location != NSNotFound) {
-                // NSLog(@"JEST!");
-                NSArray* linesOfText = [text componentsSeparatedByString:@"\n"];
-                for (NSString* lineOfText in linesOfText) {
-                    if ([lineOfText length] == 0) {
-                        continue;
-                    }
-                    NSArray* values = [NSArray arrayWithObjects: time, app, pid, tid, type, name, lineOfText, nil];
-                    NSDictionary* row = [NSDictionary dictionaryWithObjects:values
-                                                                    forKeys:keysArray];
-                    [logcat addObject:row];
-                    
-                    if (filtered != nil && [self filterMatchesRow:row]) {
-                        if ([searchString length] > 0 && [self searchMatchesRow:row]) {
-                            [search addObject:row];
-                        } else {
-                            [filtered addObject:row];
-                        }
-                    } else if (filtered == nil && [searchString length] > 0 && [self searchMatchesRow:row]) {
-                        [search addObject:row];
-                    }    
-                }
-            } else {
-                // NSLog(@"xxx--- 4 text: %@", text);
-                
-                NSArray* values = [NSArray arrayWithObjects: time, app, pid, tid, type, name, text, nil];
-                NSDictionary* row = [NSDictionary dictionaryWithObjects:values
-                                                                forKeys:keysArray];
-                [logcat addObject:row];
-                
-                if (filtered != nil && [self filterMatchesRow:row]) {
-                    if ([searchString length] > 0 && [self searchMatchesRow:row]) {
-                        [search addObject:row];
-                    } else {
-                        [filtered addObject:row];
-                    }
-                } else if (filtered == nil && [searchString length] > 0 && [self searchMatchesRow:row]) {
-                    [search addObject:row];
-                }
-            }
-            
-            time = nil;
-            app = nil;
-            pid = nil;
-            tid = nil;
-            type = nil;
-            name = nil;
-            text = [NSMutableString new];
-        }
-    }
-    
-    [self.logDataTable reloadData];
-    if (scrollToBottom) {
-        if ([searchString length] > 0) {
-            [self.logDataTable scrollRowToVisible:[search count]-1];
-        } else if (filtered != nil) {
-            [self.logDataTable scrollRowToVisible:[filtered count]-1];
-        } else {
-            [self.logDataTable scrollRowToVisible:[logcat count]-1];
-        }
-    }
+//- (NSString*) getKeyFromType: (NSString*) selectedType {
+//    NSString* realType = KEY_TEXT;
+//    if ([selectedType isEqualToString:@"PID"]) {
+//        realType = KEY_PID;
+//    } else if ([selectedType isEqualToString:@"TID"]) {
+//        realType = KEY_TID;
+//    } else if ([selectedType isEqualToString:@"APP"]) {
+//        realType = KEY_APP;
+//    } else if ([selectedType isEqualToString:@"Tag"]) {
+//        realType = KEY_NAME;
+//    } else if ([selectedType isEqualToString:@"Type"]) {
+//        realType = KEY_TYPE;
+//    }
+//    
+//    return realType;
+//}
 
-}
-
-- (BOOL)filterMatchesRow:(NSDictionary*)row
-{
-    NSDictionary* filter = [filters objectAtIndex:[filterListTable selectedRow]-1];
-    NSString* selectedType = [filter objectForKey:KEY_FILTER_TYPE];
-    NSString* realType = [self getKeyFromType:selectedType];
-                          
-    return [[row objectForKey:realType] rangeOfString:[filter objectForKey:KEY_FILTER_TEXT] options:NSCaseInsensitiveSearch].location != NSNotFound;
-}
-
-- (NSString*) getKeyFromType: (NSString*) selectedType {
-    NSString* realType = KEY_TEXT;
-    if ([selectedType isEqualToString:@"PID"]) {
-        realType = KEY_PID;
-    } else if ([selectedType isEqualToString:@"TID"]) {
-        realType = KEY_TID;
-    } else if ([selectedType isEqualToString:@"APP"]) {
-        realType = KEY_APP;
-    } else if ([selectedType isEqualToString:@"Tag"]) {
-        realType = KEY_NAME;
-    } else if ([selectedType isEqualToString:@"Type"]) {
-        realType = KEY_TYPE;
-    }
-    
-    return realType;
-}
-
-- (BOOL)searchMatchesRow:(NSDictionary*)row
-{
-    if ([[row objectForKey:KEY_NAME] rangeOfString:searchString options:NSCaseInsensitiveSearch].location != NSNotFound) {
-        return YES;
-    } else if ([[row objectForKey:KEY_TEXT] rangeOfString:searchString options:NSCaseInsensitiveSearch].location != NSNotFound) {
-        return YES;
-    }
-    
-    return NO;
-}
+//- (BOOL)searchMatchesRow:(NSDictionary*)row
+//{
+//    if ([[row objectForKey:KEY_NAME] rangeOfString:searchString options:NSCaseInsensitiveSearch].location != NSNotFound) {
+//        return YES;
+//    } else if ([[row objectForKey:KEY_TEXT] rangeOfString:searchString options:NSCaseInsensitiveSearch].location != NSNotFound) {
+//        return YES;
+//    }
+//    
+//    return NO;
+//}
 
 - (NSInteger)numberOfRowsInTableView:(NSTableView *)aTableView
 {
     if (aTableView == logDataTable) {
-        if ([searchString length] > 0) {
-            return [search count];
-        } else if (filtered != nil) {
-            return [filtered count];
-        } else {
-            return [logcat count];
-        }
+        return [self.logDatasource getDisplayCount];
+        
+//        if ([searchString length] > 0) {
+//            return [searchLogData count];
+//        } else if (filteredLogData != nil) {
+//            return [filteredLogData count];
+//        } else {
+//            return [logData count];
+//        }
     }
     return [filters count] + 1;
 }
@@ -483,13 +484,14 @@
 {
     if (aTableView == logDataTable) {
         NSDictionary* row;
-        if ([searchString length] > 0) {
-            row = [search objectAtIndex:rowIndex];
-        } else if (filtered != nil) {
-            row = [filtered objectAtIndex:rowIndex];
-        } else {
-            row = [logcat objectAtIndex:rowIndex];
-        }
+//        if ([searchString length] > 0) {
+//            row = [searchLogData objectAtIndex:rowIndex];
+//        } else if (filteredLogData != nil) {
+//            row = [filteredLogData objectAtIndex:rowIndex];
+//        } else {
+//            row = [logData objectAtIndex:rowIndex];
+//        }
+        row = [self.logDatasource valueForIndex: rowIndex];
         return [row objectForKey:[aTableColumn identifier]];
     }
     if (rowIndex == 0) {
@@ -507,14 +509,16 @@
 
     NSTextFieldCell *aCell = [tableColumn dataCell];
     NSString* rowType;
-    if ([searchString length] > 0) {
-        rowType = [[search objectAtIndex:rowIndex] objectForKey:KEY_TYPE];
-    } else if (filtered != nil) {
-        rowType = [[filtered objectAtIndex:rowIndex] objectForKey:KEY_TYPE];
-    } else {
-        rowType = [[logcat objectAtIndex:rowIndex] objectForKey:KEY_TYPE];
-    }
-    
+//    if ([searchString length] > 0) {
+//        rowType = [[searchLogData objectAtIndex:rowIndex] objectForKey:KEY_TYPE];
+//    } else if (filteredLogData != nil) {
+//        rowType = [[filteredLogData objectAtIndex:rowIndex] objectForKey:KEY_TYPE];
+//    } else {
+//        rowType = [[logData objectAtIndex:rowIndex] objectForKey:KEY_TYPE];
+//    }
+    NSDictionary* data = [self.logDatasource valueForIndex: rowIndex];
+
+    rowType = [data objectForKey:KEY_TYPE];
     [aCell setTextColor:[colors objectForKey:rowType]];
     [aCell setFont:[fonts objectForKey:rowType]];
     return aCell;
@@ -522,40 +526,43 @@
 
 - (IBAction)search:(id)sender
 {
-    search = [NSMutableArray new];
-    
-    if (sender != nil) {
-        searchString = [[sender stringValue] copy];
-    }
-    
-    NSMutableArray* rows = logcat;
-    if (filtered != nil) {
-        rows = filtered;
-    }
-    
-    for (NSDictionary* row in rows) {
-        if ([[row objectForKey:KEY_NAME] rangeOfString:searchString options:NSCaseInsensitiveSearch].location != NSNotFound) {
-            [search addObject:[row copy]];
-        } else if ([[row objectForKey:KEY_TEXT] rangeOfString:searchString options:NSCaseInsensitiveSearch].location != NSNotFound) {
-            [search addObject:[row copy]];
-        }
-    }
-    [self.logDataTable reloadData];
-    [self.logDataTable scrollRowToVisible:[search count]-1];
+//    searchLogData = [NSMutableArray new];
+//    
+//    if (sender != nil) {
+//        searchString = [[sender stringValue] copy];
+//    }
+//    
+//    NSMutableArray* rows = logData;
+//    if (filteredLogData != nil) {
+//        rows = filteredLogData;
+//    }
+//    
+//    for (NSDictionary* row in rows) {
+//        if ([[row objectForKey:KEY_NAME] rangeOfString:searchString options:NSCaseInsensitiveSearch].location != NSNotFound) {
+//            [searchLogData addObject:[row copy]];
+//        } else if ([[row objectForKey:KEY_TEXT] rangeOfString:searchString options:NSCaseInsensitiveSearch].location != NSNotFound) {
+//            [searchLogData addObject:[row copy]];
+//        }
+//    }
+//    [self.logDataTable reloadData];
+//    [self.logDataTable scrollRowToVisible:[searchLogData count]-1];
 }
 
-- (NSMutableArray*)findLogsMatching:(NSString*)string forKey:(NSString*)key
-{
-    NSMutableArray* result = [NSMutableArray new];
-    
-    for (NSDictionary* row in logcat) {
-        if ([[row objectForKey:key] rangeOfString:string options:NSCaseInsensitiveSearch].location != NSNotFound) {
-            [result addObject:[row copy]];
-        }
-    }
-    return result;
-}
+//- (NSMutableArray*)findLogsMatching:(NSString*)string forKey:(NSString*)key
+//{
+//    NSMutableArray* result = [NSMutableArray new];
+//    
+//    for (NSDictionary* row in logData) {
+//        if ([[row objectForKey:key] rangeOfString:string options:NSCaseInsensitiveSearch].location != NSNotFound) {
+//            [result addObject:[row copy]];
+//        }
+//    }
+//    return result;
+//}
 
+/**
+ A filter was selected
+ **/
 - (BOOL)tableView:(NSTableView *)aTableView shouldSelectRow:(NSInteger)rowIndex
 {
     if (aTableView != filterListTable) {
@@ -567,18 +574,22 @@
     
     if (filterSelected) {
         NSDictionary* filter = [filters objectAtIndex:rowIndex-1];
-        NSString* selectedType = [filter objectForKey:KEY_FILTER_TYPE];
-        NSString* realType = [self getKeyFromType:selectedType];
+        [self.logDatasource setFilter:filter];
+        
+//        NSString* selectedType = [filter objectForKey:KEY_FILTER_TYPE];
+//        NSString* realType = [self getKeyFromType:selectedType];
 
-        filtered = [self findLogsMatching:[filter objectForKey:KEY_FILTER_TEXT] forKey:realType];
+//        filteredLogData = [self findLogsMatching:[filter objectForKey:KEY_FILTER_TEXT] forKey:realType];
     } else {
-        filtered = nil;
+        [self.logDatasource setFilter:nil];
+//        filteredLogData = nil;
     }
-    if ([searchString length] > 0) {
-        [self search:nil];
+    if ([self.logDatasource.searchString length] > 0) {
+//        [self search:nil];
+        [self.logDatasource setSearchString:nil];
     }
-    [logDataTable reloadData];
-    [logDataTable scrollRowToVisible:[[logDataTable dataSource] numberOfRowsInTableView:logDataTable]-1];
+    //[logDataTable reloadData];
+    //[logDataTable scrollRowToVisible:[[logDataTable dataSource] numberOfRowsInTableView:logDataTable]-1];
     
     return YES;
 }
@@ -629,31 +640,34 @@
 
 - (IBAction)clearLog:(id)sender 
 {
-    [self clearLog];
+//    [self clearLog];
+    [self.logDatasource clearLog];
 }
 
 - (IBAction)restartAdb:(id)sender
 {
-    if (isRunning) {
-        isRunning = NO;
+    if ([self.logDatasource isLogging]) {
+        [self.logDatasource stopLogger];
     } else {
-        [pidMap removeAllObjects];
-        [self clearLog];
-        [self startAdb];
+//        [pidMap removeAllObjects];
+//        [self clearLog];
+//        [self startAdb];
+        
+        [self.logDatasource startLogger];
     }
 }
 
-- (void)clearLog
-{
-    logcat = [NSMutableArray new];
-    if (filtered != nil) {
-        filtered = [NSMutableArray new];
-    }
-    if ([searchString length] > 0) {
-        search = [NSMutableArray new];
-    }
-    [self.logDataTable reloadData];
-}
+//- (void)clearLog
+//{
+//    logData = [NSMutableArray new];
+//    if (filteredLogData != nil) {
+//        filteredLogData = [NSMutableArray new];
+//    }
+//    if ([searchString length] > 0) {
+//        searchLogData = [NSMutableArray new];
+//    }
+//    [self.logDataTable reloadData];
+//}
 
 - (IBAction)filterToolbarClicked:(NSSegmentedControl*)sender 
 {
@@ -670,6 +684,10 @@
     }
 }
 
+/**
+ I am being lazy and calling a perl script I wrote to send text typed in the terminal to the device.
+ It would be ncie to do it all in ObjC.
+ **/
 - (IBAction)openTypingTerminal:(id)sender {
     NSLog(@"openTypingTerminal");
     NSBundle *mainBundle=[NSBundle mainBundle];
@@ -683,6 +701,9 @@
     
 }
 
+/**
+ FilterSheet closes to calls this method
+ **/
 - (void)didEndSheet:(NSWindow *)sheet returnCode:(NSInteger)returnCode contextInfo:(void *)contextInfo
 {
     NSLog(@"didEndSheet: %ld", returnCode);
@@ -797,15 +818,15 @@
 }
 
 - (NSDictionary*) dataForRow: (NSUInteger) rowIndex {
-    NSDictionary* rowDetails = nil;
+    NSDictionary* rowDetails = [self.logDatasource valueForIndex:rowIndex];
     
-    if ([searchString length] > 0) {
-        rowDetails = [search objectAtIndex:rowIndex];
-    } else if (filtered != nil) {
-        rowDetails = [filtered objectAtIndex:rowIndex];
-    } else {
-        rowDetails = [logcat objectAtIndex:rowIndex];
-    }
+//    if ([searchString length] > 0) {
+//        rowDetails = [searchLogData objectAtIndex:rowIndex];
+//    } else if (filteredLogData != nil) {
+//        rowDetails = [filteredLogData objectAtIndex:rowIndex];
+//    } else {
+//        rowDetails = [logData objectAtIndex:rowIndex];
+//    }
     
     return rowDetails;
 }
@@ -871,6 +892,28 @@
     }
 }
 
+
+#pragma mark -
+#pragma mark LogcatDatasourceDelegate
+#pragma mark -
+
+- (void) onLoggerStarted {
+    NSLog(@"LogcatDatasourceDelegate::onLoggerStarted");
+}
+
+- (void) onLoggerStopped {
+    NSLog(@"LogcatDatasourceDelegate::onLoggerStopped");
+}
+
+- (void) onLogUpdated {
+//    NSLog(@"LogcatDatasourceDelegate::onLogUpdated");
+    
+    [self.logDataTable reloadData];
+    if (scrollToBottom) {
+        [self.logDataTable scrollRowToVisible:[self.logDatasource getDisplayCount]-1];
+    }
+
+}
 
 
 @end

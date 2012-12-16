@@ -10,4 +10,17 @@
 
 @implementation AdbTaskHelper
 
++ (NSTask*) adbTask: (NSArray*) arguments {
+    NSTask *task;
+    task = [[NSTask alloc] init];
+    NSBundle *mainBundle=[NSBundle mainBundle];
+    NSString *path=[mainBundle pathForResource:@"adb" ofType:nil];
+    
+    [task setLaunchPath:path];
+    [task setArguments: arguments];
+    
+    return task;
+}
+
+
 @end

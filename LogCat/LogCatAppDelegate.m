@@ -25,6 +25,11 @@
 
 #define KEY_PREFS_FILTERS @"filters"
 
+#define FILTER_SHEET @"FilterSheet"
+
+#define BOLD_FONT [NSFont boldSystemFontOfSize:11]
+#define REGULAR_FONT [NSFont systemFontOfSize:11]
+
 @interface LogCatAppDelegate(private)
 - (void)registerDefaults;
 - (BOOL)filterMatchesRow:(NSDictionary*)row;
@@ -40,9 +45,9 @@
 
 @implementation LogCatAppDelegate
 
-@synthesize filterList;
+@synthesize filterListTable;
 @synthesize window = _window;
-@synthesize table;
+@synthesize logDataTable;
 @synthesize textEntry;
 
 - (void)registerDefaults
@@ -80,14 +85,14 @@
     colors = [NSDictionary dictionaryWithObjects:[NSArray arrayWithObjects:v, d, i, w, e, f, nil] 
                                           forKeys:typeKeys];
     
-    NSFont* vf = [[defaults objectForKey:@"logVerboseBold"] boolValue] ? [NSFont boldSystemFontOfSize:11] : [NSFont systemFontOfSize:11];
-    NSFont* df = [[defaults objectForKey:@"logDebugBold"] boolValue] ? [NSFont boldSystemFontOfSize:11] : [NSFont systemFontOfSize:11];
-    NSFont* ifont = [[defaults objectForKey:@"logInfoBold"] boolValue] ? [NSFont boldSystemFontOfSize:11] : [NSFont systemFontOfSize:11];
-    NSFont* wf = [[defaults objectForKey:@"logWarningBold"] boolValue] ? [NSFont boldSystemFontOfSize:11] : [NSFont systemFontOfSize:11];
-    NSFont* ef = [[defaults objectForKey:@"logErrorBold"] boolValue] ? [NSFont boldSystemFontOfSize:11] : [NSFont systemFontOfSize:11];
-    NSFont* ff = [[defaults objectForKey:@"logFatalBold"] boolValue] ? [NSFont boldSystemFontOfSize:11] : [NSFont systemFontOfSize:11];
+    NSFont* vfont = [[defaults objectForKey:@"logVerboseBold"] boolValue] ? BOLD_FONT : REGULAR_FONT;
+    NSFont* dfont = [[defaults objectForKey:@"logDebugBold"] boolValue] ? BOLD_FONT : REGULAR_FONT;
+    NSFont* ifont = [[defaults objectForKey:@"logInfoBold"] boolValue] ? BOLD_FONT : REGULAR_FONT;
+    NSFont* wfont = [[defaults objectForKey:@"logWarningBold"] boolValue] ? BOLD_FONT : REGULAR_FONT;
+    NSFont* efont = [[defaults objectForKey:@"logErrorBold"] boolValue] ? BOLD_FONT : REGULAR_FONT;
+    NSFont* ffont = [[defaults objectForKey:@"logFatalBold"] boolValue] ? BOLD_FONT : REGULAR_FONT;
     
-    fonts = [NSDictionary dictionaryWithObjects:[NSArray arrayWithObjects:vf, df, ifont, wf, ef, ff, nil] 
+    fonts = [NSDictionary dictionaryWithObjects:[NSArray arrayWithObjects:vfont, dfont, ifont, wfont, efont, ffont, nil] 
                                          forKeys:typeKeys];
     
     filters = [[NSUserDefaults standardUserDefaults] valueForKey:KEY_PREFS_FILTERS];
@@ -95,13 +100,17 @@
         filters = [NSMutableArray new];
     } else {
         filters = [[NSMutableArray alloc] initWithArray:filters];
-        [filterList reloadData];
+        [filterListTable reloadData];
     }
     [self sortFilters];
 }
 
 - (void) resetConnectButton {
-    [self.restartAdb setEnabled:!isRunning];
+    if (isRunning) {
+        [self.restartAdb setTitle:@"Disconnect"];
+    } else {
+        [self.restartAdb setTitle:@"Connect"];
+    }
 }
 
 - (BOOL) windowShouldClose:(id) sender
@@ -117,8 +126,8 @@
 
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification
 {
-    [table setMenuDelegate:self];
-    [filterList setMenuDelegate:self];
+    [logDataTable setMenuDelegate:self];
+    [filterListTable setMenuDelegate:self];
     
     pidMap = [NSMutableDictionary dictionary];
     [self registerDefaults];
@@ -136,9 +145,9 @@
     text = [NSMutableString new];
     keysArray = [NSArray arrayWithObjects: KEY_TIME, KEY_APP, KEY_PID, KEY_TID, KEY_TYPE, KEY_NAME, KEY_TEXT, nil];
     
-    [filterList selectRowIndexes:[NSIndexSet indexSetWithIndex:0] byExtendingSelection:NO];
+    [filterListTable selectRowIndexes:[NSIndexSet indexSetWithIndex:0] byExtendingSelection:NO];
     
-    id clipView = [[self.table enclosingScrollView] contentView];
+    id clipView = [[self.logDataTable enclosingScrollView] contentView];
     [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector(myBoundsChangeNotificationHandler:)
                                                  name:NSViewBoundsDidChangeNotification
@@ -146,21 +155,13 @@
 }
 
 - (void) loadPID {
-    NSTask *task;
-    task = [[NSTask alloc] init];
-    NSBundle *mainBundle=[NSBundle mainBundle];
-    NSString *path=[mainBundle pathForResource:@"adb" ofType:nil];
-    // NSLog(@"path: %@", path);
-    [task setLaunchPath:path];
-    
     NSArray *arguments = [NSArray arrayWithObjects: @"shell", @"ps", nil];
-    [task setArguments: arguments];
+    NSTask *task = [self adbTask: arguments];
     
     NSPipe *pipe;
     pipe = [NSPipe pipe];
     [task setStandardOutput: pipe];
     [task setStandardInput:[NSPipe pipe]];
-//    [task setStandardError:pipe];
     
     NSFileHandle *file;
     file = [pipe fileHandleForReading];
@@ -206,7 +207,6 @@
             }
             
             NSString* aName = [args objectAtIndex:[args count]-1];
-            //            NSLog(@"PID: %@  NAME: %@", aPid, aName);
             if ([self isInteger:aPid]) {
                 [pidMap setValue:aName forKey:aPid];
             } else {
@@ -241,13 +241,13 @@
 - (void)fontsChanged
 {
     [self readSettings];
-    [self.table reloadData];
+    [self.logDataTable reloadData];
 }
 
 - (void)myBoundsChangeNotificationHandler:(NSNotification *)aNotification
 {
-    if ([aNotification object] == [[self.table enclosingScrollView] contentView]) {
-        NSRect visibleRect = [[[self.table enclosingScrollView] contentView] visibleRect];
+    if ([aNotification object] == [[self.logDataTable enclosingScrollView] contentView]) {
+        NSRect visibleRect = [[[self.logDataTable enclosingScrollView] contentView] visibleRect];
         float maxy = 0;
         if ([searchString length] > 0) {
             maxy = [search count] * 19;
@@ -268,19 +268,9 @@
 
 - (void)readLog:(id)param
 {
-    
-    NSTask *task;
-    task = [[NSTask alloc] init];
-    NSBundle *mainBundle=[NSBundle mainBundle];
-    NSString *path=[mainBundle pathForResource:@"adb" ofType:nil];
-    // NSLog(@"path: %@", path);
-    
-    [task setLaunchPath:path];
-    //[task setLaunchPath:@"/bin/cat"];
-    
     NSArray *arguments = [NSArray arrayWithObjects: @"logcat", @"-v", @"long", nil];
-    //NSArray* arguments = [NSArray arrayWithObjects:@"/Users/YANOUSHek/Desktop/htc_hero.log", nil];
-    [task setArguments: arguments];
+    
+    NSTask *task = [self adbTask:arguments];
     
     NSPipe *pipe;
     pipe = [NSPipe pipe];
@@ -292,7 +282,7 @@
     
     [task launch];
     
-    while ([task isRunning]) {
+    while (isRunning && [task isRunning]) {
         NSData *data = nil;
         while (data == nil) {
             data = [file availableData];
@@ -307,10 +297,23 @@
         }
     }
     
+    [task terminate];
+    
     isRunning = NO;
     [self resetConnectButton];
     NSLog(@"ADB Exited.");
+}
 
+- (NSTask*) adbTask: (NSArray*) arguments {
+    NSTask *task;
+    task = [[NSTask alloc] init];
+    NSBundle *mainBundle=[NSBundle mainBundle];
+    NSString *path=[mainBundle pathForResource:@"adb" ofType:nil];
+    
+    [task setLaunchPath:path];
+    [task setArguments: arguments];
+
+    return task;
 }
 
 - (void)appendLog:(NSString*)paramString
@@ -322,8 +325,6 @@
     } else {
         currentString = [NSString stringWithFormat:@"%@", paramString];
     }
-    
-    // NSLog(@"currentString: %@", currentString);
     
     if ([currentString rangeOfString:@"\n"].location == NSNotFound) {
         previousString = [currentString copy];
@@ -424,21 +425,21 @@
             text = [NSMutableString new];
         }
     }
-    [self.table reloadData];
+    [self.logDataTable reloadData];
     if (scrollToBottom) {
         if ([searchString length] > 0) {
-            [self.table scrollRowToVisible:[search count]-1];
+            [self.logDataTable scrollRowToVisible:[search count]-1];
         } else if (filtered != nil) {
-            [self.table scrollRowToVisible:[filtered count]-1];
+            [self.logDataTable scrollRowToVisible:[filtered count]-1];
         } else {
-            [self.table scrollRowToVisible:[logcat count]-1];
+            [self.logDataTable scrollRowToVisible:[logcat count]-1];
         }
     }
 }
 
 - (BOOL)filterMatchesRow:(NSDictionary*)row
 {
-    NSDictionary* filter = [filters objectAtIndex:[filterList selectedRow]-1];
+    NSDictionary* filter = [filters objectAtIndex:[filterListTable selectedRow]-1];
     NSString* selectedType = [filter objectForKey:KEY_FILTER_TYPE];
     NSString* realType = [self getKeyFromType:selectedType];
                           
@@ -475,7 +476,7 @@
 
 - (NSInteger)numberOfRowsInTableView:(NSTableView *)aTableView
 {
-    if ([[aTableView identifier] isEqualToString:@"logcat"]) {
+    if (aTableView == logDataTable) {
         if ([searchString length] > 0) {
             return [search count];
         } else if (filtered != nil) {
@@ -489,7 +490,7 @@
 
 - (id)tableView:(NSTableView *)aTableView objectValueForTableColumn:(NSTableColumn *)aTableColumn row:(NSInteger)rowIndex
 {
-    if ([[aTableView identifier] isEqualToString:@"logcat"]) {
+    if (aTableView == logDataTable) {
         NSDictionary* row;
         if ([searchString length] > 0) {
             row = [search objectAtIndex:rowIndex];
@@ -509,7 +510,7 @@
 
 
 - (NSCell *)tableView:(NSTableView *)tableView dataCellForTableColumn:(NSTableColumn *)tableColumn row:(NSInteger)rowIndex {
-    if ([[tableView identifier] isEqualToString:@"filters"]) {
+    if (tableView == filterListTable) {
         return [tableColumn dataCell];
     }
 
@@ -548,8 +549,8 @@
             [search addObject:[row copy]];
         }
     }
-    [self.table reloadData];
-    [self.table scrollRowToVisible:[search count]-1];
+    [self.logDataTable reloadData];
+    [self.logDataTable scrollRowToVisible:[search count]-1];
 }
 
 - (NSMutableArray*)findLogsMatching:(NSString*)string forKey:(NSString*)key
@@ -566,7 +567,7 @@
 
 - (BOOL)tableView:(NSTableView *)aTableView shouldSelectRow:(NSInteger)rowIndex
 {
-    if (![[aTableView identifier] isEqualToString:@"filters"]) {
+    if (aTableView != filterListTable) {
         return YES;
     }
     
@@ -585,8 +586,8 @@
     if ([searchString length] > 0) {
         [self search:nil];
     }
-    [table reloadData];
-    [table scrollRowToVisible:[[table dataSource] numberOfRowsInTableView:table]-1];
+    [logDataTable reloadData];
+    [logDataTable scrollRowToVisible:[[logDataTable dataSource] numberOfRowsInTableView:logDataTable]-1];
     
     return YES;
 }
@@ -594,24 +595,22 @@
 - (IBAction)addFilter
 {
     if (sheetAddFilter == nil) {
-        [NSBundle loadNibNamed:@"Sheet" owner:self];
+        [NSBundle loadNibNamed:FILTER_SHEET owner:self];
     }
     [tfFilterName becomeFirstResponder];
     
     [[sheetAddFilter filterName] setStringValue:@""];
     [[sheetAddFilter filterCriteria]  setStringValue:@""];
     
-    
-    
     [NSApp beginSheet:sheetAddFilter modalForWindow:self.window modalDelegate:self didEndSelector:@selector(didEndSheet:returnCode:contextInfo:) contextInfo:nil];
 }
 
 - (IBAction)removeFilter
 {
-    [filters removeObjectAtIndex:[[filterList selectedRowIndexes] firstIndex] - 1];
-    [filterList reloadData];
+    [filters removeObjectAtIndex:[[filterListTable selectedRowIndexes] firstIndex] - 1];
+    [filterListTable reloadData];
     [[NSUserDefaults standardUserDefaults] setValue:filters forKey:KEY_PREFS_FILTERS];
-    // [[NSUserDefaults standardUserDefaults] synchronize];
+
 }
 
 - (void) sortFilters {
@@ -619,7 +618,7 @@
     NSArray *sortDescriptors = [NSArray arrayWithObject:sortDescriptor];
     [filters sortUsingDescriptors:sortDescriptors];
     
-    [filterList reloadData];
+    [filterListTable reloadData];
 }
 
 - (IBAction)cancelSheet:(id)sender
@@ -644,9 +643,13 @@
 
 - (IBAction)restartAdb:(id)sender
 {
-    [pidMap removeAllObjects];
-    [self clearLog];
-    [self startAdb];
+    if (isRunning) {
+        isRunning = NO;
+    } else {
+        [pidMap removeAllObjects];
+        [self clearLog];
+        [self startAdb];
+    }
 }
 
 - (void)clearLog
@@ -658,7 +661,7 @@
     if ([searchString length] > 0) {
         search = [NSMutableArray new];
     }
-    [self.table reloadData];
+    [self.logDataTable reloadData];
 }
 
 - (IBAction)filterToolbarClicked:(NSSegmentedControl*)sender 
@@ -735,22 +738,17 @@
 }
 
 - (void) editFilter:(id)sender {
-    NSLog(@"editFilter: %ld, %ld [%@]", [filterList rightClickedColumn], [filterList rightClickedRow], sender);
-    if ([filterList rightClickedRow] < 1) {
+    NSLog(@"editFilter: %ld, %ld [%@]", [filterListTable rightClickedColumn], [filterListTable rightClickedRow], sender);
+    if ([filterListTable rightClickedRow] < 1) {
         return;
     }
     
-    NSDictionary* filter = [filters objectAtIndex:[filterList rightClickedRow]-1];
-    
-//    NSDictionary* filter = [filters objectAtIndex:[filterList selectedRow]-1];
-//    NSString* selectedType = [filter objectForKey:KEY_FILTER_TYPE];
-    //NSString* realType = [self getKeyFromType:selectedType];
+    NSDictionary* filter = [filters objectAtIndex:[filterListTable rightClickedRow]-1];
     
     if (sheetAddFilter == nil) {
-        [NSBundle loadNibNamed:@"Sheet" owner:self];
+        [NSBundle loadNibNamed:FILTER_SHEET owner:self];
     }
     
-    //KEY_FILTER_NAME, KEY_FILTER_TYPE, KEY_FILTER_TEXT, 
 
     [[sheetAddFilter filterName] setStringValue:[filter objectForKey:KEY_FILTER_NAME]];
     [sheetAddFilter selectItemWithTitie:[filter objectForKey:KEY_FILTER_TYPE]];
@@ -761,15 +759,15 @@
 
 - (IBAction)filterBySelected:(id)sender {
     
-    NSLog(@"filterBySelected: %ld, %ld [%@]", [table rightClickedColumn], [table rightClickedRow], sender);
+    NSLog(@"filterBySelected: %ld, %ld [%@]", [logDataTable rightClickedColumn], [logDataTable rightClickedRow], sender);
     if (sheetAddFilter == nil) {
-        [NSBundle loadNibNamed:@"Sheet" owner:self];
+        [NSBundle loadNibNamed:FILTER_SHEET owner:self];
     }
-    NSTableColumn* aColumn = [[table tableColumns] objectAtIndex:[table rightClickedColumn]];
+    NSTableColumn* aColumn = [[logDataTable tableColumns] objectAtIndex:[logDataTable rightClickedColumn]];
     //NSCell *aCell = [aColumn dataCellForRow:[table rightClickedRow]];
     
     [tfFilterName becomeFirstResponder];
-    NSDictionary* rowDetails = [self dataForRow: [table rightClickedRow]];
+    NSDictionary* rowDetails = [self dataForRow: [logDataTable rightClickedRow]];
     
     NSString* columnName = [[aColumn headerCell] title];
     NSLog(@"ColumnName: %@", columnName);
@@ -784,9 +782,9 @@
 
 - (NSMenu*) menuForTableView: (NSTableView*) tableView column:(NSInteger) column row:(NSInteger) row {
     
-    if (tableView == table) {
+    if (tableView == logDataTable) {
         NSMenu *menu = [[NSMenu alloc] init];
-        if ([table selectedRow] > 0) {
+        if ([logDataTable selectedRow] > 0) {
             [menu addItem:[[NSMenuItem alloc] initWithTitle:@"Copy" action:@selector(copy:) keyEquivalent:@"C"]];
             [menu addItem:[[NSMenuItem alloc] initWithTitle:@"Copy Message" action:@selector(copyMessageOnly:) keyEquivalent:@""]];
         }
@@ -828,12 +826,12 @@
 
 - (void) copySelectedRow: (BOOL) escapeSpecialChars :(BOOL) messageOnly{
     
-    int selectedRow = (int)[table selectedRow]-1;
-    int	numberOfRows = (int)[table numberOfRows];
+    int selectedRow = (int)[logDataTable selectedRow]-1;
+    int	numberOfRows = (int)[logDataTable numberOfRows];
     
     NSLog(@"Selected Row: %d, Total Rows: %d", selectedRow, numberOfRows);
     
-    NSIndexSet* indexSet = [table selectedRowIndexes];
+    NSIndexSet* indexSet = [logDataTable selectedRowIndexes];
     if (indexSet != nil && [indexSet firstIndex] != NSNotFound) {
         NSPasteboard	*pb = [NSPasteboard generalPasteboard];
         NSMutableString *tabsBuf = [NSMutableString string];

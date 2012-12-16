@@ -31,10 +31,6 @@ use IO::Handle;
 use Time::HiRes;
 use File::Basename;
 
-
-# We need to change the working directory to where
-# the script is. This is how :)
-# Added by Chris.
 use Cwd 'abs_path';
 my $path = abs_path($0);
 $path =~ s/atext//gi;
@@ -170,9 +166,11 @@ my $thr = threads->create(sub {
                              });
 
 eval {
-    print "The character typed in this terminal will be sent to the connected device\n";
-    print "To exit press CNTL-C.\n";
-
+    print "***************************************************************************\n";
+    print "* The character typed in this terminal will be sent to the connected device\n";
+    print "* To exit press CNTL-C.\n";
+    print "***************************************************************************\n";
+    
     my $stdin = new IO::Handle;
        $stdin->fdopen( fileno( STDIN ), "r" ) || die "Cannot open STDIN";
 

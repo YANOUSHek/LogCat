@@ -46,13 +46,14 @@
     __weak NSTextField *textEntry;
 }
 
-- (void)fontsChanged;
 
-@property (weak) IBOutlet NSButton *restartAdb;
-@property (weak) IBOutlet SelectableTableView *filterList;
 @property (weak) IBOutlet NSWindow *window;
-@property (weak) IBOutlet SelectableTableView *table;
+@property (weak) IBOutlet SelectableTableView *filterListTable;
+@property (weak) IBOutlet SelectableTableView *logDataTable;
 @property (weak) IBOutlet NSTextField *textEntry;
+@property (weak) IBOutlet NSButton *restartAdb;
+
+- (void)fontsChanged;
 - (IBAction)search:(id)sender;
 - (IBAction)addFilter;
 - (IBAction)removeFilter;

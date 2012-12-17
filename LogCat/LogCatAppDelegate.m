@@ -119,10 +119,10 @@
 
     [self readSettings];
 
-    [self startAdb];
-    
     previousString = nil;
     scrollToBottom = YES;
+    
+    [self startAdb];
     
     [self.filterListTable selectRowIndexes:[NSIndexSet indexSetWithIndex:0] byExtendingSelection:NO];
     
@@ -135,8 +135,6 @@
 
 - (void)startAdb
 {
-    NSLog(@"startAdb: isLogging=%@", logDatasource);
-
     [self.window makeKeyAndOrderFront:self];
     [logDatasource startLogger];
 
@@ -282,7 +280,6 @@
     if ([logDatasource isLogging]) {
         [logDatasource stopLogger];
     } else {
-//        [logDatasource startLogger];
         [self startAdb];
     }
 }
@@ -394,7 +391,6 @@
         [NSBundle loadNibNamed:FILTER_SHEET owner:self];
     }
     NSTableColumn* aColumn = [[logDataTable tableColumns] objectAtIndex:[logDataTable rightClickedColumn]];
-    //NSCell *aCell = [aColumn dataCellForRow:[table rightClickedRow]];
     
     [tfFilterName becomeFirstResponder];
     NSDictionary* rowDetails = [self dataForRow: [logDataTable rightClickedRow]];

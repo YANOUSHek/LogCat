@@ -76,6 +76,7 @@
     if (isLogging) {
         NSLog(@"ERROR: startLogger called but it was already running.");
     }
+    [self clearLog];
     thread = [[NSThread alloc] initWithTarget:self selector:@selector(internalStartLogger) object:nil];
     [thread start];
 }
@@ -86,7 +87,7 @@
 }
 
 - (void) internalStartLogger {
-    [self clearLog];
+    
     [self loadPID];
     [self readLog:nil];
 }
@@ -225,6 +226,8 @@
 }
 
 - (void) parsePID: (NSString*) pidInfo {
+    NSAssert([NSThread isMainThread], @"Method can only be called on main thread!");
+    
     Boolean isFirstLine = YES;
     
     NSArray* lines = [pidInfo componentsSeparatedByString:@"\n"];
@@ -309,6 +312,8 @@
 
 - (void)appendLog:(NSString*)paramString
 {
+    NSAssert([NSThread isMainThread], @"Method can only be called on main thread!");
+    
     NSString* currentString;
     if (previousString != nil) {
         currentString = [NSString stringWithFormat:@"%@%@", previousString, paramString];
@@ -471,18 +476,24 @@
 }
 
 - (void) onLoggerStarted {
+    NSAssert([NSThread isMainThread], @"Method can only be called on main thread!");
+
     if (self.delegate != nil) {
         [self.delegate onLoggerStarted];
     }
 }
 
 - (void) onLoggerStopped {
+    NSAssert([NSThread isMainThread], @"Method can only be called on main thread!");
+    
     if (self.delegate != nil) {
         [self.delegate onLoggerStopped];
     }
 }
 
 - (void) onLogUpdated {
+    NSAssert([NSThread isMainThread], @"Method can only be called on main thread!");
+    
     if (self.delegate != nil) {
         [self.delegate onLogUpdated];
     }

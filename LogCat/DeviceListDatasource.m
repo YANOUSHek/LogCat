@@ -92,9 +92,9 @@
         NSArray* args =  [line componentsSeparatedByString:@"\t"];
         NSLog(@"Device: %@", args);
         NSMutableDictionary* deviceInfo = [NSMutableDictionary dictionaryWithCapacity:2];
-        
-        [deviceInfo setValue:args[0] forKey:DEVICE_ID_KEY];
-        [deviceInfo setValue:args[1] forKey:DEVICE_TYPE_KEY];
+                
+        [deviceInfo setValue:[args objectAtIndex:0] forKey:DEVICE_ID_KEY];
+        [deviceInfo setValue:[args objectAtIndex:1] forKey:DEVICE_TYPE_KEY];
         
         [deviceList addObject:deviceInfo];
         

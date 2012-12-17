@@ -378,6 +378,10 @@
             }
             continue;
         }
+        if ([line hasSuffix:@"::process:referer signature is good."]) {
+            NSLog(@"line: type: %@, name: %@ ,line: %@", type, name, line);
+        }
+        
         NSRegularExpression* expr = [NSRegularExpression regularExpressionWithPattern:
                                      @"^\\[\\s(\\d\\d-\\d\\d\\s\\d\\d:\\d\\d:\\d\\d.\\d+)\\s+(\\d*):(.*)\\s(.)/(.*)\\]$"
                                                                               options:0
@@ -385,6 +389,7 @@
         
         NSTextCheckingResult* match = [expr firstMatchInString:line options:0 range:NSMakeRange(0, [line length])];
         if (match != nil) {
+            // Header line of log
             time = [line substringWithRange:[match rangeAtIndex:1]];
             pid = [line substringWithRange:[match rangeAtIndex:2]];
             tid = [line substringWithRange:[match rangeAtIndex:3]];
@@ -422,17 +427,18 @@
                     NSArray* values = [NSArray arrayWithObjects: time, app, pid, tid, type, name, lineOfText, nil];
                     NSDictionary* row = [NSDictionary dictionaryWithObjects:values
                                                                     forKeys:keysArray];
-                    [logData addObject:row];
-                    
-                    if (filteredLogData != nil && [self filterMatchesRow:row]) {
-                        if ([searchString length] > 0 && [self searchMatchesRow:row]) {
-                            [searchLogData addObject:row];
-                        } else {
-                            [filteredLogData addObject:row];
-                        }
-                    } else if (filteredLogData == nil && [searchString length] > 0 && [self searchMatchesRow:row]) {
-                        [searchLogData addObject:row];
-                    }
+                    [self appendRow:row];
+//                    [logData addObject:row];
+//                    
+//                    if (filteredLogData != nil && [self filterMatchesRow:row]) {
+//                        if ([searchString length] > 0 && [self searchMatchesRow:row]) {
+//                            [searchLogData addObject:row];
+//                        } else {
+//                            [filteredLogData addObject:row];
+//                        }
+//                    } else if (filteredLogData == nil && [searchString length] > 0 && [self searchMatchesRow:row]) {
+//                        [searchLogData addObject:row];
+//                    }
                 }
             } else {
                 // NSLog(@"xxx--- 4 text: %@", text);
@@ -440,17 +446,19 @@
                 NSArray* values = [NSArray arrayWithObjects: time, app, pid, tid, type, name, text, nil];
                 NSDictionary* row = [NSDictionary dictionaryWithObjects:values
                                                                 forKeys:keysArray];
-                [logData addObject:row];
+                [self appendRow:row];
                 
-                if (filteredLogData != nil && [self filterMatchesRow:row]) {
-                    if ([searchString length] > 0 && [self searchMatchesRow:row]) {
-                        [searchLogData addObject:row];
-                    } else {
-                        [filteredLogData addObject:row];
-                    }
-                } else if (filteredLogData == nil && [searchString length] > 0 && [self searchMatchesRow:row]) {
-                    [searchLogData addObject:row];
-                }
+//                [logData addObject:row];
+//                
+//                if (filteredLogData != nil && [self filterMatchesRow:row]) {
+//                    if ([searchString length] > 0 && [self searchMatchesRow:row]) {
+//                        [searchLogData addObject:row];
+//                    } else {
+//                        [filteredLogData addObject:row];
+//                    }
+//                } else if (filteredLogData == nil && [searchString length] > 0 && [self searchMatchesRow:row]) {
+//                    [searchLogData addObject:row];
+//                }
             }
             
             time = nil;
@@ -465,6 +473,20 @@
 
     [self onLogUpdated];
     
+}
+
+- (void) appendRow: (NSDictionary*) row {
+    [logData addObject:row];
+    
+    if (filteredLogData != nil && [self filterMatchesRow:row]) {
+        if ([searchString length] > 0 && [self searchMatchesRow:row]) {
+            [searchLogData addObject:row];
+        } else {
+            [filteredLogData addObject:row];
+        }
+    } else if (filteredLogData == nil && [searchString length] > 0 && [self searchMatchesRow:row]) {
+        [searchLogData addObject:row];
+    }
 }
 
 #pragma mark -

@@ -37,7 +37,7 @@
 }
 
 
-@property (weak) IBOutlet NSWindow *window;
+@property (strong) IBOutlet NSWindow *window;
 @property (weak) IBOutlet SelectableTableView *filterListTable;
 @property (weak) IBOutlet SelectableTableView *logDataTable;
 @property (weak) IBOutlet NSTextField *textEntry;

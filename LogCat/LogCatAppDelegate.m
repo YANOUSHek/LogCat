@@ -29,7 +29,7 @@
 @implementation LogCatAppDelegate
 
 @synthesize filterListTable;
-@synthesize window;
+@synthesize window = _window;
 @synthesize logDataTable;
 @synthesize textEntry;
 
@@ -351,16 +351,21 @@
     if (filter == nil) {
         filter = [NSDictionary dictionaryWithObjects:[NSArray arrayWithObjects:filterName, filterType, filterText, nil]
                                         forKeys:[NSArray arrayWithObjects:KEY_FILTER_NAME, KEY_FILTER_TYPE, KEY_FILTER_TEXT, nil]];
+        [filters addObject:filter];
+        NSLog(@"Added filter: %@", filter);
     } else {
+        [filters removeObject:filter];
         [filter setValue:filterName forKey:KEY_FILTER_NAME];
         [filter setValue:filterType forKey:KEY_FILTER_TYPE];
         [filter setValue:filterText forKey:KEY_FILTER_TEXT];
-        [filters removeObject:filter];
+        NSLog(@"Filter changed to: %@", filter);
+        
+        [filters addObject:filter];
     }
     
-    [filters addObject:filter];
-    [[NSUserDefaults standardUserDefaults] setValue:filters forKey:KEY_PREFS_FILTERS];
     
+    [[NSUserDefaults standardUserDefaults] setValue:filters forKey:KEY_PREFS_FILTERS];
+
     [tfFilterName setStringValue:@""];
     [puFilterField selectItemAtIndex:0];
     [tfFilterText setStringValue:@""];

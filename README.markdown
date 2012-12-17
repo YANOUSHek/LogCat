@@ -61,6 +61,15 @@ This is a not prioritized list of what I'd like to add to LogCat:
 5. Autodetection of adb location (or bundling the adb within LogCat?).
 6. A better solution for reading and parsing adb output.
 
+Features Requests
+==================
+(In no particular order)
+* Filter by log level and higher. For instance select info and still see warn, error, and assert
+* Make cells that have been highlighted easier to see
+* Initial default info log color is too bright
+* Categorize filters
+* Search should search TID and PID too
+
 Contributing
 ============
 

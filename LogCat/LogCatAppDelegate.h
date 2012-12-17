@@ -17,7 +17,6 @@
 
 
 @interface LogCatAppDelegate : NSObject <NSApplicationDelegate, MenuDelegate, LogDatasourceDelegate> {
-    LogDatasource* logDatasource;
     
     NSString* previousString;
     
@@ -60,7 +59,7 @@
 @property (weak) IBOutlet SelectableTableView *logDataTable;
 @property (weak) IBOutlet NSTextField *textEntry;
 @property (weak) IBOutlet NSButton *restartAdb;
-@property (strong, atomic) LogDatasource* logDatasource;
+//@property (strong, atomic) LogDatasource* logDatasource;
 
 - (void)fontsChanged;
 - (IBAction)search:(id)sender;

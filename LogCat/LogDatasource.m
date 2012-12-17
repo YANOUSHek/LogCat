@@ -3,7 +3,6 @@
 //  LogCat
 //
 //  Created by Chris Wilson on 12/15/12.
-//  Copyright (c) 2012 SplashSoftware.pl. All rights reserved.
 //
 
 #import "LogDatasource.h"
@@ -11,8 +10,6 @@
 #import "NSString_Extension.h"
 
 @interface LogDatasource () {
-
-    
     
     NSString* previousString;
     
@@ -20,6 +17,10 @@
     NSMutableArray* logData;
     NSMutableArray* filteredLogData;
     NSMutableArray* searchLogData;
+    
+    NSDictionary* filter;
+    NSString* searchString;
+
     
     NSArray* keysArray;
     
@@ -41,6 +42,14 @@
 
 - (NSString*) getKeyFromType: (NSString*) selectedType;
 
+- (void) onLogUpdated;
+- (void) onLoggerStarted;
+- (void) onLoggerStopped;
+
+- (NSMutableArray*)findLogsMatching:(NSString*)string forKey:(NSString*)key;
+
+- (void) applySearch;
+
 @end
 
 
@@ -48,10 +57,8 @@
 
 @synthesize delegate = _delegate;
 
-@synthesize filter = _filter;
-@synthesize searchString = _searchString;
-@synthesize deviceId = _deviceId;
-@synthesize isLogging = _isLogging;
+@synthesize deviceId;
+@synthesize isLogging;
 
 
 - (id)init {
@@ -61,21 +68,35 @@
         searchLogData = [NSMutableArray arrayWithCapacity:0];
         text = [NSMutableString stringWithCapacity:0];
         keysArray = [NSArray arrayWithObjects: KEY_TIME, KEY_APP, KEY_PID, KEY_TID, KEY_TYPE, KEY_NAME, KEY_TEXT, nil];
+        isLogging = NO;
     }
     return self;
 }
 
 - (void) startLogger {
+    if (isLogging) {
+        NSLog(@"ERROR: startLogger called but it was already running.");
+    }
+    NSThread* thread = [[NSThread alloc] initWithTarget:self selector:@selector(internalStartLogger) object:nil];
+    [thread start];
+}
+
+- (void) stopLogger {
+    isLogging = NO;
+}
+
+- (void) internalStartLogger {
+    [self clearLog];
     [self loadPID];
     [self readLog:nil];
 }
 
-- (void) stopLogger {
-    isLogging = false;
-}
-
 - (void) clearLog {
     [pidMap removeAllObjects];
+    [searchLogData removeAllObjects];
+    [filteredLogData removeAllObjects];
+    [logData removeAllObjects];
+    [self performSelectorOnMainThread:@selector(onLogUpdated) withObject:nil waitUntilDone:NO];
     
 }
 
@@ -100,6 +121,78 @@
     }
     return row;
 }
+
+- (void) setSearchString: (NSString*) search {
+    NSLog(@"setSearchString: %@", search);
+    if (search != nil && [search isEqualToString:searchString]) {
+        NSLog(@"Search did not change abort re-scan");
+        return;
+    }
+    
+    searchString = search;
+    if (searchString == nil || [searchString length] == 0) {
+        [searchLogData removeAllObjects];
+        [self performSelectorOnMainThread:@selector(onLogUpdated) withObject:nil waitUntilDone:NO];
+        
+    } else {
+        [self applySearch];
+    }
+}
+
+- (void) applySearch {
+    [searchLogData removeAllObjects];
+    
+    if (searchString == nil || [searchString length] == 0) {
+        return;
+        [self performSelectorOnMainThread:@selector(onLogUpdated) withObject:nil waitUntilDone:NO];
+    }
+    
+    NSMutableArray* rows = logData;
+    if (filteredLogData != nil && [filteredLogData count] > 0) {
+        rows = filteredLogData;
+    }
+    
+    [searchLogData removeAllObjects];
+    for (NSDictionary* row in rows) {
+        if ([[row objectForKey:KEY_NAME] rangeOfString:searchString options:NSCaseInsensitiveSearch].location != NSNotFound) {
+            [searchLogData addObject:[row copy]];
+        } else if ([[row objectForKey:KEY_TEXT] rangeOfString:searchString options:NSCaseInsensitiveSearch].location != NSNotFound) {
+            [searchLogData addObject:[row copy]];
+        }
+    }
+    
+    [self performSelectorOnMainThread:@selector(onLogUpdated) withObject:nil waitUntilDone:NO];
+}
+
+- (void) setFilter: (NSDictionary*) newFilter {
+    NSLog(@"setFilter: %@", newFilter);
+        
+    filter = newFilter;
+    
+    if (filter == nil) {
+        [filteredLogData removeAllObjects];
+    } else {
+        [filteredLogData removeAllObjects];
+        
+        NSString* realType = [self getKeyFromType:[filter objectForKey:KEY_FILTER_TYPE]];
+        filteredLogData = [self findLogsMatching:[filter objectForKey:KEY_FILTER_TEXT] forKey:realType];
+    }
+    
+    [self applySearch];
+}
+
+- (NSMutableArray*)findLogsMatching:(NSString*)string forKey:(NSString*)key
+{
+    NSMutableArray* result = [NSMutableArray new];
+
+    for (NSDictionary* row in logData) {
+        if ([[row objectForKey:key] rangeOfString:string options:NSCaseInsensitiveSearch].location != NSNotFound) {
+            [result addObject:[row copy]];
+        }
+    }
+    return result;
+}
+
 
 
 #pragma mark -
@@ -177,6 +270,7 @@
 - (void)readLog:(id)param
 {
     isLogging = YES;
+    [self performSelectorOnMainThread:@selector(onLoggerStarted) withObject:nil waitUntilDone:NO];
     
     NSArray *arguments = [NSArray arrayWithObjects: @"logcat", @"-v", @"long", nil];
     
@@ -210,7 +304,8 @@
     [task terminate];
     
     isLogging = NO;
-    //[self resetConnectButton];
+    [self performSelectorOnMainThread:@selector(onLoggerStopped) withObject:nil waitUntilDone:NO];
+    
     NSLog(@"ADB Exited.");
 }
 
@@ -324,19 +419,7 @@
         }
     }
 
-    if (self.delegate != nil) {
-        [self.delegate onLogUpdated];
-    }
-//    [self.logDataTable reloadData];
-//    if (scrollToBottom) {
-//        if ([searchString length] > 0) {
-//            [self.logDataTable scrollRowToVisible:[searchLogData count]-1];
-//        } else if (filteredLogData != nil) {
-//            [self.logDataTable scrollRowToVisible:[filteredLogData count]-1];
-//        } else {
-//            [self.logDataTable scrollRowToVisible:[logData count]-1];
-//        }
-//    }
+    [self onLogUpdated];
     
 }
 
@@ -346,7 +429,10 @@
 
 - (BOOL)filterMatchesRow:(NSDictionary*)row
 {
-//    NSDictionary* filter = [filters objectAtIndex:[filterListTable selectedRow]-1];
+    if (filter == nil) {
+        return YES;
+    }
+    
     NSString* selectedType = [filter objectForKey:KEY_FILTER_TYPE];
     NSString* realType = [self getKeyFromType:selectedType];
     
@@ -386,5 +472,26 @@
     return realType;
 }
 
+- (void) onLoggerStarted {
+    if (self.delegate != nil) {
+        [self.delegate onLoggerStarted];
+    }
+}
+
+- (void) onLoggerStopped {
+    if (self.delegate != nil) {
+        [self.delegate onLoggerStopped];
+    }
+}
+
+- (void) onLogUpdated {
+    if (self.delegate != nil) {
+        [self.delegate onLogUpdated];
+    }
+}
+
+- (NSString*) description {
+    return [NSString stringWithFormat:@"logDataSrouce: isLogging=%@", isLogging ? @"Yes" : @"No"];
+}
 
 @end

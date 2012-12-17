@@ -18,12 +18,8 @@
 }
 
 - (void)registerDefaults;
-//- (BOOL)filterMatchesRow:(NSDictionary*)row;
-//- (BOOL)searchMatchesRow:(NSDictionary*)row;
 - (void)readSettings;
 - (void)startAdb;
-//- (void) loadPid;
-//- (void) parsePID: (NSString*) pidInfo;
 - (void) copySelectedRow: (BOOL) escapeSpecialChars :(BOOL) messageOnly;
 - (NSDictionary*) dataForRow: (NSUInteger) rowIndex;
 
@@ -31,7 +27,6 @@
 
 @implementation LogCatAppDelegate
 
-//@synthesize logDatasource;
 @synthesize filterListTable;
 @synthesize window;
 @synthesize logDataTable;
@@ -122,7 +117,6 @@
     
     [self registerDefaults];
 
-//    [self resetConnectButton];
     [self readSettings];
 
     [self startAdb];
@@ -146,19 +140,7 @@
     [self.window makeKeyAndOrderFront:self];
     [logDatasource startLogger];
 
-//        NSThread* thread = [[NSThread alloc] initWithTarget:self selector:@selector(startLogger:) object:nil];
-//        [thread start];
-
-//    } else {
-//        NSLog(@"Error: startAdb was called but was already logging.");
-//    }
 }
-
-//- (void) startLogger: (id)param {
-//    NSLog(@"startLogger %@", logDatasource);
-//    [logDatasource startLogger];
-//    
-//}
 
 - (void)fontsChanged
 {

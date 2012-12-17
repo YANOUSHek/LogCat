@@ -20,22 +20,7 @@
     
     NSString* previousString;
     
-//    NSMutableArray* logData;
-//    NSMutableArray* filteredLogData;
-//    NSMutableArray* searchLogData;
-    
-//    NSString* searchString;
-    
-//    NSArray* keysArray;
     bool scrollToBottom;
-    
-//    NSString* time;
-//    NSString* app;
-//    NSString* pid;
-//    NSString* tid;
-//    NSString* type;
-//    NSString* name;
-//    NSMutableString* text;
     
     NSMutableArray* filters;
     IBOutlet FilterSheet *sheetAddFilter;
@@ -47,9 +32,6 @@
     NSDictionary* colors;
     NSDictionary* fonts;
     
-//    NSMutableDictionary* pidMap;
-    
-//    bool isRunning;
     __weak NSTextField *textEntry;
 }
 
@@ -59,7 +41,6 @@
 @property (weak) IBOutlet SelectableTableView *logDataTable;
 @property (weak) IBOutlet NSTextField *textEntry;
 @property (weak) IBOutlet NSButton *restartAdb;
-//@property (strong, atomic) LogDatasource* logDatasource;
 
 - (void)fontsChanged;
 - (IBAction)search:(id)sender;

@@ -12,6 +12,7 @@
 @interface LogDatasource () {
     
     NSString* previousString;
+    NSThread* thread;
     
     NSMutableDictionary* pidMap;
     NSMutableArray* logData;
@@ -54,9 +55,7 @@
 
 
 @implementation LogDatasource
-
 @synthesize delegate = _delegate;
-
 @synthesize deviceId;
 @synthesize isLogging;
 
@@ -77,12 +76,13 @@
     if (isLogging) {
         NSLog(@"ERROR: startLogger called but it was already running.");
     }
-    NSThread* thread = [[NSThread alloc] initWithTarget:self selector:@selector(internalStartLogger) object:nil];
+    thread = [[NSThread alloc] initWithTarget:self selector:@selector(internalStartLogger) object:nil];
     [thread start];
 }
 
 - (void) stopLogger {
     isLogging = NO;
+    [thread cancel];
 }
 
 - (void) internalStartLogger {
@@ -96,7 +96,7 @@
     [searchLogData removeAllObjects];
     [filteredLogData removeAllObjects];
     [logData removeAllObjects];
-    [self performSelectorOnMainThread:@selector(onLogUpdated) withObject:nil waitUntilDone:NO];
+    [self onLogUpdated];
     
 }
 
@@ -132,7 +132,7 @@
     searchString = search;
     if (searchString == nil || [searchString length] == 0) {
         [searchLogData removeAllObjects];
-        [self performSelectorOnMainThread:@selector(onLogUpdated) withObject:nil waitUntilDone:NO];
+        [self onLogUpdated];
         
     } else {
         [self applySearch];
@@ -143,8 +143,8 @@
     [searchLogData removeAllObjects];
     
     if (searchString == nil || [searchString length] == 0) {
+        [self onLogUpdated];
         return;
-        [self performSelectorOnMainThread:@selector(onLogUpdated) withObject:nil waitUntilDone:NO];
     }
     
     NSMutableArray* rows = logData;
@@ -161,7 +161,7 @@
         }
     }
     
-    [self performSelectorOnMainThread:@selector(onLogUpdated) withObject:nil waitUntilDone:NO];
+    [self onLogUpdated];
 }
 
 - (void) setFilter: (NSDictionary*) newFilter {
@@ -170,10 +170,8 @@
     filter = newFilter;
     
     if (filter == nil) {
-        [filteredLogData removeAllObjects];
+        filteredLogData = nil;
     } else {
-        [filteredLogData removeAllObjects];
-        
         NSString* realType = [self getKeyFromType:[filter objectForKey:KEY_FILTER_TYPE]];
         filteredLogData = [self findLogsMatching:[filter objectForKey:KEY_FILTER_TEXT] forKey:realType];
     }
@@ -185,9 +183,9 @@
 {
     NSMutableArray* result = [NSMutableArray new];
 
-    for (NSDictionary* row in logData) {
-        if ([[row objectForKey:key] rangeOfString:string options:NSCaseInsensitiveSearch].location != NSNotFound) {
-            [result addObject:[row copy]];
+    for (NSDictionary* logItem in logData) {
+        if ([[logItem objectForKey:key] rangeOfString:string options:NSCaseInsensitiveSearch].location != NSNotFound) {
+            [result addObject:[logItem copy]];
         }
     }
     return result;
@@ -430,7 +428,7 @@
 - (BOOL)filterMatchesRow:(NSDictionary*)row
 {
     if (filter == nil) {
-        return YES;
+        return NO;
     }
     
     NSString* selectedType = [filter objectForKey:KEY_FILTER_TYPE];

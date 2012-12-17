@@ -125,7 +125,7 @@
     scrollToBottom = YES;
     
     ///////
-    // TEST
+    // TEST CODE
     ///////
 
     DeviceListDatasource* deviceSource = [[DeviceListDatasource alloc] init];
@@ -134,7 +134,7 @@
 
 
     ///////
-    // END TEST
+    // END TEST CODE
     ///////
     
     //[self startAdb];
@@ -519,11 +519,12 @@
 
 - (void) onDevicesConneceted: (NSArray*) devices {
     NSLog(@"Connected Devices: %@", devices);
+    
+    // TODO; provide an UI for user to select the device they want to view
     if (devices != nil && [devices count] > 0) {
         [logDatasource setDeviceId:[[devices objectAtIndex:0] valueForKey:DEVICE_ID_KEY]];
         [self startAdb];
     }
-    
 }
 
 

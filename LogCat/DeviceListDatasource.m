@@ -17,6 +17,11 @@
 @end
 
 
+/**
+ It would be nice to somehow monitor USB and automatically detect when a device
+ is connected or disconnect and update a list of available devices rather than
+ this poll it when we get ready to start a capture.
+ **/
 
 // Device Information: adb shell cat /system/build.prop
 // Device List: adb devices

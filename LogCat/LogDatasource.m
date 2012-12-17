@@ -192,8 +192,6 @@
     return result;
 }
 
-
-
 #pragma mark -
 #pragma mark PID Loader
 #pragma mark -
@@ -248,6 +246,11 @@
             NSLog(@"%@", line);
             if ([line isEqualToString:MULTIPLE_DEVICE_MSG]) {
                 isLogging = NO;
+                [self onMultipleDevicesConnected];
+                return;
+            } else if ([line isEqualToString:DEVICE_NOT_FOUND_MSG]) {
+                isLogging = NO;
+                // TODO: change to use delegate onDeviceNotFound
                 [self onMultipleDevicesConnected];
                 return;
             }
@@ -365,6 +368,10 @@
         } else if ([line hasPrefix:@"error:"]) {
             NSLog(@"%@", line);
             if ([line isEqualToString:MULTIPLE_DEVICE_MSG]) {
+                isLogging = NO;
+                [self onMultipleDevicesConnected];
+                return;
+            } else if ([line isEqualToString:DEVICE_NOT_FOUND_MSG]) {
                 isLogging = NO;
                 [self onMultipleDevicesConnected];
                 return;

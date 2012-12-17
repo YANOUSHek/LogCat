@@ -12,6 +12,8 @@
 - (void) onLoggerStarted;
 - (void) onLoggerStopped;
 
+- (void) onMultipleDevicesConnected;
+
 - (void) onLogUpdated;
 
 @end

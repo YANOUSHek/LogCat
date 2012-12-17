@@ -10,13 +10,14 @@
 #import "MenuDelegate.h"
 #import "FilterSheet.h"
 #import "LogDatasource.h"
+#import "DeviceListDatasource.h"
 
 @class LogDatasource;
 
 @class SelectableTableView;
 
 
-@interface LogCatAppDelegate : NSObject <NSApplicationDelegate, MenuDelegate, LogDatasourceDelegate> {
+@interface LogCatAppDelegate : NSObject <NSApplicationDelegate, MenuDelegate, LogDatasourceDelegate, DeviceListDatasourceDelegate> {
     
     NSString* previousString;
     

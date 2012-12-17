@@ -11,6 +11,7 @@
 		83486929167D630D001BF84D /* NSString_Extension.m in Sources */ = {isa = PBXBuildFile; fileRef = 83486927167D630D001BF84D /* NSString_Extension.m */; };
 		8348692C167D6926001BF84D /* LogDatasource.m in Sources */ = {isa = PBXBuildFile; fileRef = 8348692B167D6926001BF84D /* LogDatasource.m */; };
 		83486933167D7853001BF84D /* AdbTaskHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = 83486932167D7853001BF84D /* AdbTaskHelper.m */; };
+		83542DDF167ECA0A000AF99E /* DeviceListDatasource.m in Sources */ = {isa = PBXBuildFile; fileRef = 83542DDE167ECA0A000AF99E /* DeviceListDatasource.m */; };
 		83A99624167973230042425F /* FilterSheet.m in Sources */ = {isa = PBXBuildFile; fileRef = 83A99623167973230042425F /* FilterSheet.m */; };
 		83E99EC6167D199F00ACF31A /* atext in Resources */ = {isa = PBXBuildFile; fileRef = 83E99EC5167D199F00ACF31A /* atext */; };
 		A52B597E167DDB24007B0030 /* Keyboard.png in Resources */ = {isa = PBXBuildFile; fileRef = A52B597D167DDB24007B0030 /* Keyboard.png */; };
@@ -35,6 +36,8 @@
 		8348692B167D6926001BF84D /* LogDatasource.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LogDatasource.m; sourceTree = "<group>"; };
 		83486931167D7853001BF84D /* AdbTaskHelper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AdbTaskHelper.h; sourceTree = "<group>"; };
 		83486932167D7853001BF84D /* AdbTaskHelper.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AdbTaskHelper.m; sourceTree = "<group>"; };
+		83542DDD167ECA09000AF99E /* DeviceListDatasource.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DeviceListDatasource.h; sourceTree = "<group>"; };
+		83542DDE167ECA0A000AF99E /* DeviceListDatasource.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DeviceListDatasource.m; sourceTree = "<group>"; };
 		83A9961D16794F6B0042425F /* SelectableTableView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SelectableTableView.h; sourceTree = "<group>"; };
 		83A99621167969C60042425F /* MenuDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MenuDelegate.h; sourceTree = "<group>"; };
 		83A99622167973230042425F /* FilterSheet.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FilterSheet.h; sourceTree = "<group>"; };
@@ -87,6 +90,8 @@
 				83A99621167969C60042425F /* MenuDelegate.h */,
 				8348692A167D6926001BF84D /* LogDatasource.h */,
 				8348692B167D6926001BF84D /* LogDatasource.m */,
+				83542DDD167ECA09000AF99E /* DeviceListDatasource.h */,
+				83542DDE167ECA0A000AF99E /* DeviceListDatasource.m */,
 				83486931167D7853001BF84D /* AdbTaskHelper.h */,
 				83486932167D7853001BF84D /* AdbTaskHelper.m */,
 			);
@@ -268,6 +273,7 @@
 				83486929167D630D001BF84D /* NSString_Extension.m in Sources */,
 				8348692C167D6926001BF84D /* LogDatasource.m in Sources */,
 				83486933167D7853001BF84D /* AdbTaskHelper.m in Sources */,
+				83542DDF167ECA0A000AF99E /* DeviceListDatasource.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

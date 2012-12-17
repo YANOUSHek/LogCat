@@ -199,12 +199,21 @@
 #pragma mark -
 
 - (void) loadPID {
-    NSArray *arguments = [NSArray arrayWithObjects: @"shell", @"ps", nil];
+    NSArray *arguments = nil;
+    if (deviceId == nil || deviceId.length == 0) {
+        arguments = [NSArray arrayWithObjects: @"shell", @"ps", nil];
+    } else {
+        //NSLog(@"Will bind to: %@", deviceId);
+        arguments = [NSArray arrayWithObjects: @"-s", [deviceId copy], @"shell", @"ps", nil];
+    }
+    
+    
     NSTask *task = [AdbTaskHelper adbTask: arguments];
     
     NSPipe *pipe;
     pipe = [NSPipe pipe];
     [task setStandardOutput: pipe];
+    [task setStandardError:pipe];
     [task setStandardInput:[NSPipe pipe]];
     
     NSFileHandle *file;
@@ -230,9 +239,20 @@
     
     Boolean isFirstLine = YES;
     
-    NSArray* lines = [pidInfo componentsSeparatedByString:@"\n"];
+    NSArray* lines = [pidInfo componentsSeparatedByCharactersInSet: [NSCharacterSet newlineCharacterSet]];
     
     for (NSString* line in lines) {
+        if ([line hasPrefix:@"-"]) {
+            continue;
+        } else if ([line hasPrefix:@"error:"]) {
+            NSLog(@"%@", line);
+            if ([line isEqualToString:MULTIPLE_DEVICE_MSG]) {
+                isLogging = NO;
+                [self onMultipleDevicesConnected];
+                return;
+            }
+            continue;
+        }
         
         NSArray* args =  [line componentsSeparatedByString:@" "];
         if (isFirstLine) {
@@ -273,13 +293,19 @@
     isLogging = YES;
     [self performSelectorOnMainThread:@selector(onLoggerStarted) withObject:nil waitUntilDone:NO];
     
-    NSArray *arguments = [NSArray arrayWithObjects: @"logcat", @"-v", @"long", nil];
+    NSArray *arguments = nil;
+    if (deviceId == nil || deviceId.length == 0) {
+        arguments = [NSArray arrayWithObjects: @"logcat", @"-v", @"long", nil];
+    } else {
+        arguments = [NSArray arrayWithObjects: @"-s", deviceId, @"logcat", @"-v", @"long", nil];
+    }
     
     NSTask *task = [AdbTaskHelper adbTask:arguments];
     
     NSPipe *pipe;
     pipe = [NSPipe pipe];
     [task setStandardOutput: pipe];
+    [task setStandardError:pipe];
     [task setStandardInput:[NSPipe pipe]];
     
     NSFileHandle *file;
@@ -327,14 +353,22 @@
         return;
     }
     
-    NSArray* lines = [currentString componentsSeparatedByString:@"\r\n"];
+    NSArray* lines = [currentString componentsSeparatedByCharactersInSet: [NSCharacterSet newlineCharacterSet]];
     
-    if (![currentString hasSuffix:@"\r\n"]) {
+    if (![currentString hasSuffix:@"\n"]) {
         previousString = [[lines objectAtIndex:[lines count]-1] copy];
     }
     
     for (NSString* line in lines) {
-        if ([line hasPrefix:@"--"]) {
+        if ([line hasPrefix:@"-"]) {
+            continue;
+        } else if ([line hasPrefix:@"error:"]) {
+            NSLog(@"%@", line);
+            if ([line isEqualToString:MULTIPLE_DEVICE_MSG]) {
+                isLogging = NO;
+                [self onMultipleDevicesConnected];
+                return;
+            }
             continue;
         }
         NSRegularExpression* expr = [NSRegularExpression regularExpressionWithPattern:
@@ -455,25 +489,8 @@
 
 
 #pragma mark -
-#pragma mark Others
+#pragma mark delegate wrapper
 #pragma mark -
-
-- (NSString*) getKeyFromType: (NSString*) selectedType {
-    NSString* realType = KEY_TEXT;
-    if ([selectedType isEqualToString:@"PID"]) {
-        realType = KEY_PID;
-    } else if ([selectedType isEqualToString:@"TID"]) {
-        realType = KEY_TID;
-    } else if ([selectedType isEqualToString:@"APP"]) {
-        realType = KEY_APP;
-    } else if ([selectedType isEqualToString:@"Tag"]) {
-        realType = KEY_NAME;
-    } else if ([selectedType isEqualToString:@"Type"]) {
-        realType = KEY_TYPE;
-    }
-    
-    return realType;
-}
 
 - (void) onLoggerStarted {
     NSAssert([NSThread isMainThread], @"Method can only be called on main thread!");
@@ -499,8 +516,36 @@
     }
 }
 
+- (void) onMultipleDevicesConnected {
+    NSAssert([NSThread isMainThread], @"Method can only be called on main thread!");
+    if (self.delegate != nil) {
+        [self.delegate onMultipleDevicesConnected];
+    }
+}
+
 - (NSString*) description {
     return [NSString stringWithFormat:@"logDataSrouce: isLogging=%@", isLogging ? @"Yes" : @"No"];
+}
+
+#pragma mark -
+#pragma mark Others
+#pragma mark -
+
+- (NSString*) getKeyFromType: (NSString*) selectedType {
+    NSString* realType = KEY_TEXT;
+    if ([selectedType isEqualToString:@"PID"]) {
+        realType = KEY_PID;
+    } else if ([selectedType isEqualToString:@"TID"]) {
+        realType = KEY_TID;
+    } else if ([selectedType isEqualToString:@"APP"]) {
+        realType = KEY_APP;
+    } else if ([selectedType isEqualToString:@"Tag"]) {
+        realType = KEY_NAME;
+    } else if ([selectedType isEqualToString:@"Type"]) {
+        realType = KEY_TYPE;
+    }
+    
+    return realType;
 }
 
 @end

@@ -12,6 +12,7 @@
 #import "SelectableTableView.h"
 #import "MenuDelegate.h"
 #import "NSString_Extension.h"
+#import "DeviceListDatasource.h"
 
 @interface LogCatAppDelegate () {
     LogDatasource* logDatasource;
@@ -109,6 +110,7 @@
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification
 {
     NSLog(@"applicationDidFinishLaunching: %@", aNotification);
+    
     logDatasource = [[LogDatasource alloc] init];
     [logDatasource setDelegate:self];
     
@@ -116,13 +118,26 @@
     [self.filterListTable setMenuDelegate:self];
     
     [self registerDefaults];
-
+    
     [self readSettings];
-
+    
     previousString = nil;
     scrollToBottom = YES;
     
-    [self startAdb];
+    ///////
+    // TEST
+    ///////
+
+    DeviceListDatasource* deviceSource = [[DeviceListDatasource alloc] init];
+    [deviceSource setDelegate:self];
+    [deviceSource loadDeviceList];
+
+
+    ///////
+    // END TEST
+    ///////
+    
+    //[self startAdb];
     
     [self.filterListTable selectRowIndexes:[NSIndexSet indexSetWithIndex:0] byExtendingSelection:NO];
     
@@ -498,6 +513,19 @@
     }
 }
 
+#pragma mark -
+#pragma mark DeviceListDatasourceDelegate
+#pragma mark -
+
+- (void) onDevicesConneceted: (NSArray*) devices {
+    NSLog(@"Connected Devices: %@", devices);
+    if (devices != nil && [devices count] > 0) {
+        [logDatasource setDeviceId:[[devices objectAtIndex:0] valueForKey:DEVICE_ID_KEY]];
+        [self startAdb];
+    }
+    
+}
+
 
 #pragma mark -
 #pragma mark LogcatDatasourceDelegate
@@ -514,8 +542,6 @@
 }
 
 - (void) onLogUpdated {
-//    NSLog(@"LogcatDatasourceDelegate::onLogUpdated");
-    
     [self.logDataTable reloadData];
     if (scrollToBottom) {
         [self.logDataTable scrollRowToVisible:[logDatasource getDisplayCount]-1];
@@ -523,5 +549,9 @@
 
 }
 
+- (void) onMultipleDevicesConnected {
+    NSLog(@"LogcatDatasourceDelegate::onMultipleDevicesConnected");
+    
+}
 
 @end

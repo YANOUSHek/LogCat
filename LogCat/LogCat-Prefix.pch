@@ -22,6 +22,8 @@
 
 #define FILTER_SHEET @"FilterSheet"
 
+#define MULTIPLE_DEVICE_MSG @"error: more than one device and emulator"
+
 #define BOLD_FONT [NSFont boldSystemFontOfSize:11]
 #define REGULAR_FONT [NSFont systemFontOfSize:11]
 

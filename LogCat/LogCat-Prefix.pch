@@ -21,6 +21,7 @@
 #define KEY_PREFS_FILTERS @"filters"
 
 #define FILTER_SHEET @"FilterSheet"
+#define DEVICE_PICKER_SHEET @"DevicePickerSheet"
 
 #define MULTIPLE_DEVICE_MSG @"error: more than one device and emulator"
 #define DEVICE_NOT_FOUND_MSG @"error: device not found"

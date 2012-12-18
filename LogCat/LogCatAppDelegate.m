@@ -155,6 +155,16 @@
 
 }
 
+- (IBAction)cancelDevicePicker:(id)sender {
+    NSLog(@"cancelDevicePicker");
+    [NSApp endSheet:sheetDevicePicker returnCode:NSCancelButton];
+}
+
+- (IBAction)startLogForDevice:(id)sender {
+    NSLog(@"cancelDevicePicker");
+    [NSApp endSheet:sheetDevicePicker returnCode:NSOKButton];
+}
+
 - (void)fontsChanged
 {
     [self readSettings];
@@ -329,6 +339,24 @@
     [as executeAndReturnError:nil];
     
     
+}
+
+
+- (void)deviceSheetDidEnd:(NSWindow *)sheet returnCode:(NSInteger)returnCode contextInfo:(void *)contextInfo
+{
+    NSLog(@"Device Pikcker Sheet Finished %ld", returnCode);
+    [sheetDevicePicker orderOut:self];
+    if (returnCode == NSCancelButton) {
+        return;
+    }
+    
+    NSInteger index = [[sheetDevicePicker deviceButton] indexOfSelectedItem];
+    
+    NSDictionary* device = [[sheetDevicePicker devices] objectAtIndex:0];
+    if (device != nil) {
+        [logDatasource setDeviceId:[device valueForKey:DEVICE_ID_KEY]];
+        [self startAdb];
+    }
 }
 
 /**
@@ -525,11 +553,23 @@
 - (void) onDevicesConneceted: (NSArray*) devices {
     NSLog(@"Connected Devices: %@", devices);
     
-    // TODO; provide an UI for user to select the device they want to view
-    if (devices != nil && [devices count] > 0) {
-        [logDatasource setDeviceId:[[devices objectAtIndex:0] valueForKey:DEVICE_ID_KEY]];
-        [self startAdb];
+    if (sheetDevicePicker == nil) {
+        [NSBundle loadNibNamed:DEVICE_PICKER_SHEET owner:self];
     }
+    
+    [NSApp beginSheet:sheetDevicePicker modalForWindow:self.window modalDelegate:self didEndSelector:@selector(deviceSheetDidEnd:returnCode:contextInfo:) contextInfo:nil];
+    NSPopUpButton* devicePicker = [sheetDevicePicker deviceButton];
+    [devicePicker removeAllItems];
+    [sheetDevicePicker setDevices:devices];
+
+    NSMutableArray* titles = [NSMutableArray arrayWithCapacity:[devices count]];
+    for (NSDictionary* device in devices) {
+        NSString* title = [NSString stringWithFormat:@"%@ - %@", [device valueForKey:DEVICE_TYPE_KEY], [device valueForKey:DEVICE_ID_KEY]];
+        
+        [titles addObject:title];
+    }
+        
+    [devicePicker addItemsWithTitles:titles];    
 }
 
 

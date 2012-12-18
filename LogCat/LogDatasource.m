@@ -11,12 +11,14 @@
 
 // 1 - adb logcat -v long
 // 2 - adb logcat -v threadtime
-// 3 - adb logcat -B
+// 3 - adb logcat -B  # Work in progress
 #define LOG_FORMAT 2
 
 @interface LogDatasource () {
     
     NSString* previousString;
+    NSData* pendingData;
+    
     NSThread* thread;
     
     NSMutableDictionary* pidMap;
@@ -304,9 +306,9 @@
     NSArray *arguments = nil;
     if (LOG_FORMAT == 1) {
         if (deviceId == nil || deviceId.length == 0) {
-            arguments = [NSArray arrayWithObjects: @"logcat", @"-v", @"threadtime", nil];
+            arguments = [NSArray arrayWithObjects: @"logcat", @"-v", @"long", nil];
         } else {
-            arguments = [NSArray arrayWithObjects: @"-s", deviceId, @"logcat", @"-v", @"threadtime", nil];
+            arguments = [NSArray arrayWithObjects: @"-s", deviceId, @"logcat", @"-v", @"long", nil];
         }
         
     } else if (LOG_FORMAT == 2) {
@@ -316,7 +318,15 @@
         } else {
             arguments = [NSArray arrayWithObjects: @"-s", deviceId, @"logcat", @"-v", @"threadtime", nil];
         }
+    } else if (LOG_FORMAT == 3) {
+        
+        if (deviceId == nil || deviceId.length == 0) {
+            arguments = [NSArray arrayWithObjects: @"logcat", @"-B", nil];
+        } else {
+            arguments = [NSArray arrayWithObjects: @"-s", deviceId, @"logcat", @"-B", nil];
+        }
     }
+    
     
     NSTask *task = [AdbTaskHelper adbTask:arguments];
     
@@ -336,6 +346,8 @@
         while (data == nil) {
             data = [file availableData];
         }
+        
+        
         if (data != nil) {
             
             NSString *string;
@@ -344,6 +356,8 @@
                 [self performSelectorOnMainThread:@selector(appendLongLog:) withObject:string waitUntilDone:YES];
             } else if (LOG_FORMAT == 2) {
                 [self performSelectorOnMainThread:@selector(appendThreadtimeLog:) withObject:string waitUntilDone:YES];
+            } else if (LOG_FORMAT == 3) {
+                [self performSelectorOnMainThread:@selector(appendBinaryLog:) withObject:data waitUntilDone:YES];
             }
         } else {
             NSLog(@"Data was nil...");
@@ -356,6 +370,32 @@
     [self performSelectorOnMainThread:@selector(onLoggerStopped) withObject:nil waitUntilDone:NO];
     
     NSLog(@"ADB Exited.");
+}
+
+- (void) appendBinaryLog: (NSData*) data {
+    NSAssert([NSThread isMainThread], @"Method can only be called on main thread!");
+    
+    NSLog(@"Read %ld bytes", [data length]);
+    /*
+     Header (20 bytes total):
+     [payloadlength]  2 bytes
+     [unused padding] 2 bytes
+     [PID]            4 bytes
+     [Thread ID]      4 bytes
+     [time seconds]   4 bytes
+     [time nanosecs]  4 bytes
+     [payload]        payloadlength bytes
+     
+     Payload section of the header is (payloadlength bytes total):
+     [log priority]            1 byte
+     [null terminated tag]     unknown length, < payloadlength
+     [null terminated log msg] unknown length, < payloadlength
+     */
+    
+     // TODO
+    
+    
+    
 }
 
 - (void) appendThreadtimeLog: (NSString*) paramString {

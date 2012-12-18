@@ -9,6 +9,7 @@
 #import <Cocoa/Cocoa.h>
 #import "MenuDelegate.h"
 #import "FilterSheet.h"
+#import "DevicePickerSheet.h"
 #import "LogDatasource.h"
 #import "DeviceListDatasource.h"
 
@@ -25,6 +26,7 @@
     
     NSMutableArray* filters;
     IBOutlet FilterSheet *sheetAddFilter;
+    IBOutlet DevicePickerSheet* sheetDevicePicker;
     IBOutlet NSTextField *tfFilterName;
     IBOutlet NSPopUpButton *puFilterField;
     IBOutlet NSTextField *tfFilterText;
@@ -42,6 +44,9 @@
 @property (weak) IBOutlet SelectableTableView *logDataTable;
 @property (weak) IBOutlet NSTextField *textEntry;
 @property (weak) IBOutlet NSButton *restartAdb;
+
+- (IBAction)cancelDevicePicker:(id)sender;
+- (IBAction)startLogForDevice:(id)sender;
 
 - (void)fontsChanged;
 - (IBAction)search:(id)sender;

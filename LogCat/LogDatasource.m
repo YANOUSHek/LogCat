@@ -9,6 +9,11 @@
 #import "AdbTaskHelper.h"
 #import "NSString_Extension.h"
 
+// 1 - adb logcat -v long
+// 2 - adb logcat -v threadtime
+// 3 - adb logcat -B
+#define LOG_FORMAT 2
+
 @interface LogDatasource () {
     
     NSString* previousString;
@@ -297,10 +302,20 @@
     [self performSelectorOnMainThread:@selector(onLoggerStarted) withObject:nil waitUntilDone:NO];
     
     NSArray *arguments = nil;
-    if (deviceId == nil || deviceId.length == 0) {
-        arguments = [NSArray arrayWithObjects: @"logcat", @"-v", @"long", nil];
-    } else {
-        arguments = [NSArray arrayWithObjects: @"-s", deviceId, @"logcat", @"-v", @"long", nil];
+    if (LOG_FORMAT == 1) {
+        if (deviceId == nil || deviceId.length == 0) {
+            arguments = [NSArray arrayWithObjects: @"logcat", @"-v", @"threadtime", nil];
+        } else {
+            arguments = [NSArray arrayWithObjects: @"-s", deviceId, @"logcat", @"-v", @"threadtime", nil];
+        }
+        
+    } else if (LOG_FORMAT == 2) {
+    
+        if (deviceId == nil || deviceId.length == 0) {
+            arguments = [NSArray arrayWithObjects: @"logcat", @"-v", @"threadtime", nil];
+        } else {
+            arguments = [NSArray arrayWithObjects: @"-s", deviceId, @"logcat", @"-v", @"threadtime", nil];
+        }
     }
     
     NSTask *task = [AdbTaskHelper adbTask:arguments];
@@ -325,7 +340,11 @@
             
             NSString *string;
             string = [[NSString alloc] initWithData: data encoding: NSUTF8StringEncoding];
-            [self performSelectorOnMainThread:@selector(appendLog:) withObject:string waitUntilDone:YES];
+            if (LOG_FORMAT == 1) {
+                [self performSelectorOnMainThread:@selector(appendLongLog:) withObject:string waitUntilDone:YES];
+            } else if (LOG_FORMAT == 2) {
+                [self performSelectorOnMainThread:@selector(appendThreadtimeLog:) withObject:string waitUntilDone:YES];
+            }
         } else {
             NSLog(@"Data was nil...");
         }
@@ -339,7 +358,126 @@
     NSLog(@"ADB Exited.");
 }
 
-- (void)appendLog:(NSString*)paramString
+- (void) appendThreadtimeLog: (NSString*) paramString {
+    NSAssert([NSThread isMainThread], @"Method can only be called on main thread!");
+
+    NSString* content = paramString;
+    if (previousString != nil) {
+        content = [NSString stringWithFormat:@"%@%@", previousString, content];
+    }
+    
+//    NSLog(@"Will parse %ld: %@", [paramString length], paramString);
+    NSArray* lines = [paramString componentsSeparatedByCharactersInSet: [NSCharacterSet newlineCharacterSet]];
+    // Format:
+    // [DATE] [TIME] [PID] [TID] [LOGLEVEL] [TAG]: [MESSAGE]
+    for (NSString* line in lines) {
+        if (line == nil || [line length] == 0) {
+            continue;
+        }
+        
+        if ([line hasPrefix:@"-"]) {
+            continue;
+        } else if ([line hasPrefix:@"error:"]) {
+            NSLog(@"%@", line);
+            if ([line isEqualToString:MULTIPLE_DEVICE_MSG]) {
+                isLogging = NO;
+                [self onMultipleDevicesConnected];
+                return;
+            } else if ([line isEqualToString:DEVICE_NOT_FOUND_MSG]) {
+                isLogging = NO;
+                [self onMultipleDevicesConnected];
+                return;
+            }
+            continue;
+        }
+        previousString = line;
+//        NSLog(@"Parsing \"%@\"", line);
+        NSScanner* scanner = [NSScanner scannerWithString:line];
+        NSString* dateVal;
+        
+        BOOL result = [scanner scanUpToString:@" " intoString:&dateVal];
+        if (!result) {
+//            NSLog(@"1: Bad line: %@", line);
+            continue;
+        }
+        
+        NSString* timeVal;
+        result = [scanner scanUpToString:@" " intoString:&timeVal];
+        if (!result) {
+//            NSLog(@"2: Bad line: %@", line);
+            continue;
+        }
+        
+        NSString* fullTimeVal = [NSString stringWithFormat:@"%@ %@", dateVal, timeVal];
+
+        
+        NSString* pidVal;
+        result = [scanner scanUpToString:@" " intoString:&pidVal];
+        if (!result) {
+//            NSLog(@"3: Bad line: %@", line);
+            continue;
+        }
+        
+        if ([pidVal isInteger] == false) {
+            continue;
+        }
+        
+        NSString* appVal = [pidMap objectForKey:pidVal];
+        if (appVal == nil) {
+            NSLog(@"%@ not found in pid map.", pidVal);
+            [self loadPID];
+            appVal = [pidMap objectForKey:pidVal];
+            if (app == nil) {
+                // This is normal during startup because there can be log
+                // messages from apps that are not running anymore.
+                appVal = @"unknown";
+                [pidMap setValue:appVal forKey:pidVal];
+            }
+        }
+        
+        NSString* tidVal;
+        result = [scanner scanUpToString:@" " intoString:&tidVal];
+        if (!result) {
+//            NSLog(@"4: Bad line: %@", line);
+            continue;
+        }
+
+        NSString* logLevelVal;
+        result = [scanner scanUpToString:@" " intoString:&logLevelVal];
+        if (!result) {
+//            NSLog(@"5: Bad line: %@", line);
+            continue;
+        }
+    
+        NSString* tagVal;
+        result = [scanner scanUpToString:@": " intoString:&tagVal];
+        if (!result) {
+//            NSLog(@"6: Bad line: %@", line);
+            continue;
+        }
+        
+        // Discard ": "
+        [scanner scanString:@": " intoString:nil];
+    
+        NSString* msgVal;
+        result = [scanner scanUpToString:@"\n" intoString:&msgVal];
+        if (!result) {
+//            NSLog(@"7: No msg on line: %@", line);
+            continue;
+        }
+    
+        //time, app, pid, tid, type, name, text, 
+        NSArray* values = [NSArray arrayWithObjects: fullTimeVal, appVal, pidVal, tidVal, logLevelVal, tagVal, msgVal, nil];
+        NSDictionary* row = [NSDictionary dictionaryWithObjects:values forKeys:keysArray];
+        [self appendRow:row];
+    
+    }
+    [self onLogUpdated];
+
+}
+
+
+- (void)appendLongLog:(NSString*)paramString
 {
     NSAssert([NSThread isMainThread], @"Method can only be called on main thread!");
     
@@ -377,9 +515,6 @@
                 return;
             }
             continue;
-        }
-        if ([line hasSuffix:@"::process:referer signature is good."]) {
-            NSLog(@"line: type: %@, name: %@ ,line: %@", type, name, line);
         }
         
         NSRegularExpression* expr = [NSRegularExpression regularExpressionWithPattern:
@@ -427,18 +562,8 @@
                     NSArray* values = [NSArray arrayWithObjects: time, app, pid, tid, type, name, lineOfText, nil];
                     NSDictionary* row = [NSDictionary dictionaryWithObjects:values
                                                                     forKeys:keysArray];
+                    
                     [self appendRow:row];
-//                    [logData addObject:row];
-//                    
-//                    if (filteredLogData != nil && [self filterMatchesRow:row]) {
-//                        if ([searchString length] > 0 && [self searchMatchesRow:row]) {
-//                            [searchLogData addObject:row];
-//                        } else {
-//                            [filteredLogData addObject:row];
-//                        }
-//                    } else if (filteredLogData == nil && [searchString length] > 0 && [self searchMatchesRow:row]) {
-//                        [searchLogData addObject:row];
-//                    }
                 }
             } else {
                 // NSLog(@"xxx--- 4 text: %@", text);
@@ -446,19 +571,7 @@
                 NSArray* values = [NSArray arrayWithObjects: time, app, pid, tid, type, name, text, nil];
                 NSDictionary* row = [NSDictionary dictionaryWithObjects:values
                                                                 forKeys:keysArray];
-                [self appendRow:row];
-                
-//                [logData addObject:row];
-//                
-//                if (filteredLogData != nil && [self filterMatchesRow:row]) {
-//                    if ([searchString length] > 0 && [self searchMatchesRow:row]) {
-//                        [searchLogData addObject:row];
-//                    } else {
-//                        [filteredLogData addObject:row];
-//                    }
-//                } else if (filteredLogData == nil && [searchString length] > 0 && [self searchMatchesRow:row]) {
-//                    [searchLogData addObject:row];
-//                }
+                [self appendRow:row];                
             }
             
             time = nil;

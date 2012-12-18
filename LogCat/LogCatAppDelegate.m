@@ -124,19 +124,10 @@
     previousString = nil;
     scrollToBottom = YES;
     
-    ///////
-    // TEST CODE
-    ///////
-
     DeviceListDatasource* deviceSource = [[DeviceListDatasource alloc] init];
     [deviceSource setDelegate:self];
     [deviceSource loadDeviceList];
 
-
-    ///////
-    // END TEST CODE
-    ///////
-    
     //[self startAdb];
     
     [self.filterListTable selectRowIndexes:[NSIndexSet indexSetWithIndex:0] byExtendingSelection:NO];
@@ -341,6 +332,22 @@
     
 }
 
+- (IBAction)newWindow:(id)sender {
+    
+    // This is a quick hack to try out multiple logger windows.
+    NSTask *task;
+    task = [[NSTask alloc] init];
+    NSBundle *mainBundle=[NSBundle mainBundle];
+    
+    NSString *path = @"/usr/bin/open";
+    [task setLaunchPath:path];
+    
+    NSArray* arguments = [NSArray arrayWithObjects: @"-n", [mainBundle bundlePath], nil];
+    [task setArguments: arguments];
+    [task launch];
+
+}
+
 
 - (void)deviceSheetDidEnd:(NSWindow *)sheet returnCode:(NSInteger)returnCode contextInfo:(void *)contextInfo
 {
@@ -352,7 +359,7 @@
     
     NSInteger index = [[sheetDevicePicker deviceButton] indexOfSelectedItem];
     
-    NSDictionary* device = [[sheetDevicePicker devices] objectAtIndex:0];
+    NSDictionary* device = [[sheetDevicePicker devices] objectAtIndex:index];
     if (device != nil) {
         [logDatasource setDeviceId:[device valueForKey:DEVICE_ID_KEY]];
         [self startAdb];

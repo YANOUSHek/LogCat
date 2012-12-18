@@ -59,5 +59,6 @@
 - (IBAction)restartAdb:(id)sender;
 - (IBAction)filterToolbarClicked:(NSSegmentedControl*)sender;
 - (IBAction)openTypingTerminal:(id)sender;
+- (IBAction)newWindow:(id)sender;
 
 @end

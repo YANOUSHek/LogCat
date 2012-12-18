@@ -257,8 +257,7 @@
                 return;
             } else if ([line isEqualToString:DEVICE_NOT_FOUND_MSG]) {
                 isLogging = NO;
-                // TODO: change to use delegate onDeviceNotFound
-                [self onMultipleDevicesConnected];
+                [self onDeviceNotFound];
                 return;
             }
             continue;
@@ -702,6 +701,13 @@
     NSAssert([NSThread isMainThread], @"Method can only be called on main thread!");
     if (self.delegate != nil) {
         [self.delegate onMultipleDevicesConnected];
+    }
+}
+
+- (void) onDeviceNotFound {
+    NSAssert([NSThread isMainThread], @"Method can only be called on main thread!");
+    if (self.delegate != nil) {
+        [self.delegate onDeviceNotFound];
     }
 }
 

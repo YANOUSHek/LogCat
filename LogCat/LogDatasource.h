@@ -14,6 +14,8 @@
 
 - (void) onMultipleDevicesConnected;
 
+- (void) onDeviceNotFound;
+
 - (void) onLogUpdated;
 
 @end

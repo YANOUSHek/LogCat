@@ -362,8 +362,11 @@
     NSDictionary* device = [[sheetDevicePicker devices] objectAtIndex:index];
     if (device != nil) {
         [logDatasource setDeviceId:[device valueForKey:DEVICE_ID_KEY]];
+        [[self window] setTitle:[[sheetDevicePicker deviceButton] titleOfSelectedItem]];
         [self startAdb];
     }
+    
+
 }
 
 /**
@@ -605,6 +608,15 @@
 - (void) onMultipleDevicesConnected {
     NSLog(@"LogcatDatasourceDelegate::onMultipleDevicesConnected");
     
+    DeviceListDatasource* deviceSource = [[DeviceListDatasource alloc] init];
+    [deviceSource setDelegate:self];
+    [deviceSource loadDeviceList];
+
+}
+
+- (void) onDeviceNotFound {
+    NSLog(@"LogcatDatasourceDelegate::onDeviceNotFound");
+    [logDatasource setDeviceId:nil];
 }
 
 @end

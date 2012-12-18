@@ -69,6 +69,9 @@ Features Requests
 * Initial default info log color is too bright
 * Categorize filters
 * Search should search TID and PID too
+* Ability to save and open log files
+* Ability to bookmark a lines and annotate
+* Add ability to find a string. It should jump to next instance
 
 Contributing
 ============

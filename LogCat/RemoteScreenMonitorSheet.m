@@ -30,14 +30,29 @@
 }
 
 
+- (IBAction)showWindow:(id)sender {
+    if (screenSource != nil) {
+        [screenSource startMonitoring];
+    }
+    [super showWindow:sender];
+}
+
+
 - (void)windowDidLoad {
     NSLog(@"Remote Screen Window: windowDidLoad");
     [[self window] setTitle:@"Remote Screen Monitor"];
-    screenSource = [[DeviceScreenDatasource alloc] init];
-    [screenSource setDelegate:self];
+    [[self window] setBackgroundColor:[NSColor blackColor]];
+    
+    if (screenSource == nil) {
+        screenSource = [[DeviceScreenDatasource alloc] init];
+        [screenSource setDelegate:self];
+    }
     
     [screenSource startMonitoring];
+}
 
+- (void)windowWillBeginSheet:(NSNotification *)notification {
+    NSLog(@"windowWillBeginSheet");
 }
 
 - (void)windowWillClose:(NSNotification *)notification {
@@ -57,4 +72,16 @@
 - (IBAction)segmentedControl:(id)sender {
     NSLog(@"Segmented Control Selected: %@", sender);
 }
+
+- (void) copy:(id)sender {
+    NSLog(@"Copy Screen");
+    NSImage *image = [screenImage image];
+    if (image != nil) {
+        NSPasteboard *pasteboard = [NSPasteboard generalPasteboard];
+        [pasteboard clearContents];
+        NSArray *copiedObjects = [NSArray arrayWithObject:image];
+        [pasteboard writeObjects:copiedObjects];
+    }
+}
+
 @end

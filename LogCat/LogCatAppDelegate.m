@@ -155,6 +155,7 @@
     }
 
     if(! [[remoteScreen window] isVisible] ) {
+        NSLog(@"window: %@", [remoteScreen window]);
         [remoteScreen showWindow:self];
     }
 }

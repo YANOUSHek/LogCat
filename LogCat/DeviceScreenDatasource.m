@@ -35,9 +35,19 @@
 }
 
 - (void) startMonitoring {
+    if (isRunning) {
+        return;
+    }
     isRunning = YES;
-    screenUpdateThread = [[NSThread alloc] initWithTarget:self selector:@selector(internalStartMonitoring) object:nil];
-    [screenUpdateThread start];
+    
+    if (screenUpdateThread == nil) {
+        screenUpdateThread = [[NSThread alloc] initWithTarget:self selector:@selector(internalStartMonitoring) object:nil];
+    }
+    
+    if (![screenUpdateThread isExecuting]) {
+        NSLog(@"start monitoring screen");
+        [screenUpdateThread start];
+    }
 }
 
 - (void) stopMonitoring {

@@ -9,12 +9,12 @@
 #import <Cocoa/Cocoa.h>
 #import "DeviceScreenDatasource.h"
 
-@interface RemoteScreenMonitorSheet : NSWindowController <DeviceScreenDatasourceDelegate> {
+@interface RemoteScreenMonitorSheet : NSWindowController <NSWindowDelegate, DeviceScreenDatasourceDelegate> {
     __weak NSImageCell *screenImage;
 }
 
 @property (weak) IBOutlet NSImageCell *screenImage;
 
 - (IBAction)segmentedControl:(id)sender;
-
+- (IBAction)copy:(id)sender;
 @end

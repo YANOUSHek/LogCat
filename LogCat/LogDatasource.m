@@ -354,7 +354,8 @@
             if (LOG_FORMAT == 1) {
                 [self performSelectorOnMainThread:@selector(appendLongLog:) withObject:string waitUntilDone:YES];
             } else if (LOG_FORMAT == 2) {
-                [self performSelectorOnMainThread:@selector(appendThreadtimeLog:) withObject:string waitUntilDone:YES];
+//                [self performSelectorOnMainThread:@selector(appendThreadtimeLog:) withObject:string waitUntilDone:YES];
+                [self appendThreadtimeLog:string];
             } else if (LOG_FORMAT == 3) {
                 [self performSelectorOnMainThread:@selector(appendBinaryLog:) withObject:data waitUntilDone:YES];
             }
@@ -366,7 +367,7 @@
     [task terminate];
     
     isLogging = NO;
-    [self performSelectorOnMainThread:@selector(onLoggerStopped) withObject:nil waitUntilDone:NO];
+        [self performSelectorOnMainThread:@selector(onLoggerStopped) withObject:nil waitUntilDone:NO];
     
     NSLog(@"ADB Exited.");
 }
@@ -393,125 +394,141 @@
     
      // TODO
     
-    
-    
 }
 
 - (void) appendThreadtimeLog: (NSString*) paramString {
-    NSAssert([NSThread isMainThread], @"Method can only be called on main thread!");
+//    NSAssert([NSThread isMainThread], @"Method can only be called on main thread!");
 
-    NSString* content = paramString;
-    if (previousString != nil) {
-        content = [NSString stringWithFormat:@"%@%@", previousString, content];
+    NSMutableString* currentLine = [[NSMutableString alloc] initWithCapacity:1024];
+
+    if (previousString != nil && [previousString length] > 0) {
+        [currentLine appendString:previousString];
+        previousString = nil;
     }
     
-//    NSLog(@"Will parse %ld: %@", [paramString length], paramString);
-    NSArray* lines = [paramString componentsSeparatedByCharactersInSet: [NSCharacterSet newlineCharacterSet]];
-    // Format:
-    // [DATE] [TIME] [PID] [TID] [LOGLEVEL] [TAG]: [MESSAGE]
-    for (NSString* line in lines) {
-        if (line == nil || [line length] == 0) {
-            continue;
+    for (int i = 0; i < [paramString length]; i++) {
+        unichar currentChar = [paramString characterAtIndex:i];
+        switch (currentChar) {
+            case '\n':
+                [currentLine appendString:@"\n"];
+                [self parseThreadTimeLine:currentLine];
+                [currentLine setString:@""];
+                break;
+            case '\r':
+                // discard these
+                break;
+            default:
+                [currentLine appendString:[NSString stringWithFormat:@"%C", currentChar]];
+                break;
         }
-        
-        if ([line hasPrefix:@"-"]) {
-            continue;
-        } else if ([line hasPrefix:@"error:"]) {
-            NSLog(@"%@", line);
-            if ([line isEqualToString:MULTIPLE_DEVICE_MSG]) {
-                isLogging = NO;
-                [self onMultipleDevicesConnected];
-                return;
-            } else if ([line isEqualToString:DEVICE_NOT_FOUND_MSG]) {
-                isLogging = NO;
-                [self onMultipleDevicesConnected];
-                return;
-            }
-            continue;
+    }
+    
+    previousString = currentLine;
+    [self performSelectorOnMainThread:@selector(onLogUpdated) withObject:nil waitUntilDone:YES];
+
+}
+
+- (void) parseThreadTimeLine: (NSString*) line {
+    
+    if ([line hasPrefix:@"-"]) {
+        return;
+    } else if ([line hasPrefix:@"error:"]) {
+        NSLog(@"%@", line);
+        if ([line isEqualToString:MULTIPLE_DEVICE_MSG]) {
+            isLogging = NO;
+            [self onMultipleDevicesConnected];
+            return;
+        } else if ([line isEqualToString:DEVICE_NOT_FOUND_MSG]) {
+            isLogging = NO;
+            [self onMultipleDevicesConnected];
+            return;
         }
-        previousString = line;
+        return;
+    }
+    previousString = line;
 //        NSLog(@"Parsing \"%@\"", line);
-        NSScanner* scanner = [NSScanner scannerWithString:line];
-        NSString* dateVal;
-        
-        BOOL result = [scanner scanUpToString:@" " intoString:&dateVal];
-        if (!result) {
-//            NSLog(@"1: Bad line: %@", line);
-            continue;
-        }
-        
-        NSString* timeVal;
-        result = [scanner scanUpToString:@" " intoString:&timeVal];
-        if (!result) {
-//            NSLog(@"2: Bad line: %@", line);
-            continue;
-        }
-        
-        NSString* fullTimeVal = [NSString stringWithFormat:@"%@ %@", dateVal, timeVal];
-
-        
-        NSString* pidVal;
-        result = [scanner scanUpToString:@" " intoString:&pidVal];
-        if (!result) {
-//            NSLog(@"3: Bad line: %@", line);
-            continue;
-        }
-        
-        if ([pidVal isInteger] == false) {
-            continue;
-        }
-        
-        NSString* appVal = [pidMap objectForKey:pidVal];
-        if (appVal == nil) {
-            NSLog(@"%@ not found in pid map.", pidVal);
-            [self loadPID];
-            appVal = [pidMap objectForKey:pidVal];
-            if (app == nil) {
-                // This is normal during startup because there can be log
-                // messages from apps that are not running anymore.
-                appVal = @"unknown";
-                [pidMap setValue:appVal forKey:pidVal];
-            }
-        }
-        
-        NSString* tidVal;
-        result = [scanner scanUpToString:@" " intoString:&tidVal];
-        if (!result) {
-//            NSLog(@"4: Bad line: %@", line);
-            continue;
-        }
-
-        NSString* logLevelVal;
-        result = [scanner scanUpToString:@" " intoString:&logLevelVal];
-        if (!result) {
-//            NSLog(@"5: Bad line: %@", line);
-            continue;
-        }
+    NSScanner* scanner = [NSScanner scannerWithString:line];
+    NSString* dateVal;
     
-        NSString* tagVal;
-        result = [scanner scanUpToString:@": " intoString:&tagVal];
-        if (!result) {
-//            NSLog(@"6: Bad line: %@", line);
-            continue;
-        }
-        
-        // Discard ": "
-        [scanner scanString:@": " intoString:nil];
-    
-        NSString* msgVal;
-        result = [scanner scanUpToString:@"\n" intoString:&msgVal];
-        if (!result) {
-//            NSLog(@"7: No msg on line: %@", line);
-            continue;
-        }
-    
-        //time, app, pid, tid, type, name, text, 
-        NSArray* values = [NSArray arrayWithObjects: fullTimeVal, appVal, pidVal, tidVal, logLevelVal, tagVal, msgVal, nil];
-        NSDictionary* row = [NSDictionary dictionaryWithObjects:values forKeys:keysArray];
-        [self appendRow:row];
-    
+    BOOL result = [scanner scanUpToString:@" " intoString:&dateVal];
+    if (!result) {
+        NSLog(@"1: Bad line: %@", line);
+        return;
     }
-    [self onLogUpdated];
+    
+    NSString* timeVal;
+    result = [scanner scanUpToString:@" " intoString:&timeVal];
+    if (!result) {
+        NSLog(@"2: Bad line: %@", line);
+        return;
+    }
+    
+    NSString* fullTimeVal = [NSString stringWithFormat:@"%@ %@", dateVal, timeVal];
+
+    
+    NSString* pidVal;
+    result = [scanner scanUpToString:@" " intoString:&pidVal];
+    if (!result) {
+        NSLog(@"3: Bad line: %@", line);
+        return;
+    }
+    
+    if ([pidVal isInteger] == false) {
+        return;
+    }
+    
+    NSString* appVal = [pidMap objectForKey:pidVal];
+    if (appVal == nil) {
+        NSLog(@"%@ not found in pid map.", pidVal);
+        [self loadPID];
+        appVal = [pidMap objectForKey:pidVal];
+        if (app == nil) {
+            // This is normal during startup because there can be log
+            // messages from apps that are not running anymore.
+            appVal = @"unknown";
+            [pidMap setValue:appVal forKey:pidVal];
+        }
+    }
+    
+    NSString* tidVal;
+    result = [scanner scanUpToString:@" " intoString:&tidVal];
+    if (!result) {
+        NSLog(@"4: Bad line: %@", line);
+        return;
+    }
+
+    NSString* logLevelVal;
+    result = [scanner scanUpToString:@" " intoString:&logLevelVal];
+    if (!result) {
+        NSLog(@"5: Bad line: %@", line);
+        return;
+    }
+
+    NSString* tagVal;
+    result = [scanner scanUpToString:@": " intoString:&tagVal];
+    if (!result) {
+        NSLog(@"6: Bad line: %@", line);
+        return;
+    }
+    
+    // Discard ": "
+    [scanner scanString:@": " intoString:nil];
+
+    NSString* msgVal;
+    result = [scanner scanUpToString:@"\n" intoString:&msgVal];
+    if (!result) {
+//            NSLog(@"7: No msg on line: %@", line);
+//        return;
+        msgVal = @"";
+    }
+
+    //time, app, pid, tid, type, name, text, 
+    NSArray* values = [NSArray arrayWithObjects: fullTimeVal, appVal, pidVal, tidVal, logLevelVal, tagVal, msgVal, nil];
+    NSDictionary* row = [NSDictionary dictionaryWithObjects:values forKeys:keysArray];
+    [self appendRow:row];
+
+//    [self performSelectorOnMainThread:@selector(onLogUpdated) withObject:nil waitUntilDone:YES];
+//    [self onLogUpdated];
 
 }
 

@@ -16,6 +16,7 @@
 		83E99EC6167D199F00ACF31A /* atext in Resources */ = {isa = PBXBuildFile; fileRef = 83E99EC5167D199F00ACF31A /* atext */; };
 		83FECD0B1680092C004F1E07 /* DevicePickerSheet.m in Sources */ = {isa = PBXBuildFile; fileRef = 83FECD0A1680092C004F1E07 /* DevicePickerSheet.m */; };
 		83FECD0D16800964004F1E07 /* DevicePickerSheet.xib in Resources */ = {isa = PBXBuildFile; fileRef = 83FECD0C16800964004F1E07 /* DevicePickerSheet.xib */; };
+		83FECD101680FFB3004F1E07 /* BinaryDataScanner.m in Sources */ = {isa = PBXBuildFile; fileRef = 83FECD0F1680FFB3004F1E07 /* BinaryDataScanner.m */; };
 		A52B597E167DDB24007B0030 /* Keyboard.png in Resources */ = {isa = PBXBuildFile; fileRef = A52B597D167DDB24007B0030 /* Keyboard.png */; };
 		A53E91C61479C4C100C92015 /* FilterSheet.xib in Resources */ = {isa = PBXBuildFile; fileRef = A53E91C51479C4C100C92015 /* FilterSheet.xib */; };
 		A5B4D262147AC6AA00DA2336 /* DBPrefsWindowController.m in Sources */ = {isa = PBXBuildFile; fileRef = A5B4D261147AC6AA00DA2336 /* DBPrefsWindowController.m */; };
@@ -49,6 +50,8 @@
 		83FECD091680092C004F1E07 /* DevicePickerSheet.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DevicePickerSheet.h; sourceTree = "<group>"; };
 		83FECD0A1680092C004F1E07 /* DevicePickerSheet.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DevicePickerSheet.m; sourceTree = "<group>"; };
 		83FECD0C16800964004F1E07 /* DevicePickerSheet.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = DevicePickerSheet.xib; sourceTree = "<group>"; };
+		83FECD0E1680FFB3004F1E07 /* BinaryDataScanner.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BinaryDataScanner.h; sourceTree = "<group>"; };
+		83FECD0F1680FFB3004F1E07 /* BinaryDataScanner.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BinaryDataScanner.m; sourceTree = "<group>"; };
 		A52B597D167DDB24007B0030 /* Keyboard.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Keyboard.png; sourceTree = "<group>"; };
 		A53E91C51479C4C100C92015 /* FilterSheet.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = FilterSheet.xib; sourceTree = "<group>"; };
 		A5B4D260147AC6AA00DA2336 /* DBPrefsWindowController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DBPrefsWindowController.h; sourceTree = "<group>"; };
@@ -99,6 +102,8 @@
 				83542DDE167ECA0A000AF99E /* DeviceListDatasource.m */,
 				83486931167D7853001BF84D /* AdbTaskHelper.h */,
 				83486932167D7853001BF84D /* AdbTaskHelper.m */,
+				83FECD0E1680FFB3004F1E07 /* BinaryDataScanner.h */,
+				83FECD0F1680FFB3004F1E07 /* BinaryDataScanner.m */,
 			);
 			name = helpers;
 			sourceTree = "<group>";
@@ -284,6 +289,7 @@
 				83486933167D7853001BF84D /* AdbTaskHelper.m in Sources */,
 				83542DDF167ECA0A000AF99E /* DeviceListDatasource.m in Sources */,
 				83FECD0B1680092C004F1E07 /* DevicePickerSheet.m in Sources */,
+				83FECD101680FFB3004F1E07 /* BinaryDataScanner.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

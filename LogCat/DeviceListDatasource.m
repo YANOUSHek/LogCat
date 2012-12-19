@@ -107,4 +107,9 @@
     }
 }
 
+- (void) requestDeviceModel {
+    // adb shell cat /system/build.prop
+    //ro.product.model=SAMSUNG-SGH-I747
+}
+
 @end

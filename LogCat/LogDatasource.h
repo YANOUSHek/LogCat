@@ -45,4 +45,6 @@
 - (NSUInteger) getDisplayCount;
 - (NSDictionary*) valueForIndex: (NSUInteger) index;
 
+- (void) logMessage: (NSString*) message;
+
 @end

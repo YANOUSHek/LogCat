@@ -7,6 +7,10 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		8328F08D16820383000E47B5 /* RemoteScreenMonitor.xib in Resources */ = {isa = PBXBuildFile; fileRef = 8328F08C16820383000E47B5 /* RemoteScreenMonitor.xib */; };
+		8328F091168203AF000E47B5 /* RemoteScreenMonitorSheet.m in Sources */ = {isa = PBXBuildFile; fileRef = 8328F090168203AF000E47B5 /* RemoteScreenMonitorSheet.m */; };
+		8328F09616820D03000E47B5 /* DeviceScreenDatasource.m in Sources */ = {isa = PBXBuildFile; fileRef = 8328F09516820D03000E47B5 /* DeviceScreenDatasource.m */; };
+		8328F09916823E25000E47B5 /* RGBHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = 8328F09816823E25000E47B5 /* RGBHelper.m */; };
 		83486928167D630D001BF84D /* SelectableTableView.m in Sources */ = {isa = PBXBuildFile; fileRef = 83486926167D630D001BF84D /* SelectableTableView.m */; };
 		83486929167D630D001BF84D /* NSString_Extension.m in Sources */ = {isa = PBXBuildFile; fileRef = 83486927167D630D001BF84D /* NSString_Extension.m */; };
 		8348692C167D6926001BF84D /* LogDatasource.m in Sources */ = {isa = PBXBuildFile; fileRef = 8348692B167D6926001BF84D /* LogDatasource.m */; };
@@ -33,6 +37,13 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		8328F08C16820383000E47B5 /* RemoteScreenMonitor.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = RemoteScreenMonitor.xib; sourceTree = "<group>"; };
+		8328F08F168203AF000E47B5 /* RemoteScreenMonitorSheet.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RemoteScreenMonitorSheet.h; sourceTree = "<group>"; };
+		8328F090168203AF000E47B5 /* RemoteScreenMonitorSheet.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RemoteScreenMonitorSheet.m; sourceTree = "<group>"; };
+		8328F09416820D03000E47B5 /* DeviceScreenDatasource.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DeviceScreenDatasource.h; sourceTree = "<group>"; };
+		8328F09516820D03000E47B5 /* DeviceScreenDatasource.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DeviceScreenDatasource.m; sourceTree = "<group>"; };
+		8328F09716823E25000E47B5 /* RGBHelper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RGBHelper.h; sourceTree = "<group>"; };
+		8328F09816823E25000E47B5 /* RGBHelper.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RGBHelper.m; sourceTree = "<group>"; };
 		83486926167D630D001BF84D /* SelectableTableView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SelectableTableView.m; sourceTree = "<group>"; };
 		83486927167D630D001BF84D /* NSString_Extension.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NSString_Extension.m; sourceTree = "<group>"; };
 		8348692A167D6926001BF84D /* LogDatasource.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LogDatasource.h; sourceTree = "<group>"; };
@@ -88,18 +99,53 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		8328F092168204E1000E47B5 /* Datasources */ = {
+			isa = PBXGroup;
+			children = (
+				8348692A167D6926001BF84D /* LogDatasource.h */,
+				8348692B167D6926001BF84D /* LogDatasource.m */,
+				83542DDD167ECA09000AF99E /* DeviceListDatasource.h */,
+				83542DDE167ECA0A000AF99E /* DeviceListDatasource.m */,
+				8328F09416820D03000E47B5 /* DeviceScreenDatasource.h */,
+				8328F09516820D03000E47B5 /* DeviceScreenDatasource.m */,
+			);
+			name = Datasources;
+			sourceTree = "<group>";
+		};
+		8328F0931682052E000E47B5 /* Scenes */ = {
+			isa = PBXGroup;
+			children = (
+				83FECD091680092C004F1E07 /* DevicePickerSheet.h */,
+				83FECD0A1680092C004F1E07 /* DevicePickerSheet.m */,
+				83FECD0C16800964004F1E07 /* DevicePickerSheet.xib */,
+				A5B4D264147AC70300DA2336 /* LogCatPreferences.h */,
+				A5B4D265147AC70300DA2336 /* LogCatPreferences.m */,
+				A5B4D260147AC6AA00DA2336 /* DBPrefsWindowController.h */,
+				A5B4D261147AC6AA00DA2336 /* DBPrefsWindowController.m */,
+				A5B4D267147AC73800DA2336 /* Preferences.xib */,
+				A5FF110814743297001A3B38 /* LogCatAppDelegate.h */,
+				A5FF110914743297001A3B38 /* LogCatAppDelegate.m */,
+				A5FF110B14743297001A3B38 /* MainMenu.xib */,
+				83A99622167973230042425F /* FilterSheet.h */,
+				83A99623167973230042425F /* FilterSheet.m */,
+				A53E91C51479C4C100C92015 /* FilterSheet.xib */,
+				8328F08F168203AF000E47B5 /* RemoteScreenMonitorSheet.h */,
+				8328F090168203AF000E47B5 /* RemoteScreenMonitorSheet.m */,
+				8328F08C16820383000E47B5 /* RemoteScreenMonitor.xib */,
+			);
+			name = Scenes;
+			sourceTree = "<group>";
+		};
 		83E99ECE167D4CFC00ACF31A /* helpers */ = {
 			isa = PBXGroup;
 			children = (
+				8328F09716823E25000E47B5 /* RGBHelper.h */,
+				8328F09816823E25000E47B5 /* RGBHelper.m */,
 				83E99EDB167D610900ACF31A /* NSString_Extension.h */,
 				83486927167D630D001BF84D /* NSString_Extension.m */,
 				83A9961D16794F6B0042425F /* SelectableTableView.h */,
 				83486926167D630D001BF84D /* SelectableTableView.m */,
 				83A99621167969C60042425F /* MenuDelegate.h */,
-				8348692A167D6926001BF84D /* LogDatasource.h */,
-				8348692B167D6926001BF84D /* LogDatasource.m */,
-				83542DDD167ECA09000AF99E /* DeviceListDatasource.h */,
-				83542DDE167ECA0A000AF99E /* DeviceListDatasource.m */,
 				83486931167D7853001BF84D /* AdbTaskHelper.h */,
 				83486932167D7853001BF84D /* AdbTaskHelper.m */,
 				83FECD0E1680FFB3004F1E07 /* BinaryDataScanner.h */,
@@ -174,20 +220,8 @@
 		A5FF10FC14743296001A3B38 /* LogCat */ = {
 			isa = PBXGroup;
 			children = (
-				A5B4D260147AC6AA00DA2336 /* DBPrefsWindowController.h */,
-				A5B4D261147AC6AA00DA2336 /* DBPrefsWindowController.m */,
-				83FECD091680092C004F1E07 /* DevicePickerSheet.h */,
-				83FECD0A1680092C004F1E07 /* DevicePickerSheet.m */,
-				83FECD0C16800964004F1E07 /* DevicePickerSheet.xib */,
-				A5B4D264147AC70300DA2336 /* LogCatPreferences.h */,
-				A5B4D265147AC70300DA2336 /* LogCatPreferences.m */,
-				A5B4D267147AC73800DA2336 /* Preferences.xib */,
-				A5FF110814743297001A3B38 /* LogCatAppDelegate.h */,
-				A5FF110914743297001A3B38 /* LogCatAppDelegate.m */,
-				A5FF110B14743297001A3B38 /* MainMenu.xib */,
-				83A99622167973230042425F /* FilterSheet.h */,
-				83A99623167973230042425F /* FilterSheet.m */,
-				A53E91C51479C4C100C92015 /* FilterSheet.xib */,
+				8328F0931682052E000E47B5 /* Scenes */,
+				8328F092168204E1000E47B5 /* Datasources */,
 				83E99ECE167D4CFC00ACF31A /* helpers */,
 				A5C27F37147E6E1E00112228 /* Resources */,
 				A5FF10FD14743296001A3B38 /* Supporting Files */,
@@ -268,6 +302,7 @@
 				83E99EC6167D199F00ACF31A /* atext in Resources */,
 				A52B597E167DDB24007B0030 /* Keyboard.png in Resources */,
 				83FECD0D16800964004F1E07 /* DevicePickerSheet.xib in Resources */,
+				8328F08D16820383000E47B5 /* RemoteScreenMonitor.xib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -290,6 +325,9 @@
 				83542DDF167ECA0A000AF99E /* DeviceListDatasource.m in Sources */,
 				83FECD0B1680092C004F1E07 /* DevicePickerSheet.m in Sources */,
 				83FECD101680FFB3004F1E07 /* BinaryDataScanner.m in Sources */,
+				8328F091168203AF000E47B5 /* RemoteScreenMonitorSheet.m in Sources */,
+				8328F09616820D03000E47B5 /* DeviceScreenDatasource.m in Sources */,
+				8328F09916823E25000E47B5 /* RGBHelper.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -371,7 +409,7 @@
 		A5FF111114743297001A3B38 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ARCHS = "$(ARCHS_STANDARD_32_64_BIT)";
+				ARCHS = "$(ARCHS_STANDARD_64_BIT)";
 				CLANG_ENABLE_OBJC_ARC = YES;
 				COMBINE_HIDPI_IMAGES = YES;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
@@ -387,7 +425,7 @@
 		A5FF111214743297001A3B38 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ARCHS = "$(ARCHS_STANDARD_32_64_BIT)";
+				ARCHS = "$(ARCHS_STANDARD_64_BIT)";
 				CLANG_ENABLE_OBJC_ARC = YES;
 				COMBINE_HIDPI_IMAGES = YES;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;

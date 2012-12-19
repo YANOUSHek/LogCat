@@ -367,6 +367,8 @@
     [task terminate];
     
     isLogging = NO;
+    [self logMessage:[NSString stringWithFormat:@"Disconnected. %@", deviceId]];
+    
     [self performSelectorOnMainThread:@selector(onLoggerStopped) withObject:nil waitUntilDone:NO];
     
     NSLog(@"ADB Exited.");
@@ -594,7 +596,7 @@
                     // This is normal during startup because there can be log
                     // messages from apps that are not running anymore.
                     app = @"unknown";
-                    [pidMap setValue:app forKey:pid];
+//                    [pidMap setValue:app forKey:pid];
                 }
             }
             type = [line substringWithRange:[match rangeAtIndex:4]];
@@ -657,6 +659,16 @@
     } else if (filteredLogData == nil && [searchString length] > 0 && [self searchMatchesRow:row]) {
         [searchLogData addObject:row];
     }
+}
+
+- (void) logMessage: (NSString*) message {
+    NSArray* values = [NSArray arrayWithObjects: @"----", @"LogCat", @"---", @"---", @"I", @"---", message, nil];
+    NSDictionary* row = [NSDictionary dictionaryWithObjects:values
+                                                    forKeys:keysArray];
+    
+    [self appendRow:row];
+    [self performSelectorOnMainThread:@selector(onLogUpdated) withObject:nil waitUntilDone:YES];
+    
 }
 
 #pragma mark -

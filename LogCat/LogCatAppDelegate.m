@@ -28,6 +28,7 @@
 @end
 
 @implementation LogCatAppDelegate
+@synthesize remoteScreenMonitorButton;
 
 @synthesize filterListTable;
 @synthesize window = _window;
@@ -145,6 +146,17 @@
     [self.window makeKeyAndOrderFront:self];
     [logDatasource startLogger];
 
+}
+
+- (IBAction)remoteScreenMonitor:(id)sender {
+
+    if (remoteScreen  == nil) {
+        remoteScreen = [[RemoteScreenMonitorSheet alloc] init];
+    }
+
+    if(! [[remoteScreen window] isVisible] ) {
+        [remoteScreen showWindow:self];
+    }
 }
 
 - (IBAction)cancelDevicePicker:(id)sender {
@@ -352,7 +364,7 @@
 
 - (void)deviceSheetDidEnd:(NSWindow *)sheet returnCode:(NSInteger)returnCode contextInfo:(void *)contextInfo
 {
-    NSLog(@"Device Pikcker Sheet Finished %ld", returnCode);
+    NSLog(@"Device Picker Sheet Finished %ld", returnCode);
     [sheetDevicePicker orderOut:self];
     if (returnCode == NSCancelButton) {
         return;
@@ -366,9 +378,17 @@
         [[self window] setTitle:[[sheetDevicePicker deviceButton] titleOfSelectedItem]];
         [self startAdb];
     }
-    
+}
+
+/*
+ Called when RemoteScreenSheet ends
+ */
+- (void)remoteScreenDidEndSheet:(NSWindow *)sheet returnCode:(NSInteger)returnCode contextInfo:(void *)contextInfo
+{
+    NSLog(@"Remote Screen Sheet Did End: %ld", returnCode);
 
 }
+
 
 /**
  FilterSheet closes to calls this method
@@ -625,5 +645,6 @@
     NSLog(@"LogcatDatasourceDelegate::onDeviceNotFound");
     [logDatasource setDeviceId:nil];
 }
+
 
 @end

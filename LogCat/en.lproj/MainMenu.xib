@@ -407,8 +407,8 @@
 					<nil key="NSToolbarDelegate"/>
 					<bool key="NSToolbarPrefersToBeShown">YES</bool>
 					<bool key="NSToolbarShowsBaselineSeparator">YES</bool>
-					<bool key="NSToolbarAllowsUserCustomization">NO</bool>
-					<bool key="NSToolbarAutosavesConfiguration">NO</bool>
+					<bool key="NSToolbarAllowsUserCustomization">YES</bool>
+					<bool key="NSToolbarAutosavesConfiguration">YES</bool>
 					<int key="NSToolbarDisplayMode">2</int>
 					<int key="NSToolbarSizeMode">1</int>
 					<dictionary class="NSMutableDictionary" key="NSToolbarIBIdentifiedItems">
@@ -533,6 +533,46 @@
 							<nil key="NSToolbarItemTarget"/>
 							<nil key="NSToolbarItemAction"/>
 							<string key="NSToolbarItemMinSize">{94, 25}</string>
+							<string key="NSToolbarItemMaxSize">{116, 25}</string>
+							<bool key="NSToolbarItemEnabled">YES</bool>
+							<bool key="NSToolbarItemAutovalidates">YES</bool>
+							<int key="NSToolbarItemTag">0</int>
+							<bool key="NSToolbarIsUserRemovable">YES</bool>
+							<int key="NSToolbarItemVisibilityPriority">0</int>
+						</object>
+						<object class="NSToolbarItem" key="45651463-4EB1-4E25-83AD-69E5C15B2196" id="629892604">
+							<object class="NSMutableString" key="NSToolbarItemIdentifier">
+								<characters key="NS.bytes">45651463-4EB1-4E25-83AD-69E5C15B2196</characters>
+							</object>
+							<string key="NSToolbarItemLabel">Remote Screen</string>
+							<string key="NSToolbarItemPaletteLabel">Remote Screen</string>
+							<nil key="NSToolbarItemToolTip"/>
+							<object class="NSButton" key="NSToolbarItemView" id="832395915">
+								<nil key="NSNextResponder"/>
+								<int key="NSvFlags">268</int>
+								<string key="NSFrame">{{15, 14}, {56, 25}}</string>
+								<string key="NSReuseIdentifierKey">_NS:22</string>
+								<bool key="NSEnabled">YES</bool>
+								<object class="NSButtonCell" key="NSCell" id="325043364">
+									<int key="NSCellFlags">-2080374784</int>
+									<int key="NSCellFlags2">134217728</int>
+									<string key="NSContents">Screen</string>
+									<reference key="NSSupport" ref="904282758"/>
+									<string key="NSCellIdentifier">_NS:22</string>
+									<reference key="NSControlView" ref="832395915"/>
+									<int key="NSButtonFlags">-2038153216</int>
+									<int key="NSButtonFlags2">163</int>
+									<string key="NSAlternateContents"/>
+									<string key="NSKeyEquivalent"/>
+									<int key="NSPeriodicDelay">400</int>
+									<int key="NSPeriodicInterval">75</int>
+								</object>
+								<bool key="NSAllowsLogicalLayoutDirection">NO</bool>
+							</object>
+							<nil key="NSToolbarItemImage"/>
+							<nil key="NSToolbarItemTarget"/>
+							<nil key="NSToolbarItemAction"/>
+							<string key="NSToolbarItemMinSize">{56, 25}</string>
 							<string key="NSToolbarItemMaxSize">{116, 25}</string>
 							<bool key="NSToolbarItemEnabled">YES</bool>
 							<bool key="NSToolbarItemAutovalidates">YES</bool>
@@ -751,6 +791,7 @@
 					</dictionary>
 					<array key="NSToolbarIBAllowedItems">
 						<reference ref="962159787"/>
+						<reference ref="629892604"/>
 						<reference ref="494121794"/>
 						<reference ref="752945060"/>
 						<reference ref="749263580"/>
@@ -763,6 +804,8 @@
 						<reference ref="962159787"/>
 						<reference ref="494121794"/>
 						<reference ref="686029803"/>
+						<reference ref="868335015"/>
+						<reference ref="629892604"/>
 						<reference ref="752945060"/>
 						<reference ref="868335015"/>
 						<reference ref="914577179"/>
@@ -1622,6 +1665,22 @@
 					<int key="connectionID">745</int>
 				</object>
 				<object class="IBConnectionRecord">
+					<object class="IBActionConnection" key="connection">
+						<string key="label">remoteScreenMonitor:</string>
+						<reference key="source" ref="976324537"/>
+						<reference key="destination" ref="325043364"/>
+					</object>
+					<int key="connectionID">749</int>
+				</object>
+				<object class="IBConnectionRecord">
+					<object class="IBOutletConnection" key="connection">
+						<string key="label">remoteScreenMonitorButton</string>
+						<reference key="source" ref="976324537"/>
+						<reference key="destination" ref="325043364"/>
+					</object>
+					<int key="connectionID">750</int>
+				</object>
+				<object class="IBConnectionRecord">
 					<object class="IBOutletConnection" key="connection">
 						<string key="label">delegate</string>
 						<reference key="source" ref="832524515"/>
@@ -1970,6 +2029,7 @@
 							<reference ref="494121794"/>
 							<reference ref="752945060"/>
 							<reference ref="686029803"/>
+							<reference ref="629892604"/>
 						</array>
 						<reference key="parent" ref="972006081"/>
 					</object>
@@ -2304,6 +2364,27 @@
 						<reference key="object" ref="548753392"/>
 						<reference key="parent" ref="140941504"/>
 					</object>
+					<object class="IBObjectRecord">
+						<int key="objectID">748</int>
+						<reference key="object" ref="629892604"/>
+						<array class="NSMutableArray" key="children">
+							<reference ref="832395915"/>
+						</array>
+						<reference key="parent" ref="131777186"/>
+					</object>
+					<object class="IBObjectRecord">
+						<int key="objectID">746</int>
+						<reference key="object" ref="832395915"/>
+						<array class="NSMutableArray" key="children">
+							<reference ref="325043364"/>
+						</array>
+						<reference key="parent" ref="629892604"/>
+					</object>
+					<object class="IBObjectRecord">
+						<int key="objectID">747</int>
+						<reference key="object" ref="325043364"/>
+						<reference key="parent" ref="832395915"/>
+					</object>
 				</array>
 			</object>
 			<dictionary class="NSMutableDictionary" key="flattenedProperties">
@@ -2414,6 +2495,9 @@
 				<string key="742.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
 				<string key="743.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
 				<string key="744.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
+				<string key="746.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
+				<string key="747.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
+				<string key="748.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
 				<string key="75.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
 				<string key="81.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
 				<string key="83.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
@@ -2423,7 +2507,7 @@
 			<nil key="activeLocalization"/>
 			<dictionary class="NSMutableDictionary" key="localizations"/>
 			<nil key="sourceID"/>
-			<int key="maxID">745</int>
+			<int key="maxID">750</int>
 		</object>
 		<object class="IBClassDescriber" key="IBDocument.Classes">
 			<array class="NSMutableArray" key="referencedPartialClassDescriptions">
@@ -2481,13 +2565,11 @@
 						<string key="cancelDevicePicker:">id</string>
 						<string key="cancelSheet:">id</string>
 						<string key="clearLog:">id</string>
-						<string key="copyMessageOnly:">id</string>
-						<string key="copyPlain:">id</string>
-						<string key="filterBySelected:">id</string>
 						<string key="filterToolbarClicked:">NSSegmentedControl</string>
 						<string key="newWindow:">id</string>
 						<string key="openTypingTerminal:">id</string>
 						<string key="preferences:">id</string>
+						<string key="remoteScreenMonitor:">id</string>
 						<string key="restartAdb:">id</string>
 						<string key="search:">id</string>
 						<string key="startLogForDevice:">id</string>
@@ -2509,18 +2591,6 @@
 							<string key="name">clearLog:</string>
 							<string key="candidateClassName">id</string>
 						</object>
-						<object class="IBActionInfo" key="copyMessageOnly:">
-							<string key="name">copyMessageOnly:</string>
-							<string key="candidateClassName">id</string>
-						</object>
-						<object class="IBActionInfo" key="copyPlain:">
-							<string key="name">copyPlain:</string>
-							<string key="candidateClassName">id</string>
-						</object>
-						<object class="IBActionInfo" key="filterBySelected:">
-							<string key="name">filterBySelected:</string>
-							<string key="candidateClassName">id</string>
-						</object>
 						<object class="IBActionInfo" key="filterToolbarClicked:">
 							<string key="name">filterToolbarClicked:</string>
 							<string key="candidateClassName">NSSegmentedControl</string>
@@ -2535,6 +2605,10 @@
 						</object>
 						<object class="IBActionInfo" key="preferences:">
 							<string key="name">preferences:</string>
+							<string key="candidateClassName">id</string>
+						</object>
+						<object class="IBActionInfo" key="remoteScreenMonitor:">
+							<string key="name">remoteScreenMonitor:</string>
 							<string key="candidateClassName">id</string>
 						</object>
 						<object class="IBActionInfo" key="restartAdb:">
@@ -2555,6 +2629,8 @@
 						<string key="filterToolbar">NSSegmentedControl</string>
 						<string key="logDataTable">SelectableTableView</string>
 						<string key="puFilterField">NSPopUpButton</string>
+						<string key="remoteScreen">RemoteScreenMonitorSheet</string>
+						<string key="remoteScreenMonitorButton">NSButtonCell</string>
 						<string key="restartAdb">NSButton</string>
 						<string key="sheetAddFilter">FilterSheet</string>
 						<string key="sheetDevicePicker">DevicePickerSheet</string>
@@ -2579,6 +2655,14 @@
 						<object class="IBToOneOutletInfo" key="puFilterField">
 							<string key="name">puFilterField</string>
 							<string key="candidateClassName">NSPopUpButton</string>
+						</object>
+						<object class="IBToOneOutletInfo" key="remoteScreen">
+							<string key="name">remoteScreen</string>
+							<string key="candidateClassName">RemoteScreenMonitorSheet</string>
+						</object>
+						<object class="IBToOneOutletInfo" key="remoteScreenMonitorButton">
+							<string key="name">remoteScreenMonitorButton</string>
+							<string key="candidateClassName">NSButtonCell</string>
 						</object>
 						<object class="IBToOneOutletInfo" key="restartAdb">
 							<string key="name">restartAdb</string>
@@ -2612,6 +2696,36 @@
 					<object class="IBClassDescriptionSource" key="sourceIdentifier">
 						<string key="majorKey">IBProjectSource</string>
 						<string key="minorKey">./Classes/LogCatAppDelegate.h</string>
+					</object>
+				</object>
+				<object class="IBPartialClassDescription">
+					<string key="className">RemoteScreenMonitorSheet</string>
+					<string key="superclassName">NSWindowController</string>
+					<object class="NSMutableDictionary" key="actions">
+						<string key="NS.key.0">segmentedControl:</string>
+						<string key="NS.object.0">id</string>
+					</object>
+					<object class="NSMutableDictionary" key="actionInfosByName">
+						<string key="NS.key.0">segmentedControl:</string>
+						<object class="IBActionInfo" key="NS.object.0">
+							<string key="name">segmentedControl:</string>
+							<string key="candidateClassName">id</string>
+						</object>
+					</object>
+					<object class="NSMutableDictionary" key="outlets">
+						<string key="NS.key.0">screenImage</string>
+						<string key="NS.object.0">NSImageCell</string>
+					</object>
+					<object class="NSMutableDictionary" key="toOneOutletInfosByName">
+						<string key="NS.key.0">screenImage</string>
+						<object class="IBToOneOutletInfo" key="NS.object.0">
+							<string key="name">screenImage</string>
+							<string key="candidateClassName">NSImageCell</string>
+						</object>
+					</object>
+					<object class="IBClassDescriptionSource" key="sourceIdentifier">
+						<string key="majorKey">IBProjectSource</string>
+						<string key="minorKey">./Classes/RemoteScreenMonitorSheet.h</string>
 					</object>
 				</object>
 				<object class="IBPartialClassDescription">

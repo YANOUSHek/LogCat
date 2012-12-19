@@ -9,6 +9,7 @@
 #import <Cocoa/Cocoa.h>
 #import "MenuDelegate.h"
 #import "FilterSheet.h"
+#import "RemoteScreenMonitorSheet.h"
 #import "DevicePickerSheet.h"
 #import "LogDatasource.h"
 #import "DeviceListDatasource.h"
@@ -27,6 +28,7 @@
     NSMutableArray* filters;
     IBOutlet FilterSheet *sheetAddFilter;
     IBOutlet DevicePickerSheet* sheetDevicePicker;
+    IBOutlet RemoteScreenMonitorSheet* remoteScreen;
     IBOutlet NSTextField *tfFilterName;
     IBOutlet NSPopUpButton *puFilterField;
     IBOutlet NSTextField *tfFilterText;
@@ -36,6 +38,7 @@
     NSDictionary* fonts;
     
     __weak NSTextField *textEntry;
+    __weak NSButtonCell *remoteScreenMonitorButton;
 }
 
 
@@ -44,7 +47,9 @@
 @property (weak) IBOutlet SelectableTableView *logDataTable;
 @property (weak) IBOutlet NSTextField *textEntry;
 @property (weak) IBOutlet NSButton *restartAdb;
+@property (weak) IBOutlet NSButtonCell *remoteScreenMonitorButton;
 
+- (IBAction)remoteScreenMonitor:(id)sender;
 - (IBAction)cancelDevicePicker:(id)sender;
 - (IBAction)startLogForDevice:(id)sender;
 

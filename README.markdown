@@ -18,6 +18,11 @@ P.S. This is my first open source project so please go easy on me :)
 P.P.S. This was hacked in a couple of hours and I'm not the best Mac OS
 X programmer in the world so it must look silly :)
 
+Download
+--------
+[Download LogCat Release ](https://github.com/yepher/LogCat/wiki/LogCat_Release.zip)
+[Download LogCat DEV](https://github.com/yepher/LogCat/wiki/LogCat_LatestBuild_2012121900.zip)
+
 Features
 --------
 

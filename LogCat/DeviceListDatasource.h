@@ -14,14 +14,18 @@
 
 - (void) onDevicesConneceted: (NSArray*) devices;
 
+- (void) onDeviceModel: (NSString*) deviceId: (NSString*) model;
+
 @end
 
 @interface DeviceListDatasource : NSObject {
     id <DeviceListDatasourceDelegate> delegate;
 }
 
-@property (weak) id <DeviceListDatasourceDelegate> delegate;
+@property (strong) id <DeviceListDatasourceDelegate> delegate;
 
 - (void) loadDeviceList;
+
+- (void) requestDeviceModel: (NSString*) deviceId;
 
 @end

@@ -367,7 +367,7 @@
     [task terminate];
     
     isLogging = NO;
-        [self performSelectorOnMainThread:@selector(onLoggerStopped) withObject:nil waitUntilDone:NO];
+    [self performSelectorOnMainThread:@selector(onLoggerStopped) withObject:nil waitUntilDone:NO];
     
     NSLog(@"ADB Exited.");
 }
@@ -507,8 +507,9 @@
     NSString* tagVal;
     result = [scanner scanUpToString:@": " intoString:&tagVal];
     if (!result) {
-        NSLog(@"6: Bad line: %@", line);
-        return;
+        //NSLog(@"6: Bad line: %@", line);
+        //return;
+        tagVal = @"none";
     }
     
     // Discard ": "

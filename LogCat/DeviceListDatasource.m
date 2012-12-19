@@ -27,7 +27,7 @@
 // Device List: adb devices
 @implementation DeviceListDatasource
 
-@synthesize delegate = _delegate;
+@synthesize delegate;
 
 - (void) loadDeviceList {
     deviceList = [NSMutableArray arrayWithCapacity:0];
@@ -107,9 +107,55 @@
     }
 }
 
-- (void) requestDeviceModel {
+- (void) requestDeviceModel: (NSString*) deviceId {
+    NSThread* thread = [[NSThread alloc] initWithTarget:self selector:@selector(internalDeviceModel:) object:deviceId];
+    [thread start];
+}
+
+- (void) internalDeviceModel:(NSString*) deviceId {
     // adb shell cat /system/build.prop
     //ro.product.model=SAMSUNG-SGH-I747
+
+    NSArray *arguments = [NSArray arrayWithObjects: @"-s", deviceId, @"shell", @"cat", @"/system/build.prop", nil];
+    
+    NSTask *task = [AdbTaskHelper adbTask: arguments];
+    
+    NSPipe *pipe;
+    pipe = [NSPipe pipe];
+    [task setStandardOutput: pipe];
+    [task setStandardError:pipe];
+    [task setStandardInput:[NSPipe pipe]];
+    
+    NSFileHandle *file;
+    file = [pipe fileHandleForReading];
+    
+    [task launch];
+    
+    NSMutableData *readData = [[NSMutableData alloc] init];
+    
+    NSData *data = nil;
+    while ((data = [file availableData]) && [data length]) {
+        [readData appendData:data];
+    }
+    
+    NSString *string;
+    string = [[NSString alloc] initWithData: readData encoding: NSUTF8StringEncoding];
+    NSArray* lines = [string componentsSeparatedByCharactersInSet: [NSCharacterSet newlineCharacterSet]];
+    for (NSString* line in lines) {
+        if ([line hasPrefix:@"ro.product.model="]) {
+            NSString* model = [line substringFromIndex:17];
+            [self onDeviceModel:deviceId :model];
+        }
+    }
+    
+}
+
+- (void) onDeviceModel: (NSString*) deviceId: (NSString*) model {
+    if (delegate != nil) {
+        [delegate  onDeviceModel: deviceId: model];
+    } else {
+        NSLog(@"DeviceListDatasource delegate was nil.");
+    }
 }
 
 @end

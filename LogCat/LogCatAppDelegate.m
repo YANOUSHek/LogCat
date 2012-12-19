@@ -16,6 +16,7 @@
 
 @interface LogCatAppDelegate () {
     LogDatasource* logDatasource;
+    DeviceListDatasource* deviceSource;
 }
 
 - (void)registerDefaults;
@@ -124,7 +125,7 @@
     previousString = nil;
     scrollToBottom = YES;
     
-    DeviceListDatasource* deviceSource = [[DeviceListDatasource alloc] init];
+    deviceSource = [[DeviceListDatasource alloc] init];
     [deviceSource setDelegate:self];
     [deviceSource loadDeviceList];
 
@@ -582,6 +583,11 @@
     [devicePicker addItemsWithTitles:titles];    
 }
 
+- (void) onDeviceModel: (NSString*) deviceId: (NSString*) model {
+    NSLog(@"DeviceID: %@, Model: %@", deviceId, model);
+    [[self window] setTitle:[NSString stringWithFormat:@"%@ - %@", model, deviceId]];
+}
+
 
 #pragma mark -
 #pragma mark LogcatDatasourceDelegate
@@ -590,6 +596,11 @@
 - (void) onLoggerStarted {
     NSLog(@"LogcatDatasourceDelegate::onLoggerStarted");
     [self resetConnectButton];
+    
+    NSString* deviceId = [logDatasource deviceId];
+    if (deviceId != nil && [deviceId length] > 0) {
+        [deviceSource requestDeviceModel:deviceId];
+    }
 }
 
 - (void) onLoggerStopped {
@@ -607,11 +618,7 @@
 
 - (void) onMultipleDevicesConnected {
     NSLog(@"LogcatDatasourceDelegate::onMultipleDevicesConnected");
-    
-    DeviceListDatasource* deviceSource = [[DeviceListDatasource alloc] init];
-    [deviceSource setDelegate:self];
     [deviceSource loadDeviceList];
-
 }
 
 - (void) onDeviceNotFound {

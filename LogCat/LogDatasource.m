@@ -15,6 +15,7 @@
 #define LOG_FORMAT 2
 
 @interface LogDatasource () {
+    NSDate *startTime;
     
     NSString* previousString;
     NSData* pendingData;
@@ -82,7 +83,10 @@
 - (void) startLogger {
     if (isLogging) {
         NSLog(@"ERROR: startLogger called but it was already running.");
+        return;
     }
+    
+    startTime = [NSDate date];
     [self clearLog];
     thread = [[NSThread alloc] initWithTarget:self selector:@selector(internalStartLogger) object:nil];
     [thread start];
@@ -367,6 +371,8 @@
     [task terminate];
     
     isLogging = NO;
+    [pidMap removeAllObjects];
+    
     [self logMessage:[NSString stringWithFormat:@"Disconnected. %@", deviceId]];
     
     [self performSelectorOnMainThread:@selector(onLoggerStopped) withObject:nil waitUntilDone:NO];
@@ -431,7 +437,7 @@
 }
 
 - (void) parseThreadTimeLine: (NSString*) line {
-    
+        
     if ([line hasPrefix:@"-"]) {
         return;
     } else if ([line hasPrefix:@"error:"]) {
@@ -488,7 +494,12 @@
             // This is normal during startup because there can be log
             // messages from apps that are not running anymore.
             appVal = @"unknown";
-            [pidMap setValue:appVal forKey:pidVal];
+            NSTimeInterval elapsedTime = -[startTime timeIntervalSinceNow];
+            NSLog(@"Elapsed: %f", elapsedTime);
+            if (elapsedTime < 30) {
+                // There are potentially a lot of these when we first start reading the cached log
+                [pidMap setValue:appVal forKey:pidVal];
+            }
         }
     }
     

@@ -10,6 +10,11 @@
 #import "AdbTaskHelper.h"
 #import "RGBHelper.h"
 
+#define SCREEN_CAP_SCREENCAP 1
+#define SCREEN_CAP_FB0 2
+
+#define SCREEN_CAP_TYPE SCREEN_CAP_SCREENCAP
+
 @interface DeviceScreenDatasource () {
     uint32_t width;
     uint32_t height;
@@ -61,20 +66,32 @@
 - (void) internalStartMonitoring {
     // TODO: support multple devices. There needs a more general purpose way of handling this...
     
-    if (width == 0 || height == 0 || bitsPerPixel == 0) {
-        [self loadDeviceConfiguration];
-    }
+    if (SCREEN_CAP_TYPE == SCREEN_CAP_FB0) {
     
-    if (width == 0 || height == 0 || bitsPerPixel == 0) {
-        NSLog(@"ERROR: failed to load device configuration.");
-        return;
-    }
-    
-    while (isRunning && [screenUpdateThread isCancelled] == false) {
-        [self pullScreenFromDevice];
+        if (width == 0 || height == 0 || bitsPerPixel == 0) {
+            [self loadDeviceConfiguration];
+        }
         
+        if (width == 0 || height == 0 || bitsPerPixel == 0) {
+            NSLog(@"ERROR: failed to load device configuration.");
+            return;
+        }
         
-        [NSThread sleepForTimeInterval:3]; // poll every N seconds
+        while (isRunning && [screenUpdateThread isCancelled] == false) {
+            [self pullScreenFromDevice];
+            
+            
+            [NSThread sleepForTimeInterval:3]; // poll every N seconds
+        }
+    } else if (SCREEN_CAP_TYPE == SCREEN_CAP_SCREENCAP) {
+        while (isRunning && [screenUpdateThread isCancelled] == false) {
+            [self pullScreenFromDeviceWithScreenCap];
+            
+            
+            [NSThread sleepForTimeInterval:3]; // poll every N seconds
+        }
+    } else {
+        NSLog(@"ERROR: Unknow screen capture type.");
     }
     
 }
@@ -84,8 +101,13 @@
     adb shell ioctl -rl 28 /dev/graphics/fb0 17920  
 
  Example output:
+ Note:
     sending ioctl 0x4600 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00
     return buf: d0 02 00 00 00 05 00 00 d0 02 00 00 00 0a 00 00 00 00 00 00 00 05 00 00 20 00 00 00
+ 
+ Galaxy SIII
+     sending ioctl 0x4600 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00
+     return buf: d0 02 00 00 00 05 00 00 d0 02 00 00 00 0f 00 00 00 00 00 00 00 0a 00 00 20 00 00 00
  
  Format:
     0 - int32 - width
@@ -166,10 +188,89 @@
     return result;
 }
 
+- (void) pullScreenFromDeviceWithScreenCap {
+    NSLog(@"pullScreenFromDeviceWithScreenCap");
+    
+    NSFileManager *fileManager = [NSFileManager defaultManager];
+    // TODO: Need better naming once we support multi-device
+    [fileManager removeItemAtPath:@"/tmp/logcat.png" error:NULL];
+    [self doScreenshot];
+    
+    
+    NSArray *arguments = [NSArray arrayWithObjects: @"pull", @"/mnt/sdcard/logcat.png", @"/tmp/logcat.png", nil];
+    
+    NSTask *task = [AdbTaskHelper adbTask: arguments];
+    
+    NSPipe *pipe;
+    pipe = [NSPipe pipe];
+    [task setStandardOutput: pipe];
+    [task setStandardError:pipe];
+    [task setStandardInput:[NSPipe pipe]];
+    
+    NSFileHandle *file;
+    file = [pipe fileHandleForReading];
+    
+    [task launch];
+    
+    NSMutableData *readData = [[NSMutableData alloc] init];
+    
+    NSData *data = nil;
+    while ((data = [file availableData]) && [data length]) {
+        [readData appendData:data];
+    }
+    
+    NSString *string;
+    string = [[NSString alloc] initWithData: readData encoding: NSUTF8StringEncoding];
+    
+    
+    NSLog(@"Screen pulled: %@", string);
+    
+    // Transcode data
+    BOOL exists = [fileManager fileExistsAtPath:@"/tmp/logcat.png"];
+    if (!exists) {
+        return;
+    }
+    
+    NSImage* image = [[NSImage alloc] initWithContentsOfFile:@"/tmp/logcat.png"];
+    if (image != nil) {
+        [self updateImage:image];
+    }
+    
+}
+
+- (void) doScreenshot {
+    NSArray *arguments = [NSArray arrayWithObjects: @"shell", @"/system/bin/screencap", @"-p", @"/mnt/sdcard/logcat.png", nil];
+    
+    NSTask *task = [AdbTaskHelper adbTask: arguments];
+    
+    NSPipe *pipe;
+    pipe = [NSPipe pipe];
+    [task setStandardOutput: pipe];
+    [task setStandardError:pipe];
+    [task setStandardInput:[NSPipe pipe]];
+    
+    NSFileHandle *file;
+    file = [pipe fileHandleForReading];
+    
+    [task launch];
+    
+    NSMutableData *readData = [[NSMutableData alloc] init];
+    
+    NSData *data = nil;
+    while ((data = [file availableData]) && [data length]) {
+        [readData appendData:data];
+    }
+    
+    // Just assume it worked and we will find out when we try to pull the file
+    NSString *string;
+    string = [[NSString alloc] initWithData: readData encoding: NSUTF8StringEncoding];
+    
+    NSLog(@"screen shot result: %@", string);
+}
+
+
 - (void) pullScreenFromDevice {
     NSLog(@"pullScreenFromDevice");
-    
-    
 
     NSFileManager *fileManager = [NSFileManager defaultManager];
     // TODO: Need better naming once we support multi-device
@@ -212,10 +313,12 @@
     NSImage* image = nil;
     
     NSData* nsData = [NSData dataWithContentsOfFile:@"/tmp/logcat.fb0"];
-    NSLog(@"Data size: %ld, us=%ld", [nsData length], sizeof(unsigned int));
+    NSLog(@"Data size: %ld, bits/pixel=%d", [nsData length], bitsPerPixel);
 
     if (bitsPerPixel == 32) {
         image = [[[RGBHelper alloc] init] convertRGB32toNSImage: [nsData bytes] width:width  height: height];
+    } else if (bitsPerPixel == 16) {
+        image = [[[RGBHelper alloc] init] convertRGBtoNSImage: [nsData bytes] width:width  height: height format:RGB565toRGBA_FORMAT];
     } else {
         image = [[[RGBHelper alloc] init] convertRGBtoNSImage: [nsData bytes] width:width  height: height format:RGB565toRGBA_FORMAT];
     }

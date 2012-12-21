@@ -196,7 +196,8 @@
     NSMutableArray* result = [NSMutableArray new];
 
     for (NSDictionary* logItem in logData) {
-        if ([[logItem objectForKey:key] rangeOfString:string options:NSCaseInsensitiveSearch].location != NSNotFound) {
+        if ([self filterMatchesRow:logItem]) {
+//        if ([[logItem objectForKey:key] rangeOfString:string options:NSCaseInsensitiveSearch].location != NSNotFound) {
             [result addObject:[logItem copy]];
         }
     }
@@ -694,8 +695,53 @@
     
     NSString* selectedType = [filter objectForKey:KEY_FILTER_TYPE];
     NSString* realType = [self getKeyFromType:selectedType];
+    if ([realType isEqualToString:KEY_TYPE]) {
+        NSInteger filterLevel = [self getLogLevelForValue:[filter objectForKey:KEY_FILTER_TEXT]];
+        NSInteger logItemLevel = [self getLogLevelForValue:[row objectForKey:realType]];
+        
+        if (logItemLevel >= filterLevel) {
+            return YES;
+        }
+        return NO;
     
-    return [[row objectForKey:realType] rangeOfString:[filter objectForKey:KEY_FILTER_TEXT] options:NSCaseInsensitiveSearch].location != NSNotFound;
+    } else {
+        return [[row objectForKey:realType] rangeOfString:[filter objectForKey:KEY_FILTER_TEXT] options:NSCaseInsensitiveSearch].location != NSNotFound;
+    }
+}
+
+- (NSInteger) getLogLevelForValue: (NSString*) logLevel {
+    /*
+     Java Log Levels:
+     
+        public static final int VERBOSE = 2;
+        public static final int DEBUG = 3;
+        public static final int INFO = 4;
+        public static final int WARN = 5;
+        public static final int ERROR = 6;
+        public static final int ASSERT = 7;
+    */
+    if ([logLevel isEqualToString:@"V"]) {
+        return 2;
+        
+    } else if ([logLevel isEqualToString:@"D"]) {
+        return 3;
+        
+    } else if ([logLevel isEqualToString:@"I"]) {
+        return 4;
+        
+    } else if ([logLevel isEqualToString:@"W"]) {
+        return 5;
+        
+    } else if ([logLevel isEqualToString:@"E"]) {
+        return 6;
+        
+    } else if ([logLevel isEqualToString:@"A"]) {
+        return 7;
+        
+    } else {
+        // Unknown ???
+        return 2;
+    }
 }
 
 - (BOOL)searchMatchesRow:(NSDictionary*)row

@@ -28,6 +28,7 @@
 @implementation DeviceScreenDatasource
 
 @synthesize delegate;
+@synthesize deviceId;
 
 - (id)init {
     if (self = [super init]) {
@@ -120,7 +121,7 @@
     
     NSArray *arguments = [NSArray arrayWithObjects: @"shell", @"ioctl", @"-rl", @"28", @"/dev/graphics/fb0", @"17920", nil];
     
-    NSTask *task = [AdbTaskHelper adbTask: arguments];
+    NSTask *task = [AdbTaskHelper adbTask: [self argumentsForDevice:arguments]];
     
     NSPipe *pipe;
     pipe = [NSPipe pipe];
@@ -198,7 +199,7 @@
     
     NSArray *arguments = [NSArray arrayWithObjects: @"pull", @"/mnt/sdcard/logcat.png", @"/tmp/logcat.png", nil];
     
-    NSTask *task = [AdbTaskHelper adbTask: arguments];
+    NSTask *task = [AdbTaskHelper adbTask: [self argumentsForDevice:arguments]];
     
     NSPipe *pipe;
     pipe = [NSPipe pipe];
@@ -240,7 +241,7 @@
 - (void) doScreenshot {
     NSArray *arguments = [NSArray arrayWithObjects: @"shell", @"/system/bin/screencap", @"-p", @"/mnt/sdcard/logcat.png", nil];
     
-    NSTask *task = [AdbTaskHelper adbTask: arguments];
+    NSTask *task = [AdbTaskHelper adbTask: [self argumentsForDevice:arguments]];
     
     NSPipe *pipe;
     pipe = [NSPipe pipe];
@@ -277,7 +278,7 @@
     
     NSArray *arguments = [NSArray arrayWithObjects: @"pull", @"/dev/graphics/fb0", @"/tmp/logcat.fb0", nil];
     
-    NSTask *task = [AdbTaskHelper adbTask: arguments];
+    NSTask *task = [AdbTaskHelper adbTask: [self argumentsForDevice:arguments]];
     
     NSPipe *pipe;
     pipe = [NSPipe pipe];
@@ -331,6 +332,16 @@
     if (delegate != nil) {
         [delegate onScreenUpdate:@"TODO:" :image];
     }
+}
+
+- (NSArray*) argumentsForDevice: (NSArray*) args {
+    if (deviceId == nil || [deviceId length] == 0) {
+        return args;
+    }
+    
+    NSMutableArray* newArgs = [NSMutableArray arrayWithObjects: @"-s", deviceId, nil];
+    
+    return [newArgs arrayByAddingObjectsFromArray:args];
 }
 
 

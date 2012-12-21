@@ -40,4 +40,10 @@
 
 
 
+//- (void)highlightSelectionInClipRect:(NSRect)clipRect
+//{
+//    NSLog(@"highlightSelectionInClipRect");
+//}
+
+
 @end

@@ -152,10 +152,12 @@
 
     if (remoteScreen  == nil) {
         remoteScreen = [[RemoteScreenMonitorSheet alloc] init];
+        [remoteScreen setDeviceId:[logDatasource deviceId]];
     }
 
     if(! [[remoteScreen window] isVisible] ) {
         NSLog(@"window: %@", [remoteScreen window]);
+        [remoteScreen setDeviceId:[logDatasource deviceId]];
         [remoteScreen showWindow:self];
     }
 }

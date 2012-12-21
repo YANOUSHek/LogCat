@@ -18,6 +18,8 @@
 
 @synthesize screenImage;
 
+@synthesize deviceId;
+
 - (id)init
 {
     self=[super initWithWindowNibName:REMOTE_SCREEN_SHEET];
@@ -31,6 +33,7 @@
 
 - (IBAction)showWindow:(id)sender {
     if (screenSource != nil) {
+        [screenSource setDeviceId:deviceId];
         [screenSource startMonitoring];
     }
     [super showWindow:sender];
@@ -47,6 +50,7 @@
         [screenSource setDelegate:self];
     }
     
+    [screenSource setDeviceId:deviceId];
     [screenSource startMonitoring];
 }
 

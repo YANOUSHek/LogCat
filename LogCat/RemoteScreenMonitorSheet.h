@@ -10,9 +10,11 @@
 
 @interface RemoteScreenMonitorSheet : NSWindowController <NSWindowDelegate, DeviceScreenDatasourceDelegate> {
     __weak NSImageCell *screenImage;
+    NSString* deviceId;
 }
 
 @property (weak) IBOutlet NSImageCell *screenImage;
+@property (strong) NSString* deviceId;
 
 - (IBAction)segmentedControl:(id)sender;
 - (IBAction)copy:(id)sender;

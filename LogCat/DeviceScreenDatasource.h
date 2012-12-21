@@ -16,10 +16,13 @@
 @interface DeviceScreenDatasource : NSObject {
 
     id <DeviceScreenDatasourceDelegate> delegate;
+    
+    NSString* deviceId;
 }
 
 @property (strong) id <DeviceScreenDatasourceDelegate> delegate;
 
+@property (strong) NSString* deviceId;
 
 
 - (void) startMonitoring;

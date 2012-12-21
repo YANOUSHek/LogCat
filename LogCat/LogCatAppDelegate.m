@@ -14,6 +14,8 @@
 #import "NSString_Extension.h"
 #import "DeviceListDatasource.h"
 
+#define DARK_GREEN_COLOR [NSColor colorWithCalibratedRed:0 green:0 blue:0 alpha:1.0]
+
 @interface LogCatAppDelegate () {
     LogDatasource* logDatasource;
     DeviceListDatasource* deviceSource;
@@ -47,7 +49,8 @@
     [s setObject:[NSNumber numberWithInt:1] forKey:@"logFatalBold"];
     [s setObject:[NSArchiver archivedDataWithRootObject:[NSColor blueColor]] forKey:@"logVerboseColor"];
     [s setObject:[NSArchiver archivedDataWithRootObject:[NSColor blackColor]] forKey:@"logDebugColor"];
-    [s setObject:[NSArchiver archivedDataWithRootObject:[NSColor greenColor]] forKey:@"logInfoColor"];
+    [s setObject:[NSArchiver archivedDataWithRootObject:DARK_GREEN_COLOR] forKey:@"logInfoColor"];
+    
     [s setObject:[NSArchiver archivedDataWithRootObject:[NSColor orangeColor]] forKey:@"logWarningColor"];
     [s setObject:[NSArchiver archivedDataWithRootObject:[NSColor redColor]] forKey:@"logErrorColor"];
     [s setObject:[NSArchiver archivedDataWithRootObject:[NSColor redColor]] forKey:@"logFatalColor"];

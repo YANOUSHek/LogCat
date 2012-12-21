@@ -3,7 +3,6 @@
 //  RGB565Test
 //
 //  Created by Chris Wilson on 12/18/12.
-//  Copyright (c) 2012 Chris Wilson. All rights reserved.
 //
 
 #import "RGBHelper.h"

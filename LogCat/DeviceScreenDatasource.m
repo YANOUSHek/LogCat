@@ -3,7 +3,6 @@
 //  LogCat
 //
 //  Created by Chris Wilson on 12/19/12.
-//  Copyright (c) 2012 SplashSoftware.pl. All rights reserved.
 //
 
 #import "DeviceScreenDatasource.h"

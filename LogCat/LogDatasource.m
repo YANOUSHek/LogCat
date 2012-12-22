@@ -58,6 +58,7 @@
 - (NSMutableArray*)findLogsMatching:(NSString*)string forKey:(NSString*)key;
 
 - (void) applySearch;
+- (NSArray*) argumentsForDevice: (NSArray*) args;
 
 @end
 
@@ -211,15 +212,10 @@
 
 - (void) loadPID {
     NSArray *arguments = nil;
-    if (deviceId == nil || deviceId.length == 0) {
-        arguments = [NSArray arrayWithObjects: @"shell", @"ps", nil];
-    } else {
-        //NSLog(@"Will bind to: %@", deviceId);
-        arguments = [NSArray arrayWithObjects: @"-s", [deviceId copy], @"shell", @"ps", nil];
-    }
+    arguments = [NSArray arrayWithObjects: @"shell", @"ps", nil];
     
     
-    NSTask *task = [AdbTaskHelper adbTask: arguments];
+    NSTask *task = [AdbTaskHelper adbTask: [self argumentsForDevice:arguments]];
     
     NSPipe *pipe;
     pipe = [NSPipe pipe];
@@ -310,30 +306,18 @@
     
     NSArray *arguments = nil;
     if (LOG_FORMAT == 1) {
-        if (deviceId == nil || deviceId.length == 0) {
-            arguments = [NSArray arrayWithObjects: @"logcat", @"-v", @"long", nil];
-        } else {
-            arguments = [NSArray arrayWithObjects: @"-s", deviceId, @"logcat", @"-v", @"long", nil];
-        }
+        arguments = [NSArray arrayWithObjects: @"logcat", @"-v", @"long", nil];
         
     } else if (LOG_FORMAT == 2) {
     
-        if (deviceId == nil || deviceId.length == 0) {
-            arguments = [NSArray arrayWithObjects: @"logcat", @"-v", @"threadtime", nil];
-        } else {
-            arguments = [NSArray arrayWithObjects: @"-s", deviceId, @"logcat", @"-v", @"threadtime", nil];
-        }
+        arguments = [NSArray arrayWithObjects: @"logcat", @"-v", @"threadtime", nil];
     } else if (LOG_FORMAT == 3) {
         
-        if (deviceId == nil || deviceId.length == 0) {
-            arguments = [NSArray arrayWithObjects: @"logcat", @"-B", nil];
-        } else {
-            arguments = [NSArray arrayWithObjects: @"-s", deviceId, @"logcat", @"-B", nil];
-        }
+        arguments = [NSArray arrayWithObjects: @"logcat", @"-B", nil];
     }
     
     
-    NSTask *task = [AdbTaskHelper adbTask:arguments];
+    NSTask *task = [AdbTaskHelper adbTask:[self argumentsForDevice:arguments]];
     
     NSPipe *pipe;
     pipe = [NSPipe pipe];
@@ -822,6 +806,16 @@
     }
     
     return realType;
+}
+
+- (NSArray*) argumentsForDevice: (NSArray*) args {
+    if (deviceId == nil || [deviceId length] == 0) {
+        return args;
+    }
+    
+    NSMutableArray* newArgs = [NSMutableArray arrayWithObjects: @"-s", deviceId, nil];
+    
+    return [newArgs arrayByAddingObjectsFromArray:args];
 }
 
 @end

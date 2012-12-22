@@ -14,7 +14,7 @@
 #import "NSString_Extension.h"
 #import "DeviceListDatasource.h"
 
-#define DARK_GREEN_COLOR [NSColor colorWithCalibratedRed:0 green:0 blue:0 alpha:1.0]
+#define DARK_GREEN_COLOR [NSColor colorWithCalibratedRed:0 green:0.50 blue:0 alpha:1.0]
 
 @interface LogCatAppDelegate () {
     LogDatasource* logDatasource;

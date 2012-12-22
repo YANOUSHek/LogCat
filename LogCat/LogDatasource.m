@@ -197,7 +197,6 @@
 
     for (NSDictionary* logItem in logData) {
         if ([self filterMatchesRow:logItem]) {
-//        if ([[logItem objectForKey:key] rangeOfString:string options:NSCaseInsensitiveSearch].location != NSNotFound) {
             [result addObject:[logItem copy]];
         }
     }

@@ -195,7 +195,9 @@
 {
     NSMutableArray* result = [NSMutableArray new];
 
-    for (NSDictionary* logItem in logData) {
+    // temp fix so log can be filtered when first starting and log messages
+    // are runnig very fast. This can cause some data to be missed by the filter.
+    for (NSDictionary* logItem in [logData copy]) {
         if ([self filterMatchesRow:logItem]) {
             [result addObject:[logItem copy]];
         }

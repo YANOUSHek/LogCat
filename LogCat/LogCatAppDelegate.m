@@ -22,6 +22,8 @@
     NSArray* baseRowTemplates;
     NSArray* logData;
     NSPredicate* predicate;
+    
+    NSInteger findIndex;
 }
 
 - (void)registerDefaults;
@@ -122,7 +124,7 @@
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification
 {
     NSLog(@"applicationDidFinishLaunching: %@", aNotification);
-    
+    findIndex = -1;
     baseRowTemplates = nil;
     
     logDatasource = [[LogDatasource alloc] init];
@@ -254,10 +256,53 @@
 
 - (IBAction)search:(id)sender
 {
-    NSLog(@"TODO: change search to find.");
+    NSString* searchString = [[sender stringValue] copy];
+    if (searchString == nil || [searchString length] == 0) {
+        scrollToBottom = YES;
+        return;
+    }
     
-//    NSString* searchString = [[sender stringValue] copy];
-//    [logDatasource setSearchString:searchString];
+    [logDataTable deselectAll:self];
+    NSLog(@"Search for: \"%@\" from index %ld", searchString, findIndex);
+    if (findIndex == -1) {
+        findIndex = [[logDataTable selectedRowIndexes] lastIndex];
+        if (findIndex > [logData count]) {
+            findIndex = [logData count]-1;
+        }
+    }
+    
+    // TODO: allow for search up or down Command-G and Shift-Command-G
+    NSInteger searchedRows = 0;
+    while (true) {
+        findIndex++;
+        searchedRows++;
+        findIndex = (findIndex%[logData count]);
+        NSDictionary* logEvent = [logData objectAtIndex: findIndex ];
+        NSString* stringToSearch = [NSString stringWithFormat:@"%@ %@ %@ %@ %@ %@",
+                                    [logEvent valueForKey:KEY_APP],
+                                    [logEvent valueForKey:KEY_TEXT],
+                                    [logEvent valueForKey:KEY_PID],
+                                    [logEvent valueForKey:KEY_TID],
+                                    [logEvent valueForKey:KEY_TYPE],
+                                    [logEvent valueForKey:KEY_NAME]
+                                    ];
+        
+        if ([stringToSearch rangeOfString:searchString options:NSCaseInsensitiveSearch].location != NSNotFound) {
+            NSLog(@"Row %ld matches", findIndex);
+            NSIndexSet *indexSet = [NSIndexSet indexSetWithIndex:findIndex];
+            [logDataTable selectRowIndexes:indexSet byExtendingSelection:NO];
+            
+            
+            [self.logDataTable scrollRowToVisible:findIndex];
+            return;
+        }
+        
+        if (searchedRows >= [logData count]) {
+            NSLog(@"No matches found");
+            NSBeep();
+            return;
+        }
+    }
 }
 
 /**
@@ -266,6 +311,7 @@
 - (BOOL)tableView:(NSTableView *)aTableView shouldSelectRow:(NSInteger)rowIndex
 {
     if (aTableView != filterListTable) {
+        findIndex = rowIndex;
         return YES;
     }
     

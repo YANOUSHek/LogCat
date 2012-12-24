@@ -89,9 +89,33 @@
                                          forKeys:typeKeys];
     
     // Load User Defined Filters
-    NSDictionary* loadedFilters = [[NSUserDefaults standardUserDefaults] valueForKey:KEY_PREFS_FILTERS];
     filters = [NSMutableDictionary new];
-    if (loadedFilters != nil) {
+    NSDictionary* loadedFilters = [[NSUserDefaults standardUserDefaults] valueForKey:KEY_PREFS_FILTERS];
+    if (loadedFilters == nil) {
+        NSArray* keys = [NSArray arrayWithObjects:
+                         @"LogLevel Verbose",
+                         @"LogLevel Info",
+                         @"LogLevel Debug",
+                         @"LogLevel Warn",
+                         @"LogLevel Error", nil];
+        
+        NSArray* logLevels = [NSArray arrayWithObjects:
+                 @"type ==[cd] 'V' OR type ==[cd] 'I' OR type ==[cd] 'W' OR type ==[cd] 'E' OR type ==[cd] 'F' OR type ==[cd] 'A'",
+                 @"type ==[cd] 'I' OR type ==[cd] 'W' OR type ==[cd] 'E' OR type ==[cd] 'F' OR type ==[cd] 'A'",
+                 @"type ==[cd] 'D' OR type ==[cd] 'I' OR type ==[cd] 'W' OR type ==[cd] 'E' OR type ==[cd] 'F' OR type ==[cd] 'A'",
+                 @"type ==[cd] 'W' OR type CONTAINS[cd] 'E' OR type ==[cd] 'F'",
+                 @"type ==[cd] 'E' OR type ==[cd] 'F' OR type ==[cd] 'A'",
+                 nil];
+
+        for(int i = 0; i < [keys count]; i++) {
+            NSString* key = [keys objectAtIndex:i];
+            NSString* value = [logLevels objectAtIndex:i];
+            
+            NSPredicate* savePredicate = [NSPredicate predicateWithFormat:value];
+            [filters setObject:savePredicate forKey:key];
+        }
+        
+    } else {
         NSArray *sortedKeys = [[loadedFilters allKeys] sortedArrayUsingSelector: @selector(compare:)];
         for (NSString* key in sortedKeys) {
             NSPredicate* savePredicate = [NSPredicate predicateWithFormat:[loadedFilters objectForKey:key]];

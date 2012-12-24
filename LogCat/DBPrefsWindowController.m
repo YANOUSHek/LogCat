@@ -34,12 +34,8 @@ static DBPrefsWindowController *_sharedPrefsWindowController = nil;
    return @"Preferences";
 }
 
-
-
-
 #pragma mark -
 #pragma mark Setup & Teardown
-
 
 - (id)initWithWindow:(NSWindow *)window
   // -initWithWindow: is the designated initializer for NSWindowController.

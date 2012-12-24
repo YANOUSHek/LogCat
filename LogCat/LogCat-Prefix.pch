@@ -18,7 +18,7 @@
 #define KEY_FILTER_NAME @"name"
 #define KEY_FILTER_TYPE @"type"
 
-#define KEY_PREFS_FILTERS @"filters"
+#define KEY_PREFS_FILTERS @"predicates"
 
 #define FILTER_SHEET @"FilterSheet"
 #define DEVICE_PICKER_SHEET @"DevicePickerSheet"

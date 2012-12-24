@@ -19,6 +19,8 @@
 @interface LogCatAppDelegate () {
     LogDatasource* logDatasource;
     DeviceListDatasource* deviceSource;
+    NSArray* baseRowTemplates;
+    NSArray* logData;
 }
 
 - (void)registerDefaults;
@@ -85,12 +87,12 @@
     
     filters = [[NSUserDefaults standardUserDefaults] valueForKey:KEY_PREFS_FILTERS];
     if (filters == nil) {
-        filters = [NSMutableArray new];
+        filters = [NSMutableDictionary new];
     } else {
-        filters = [[NSMutableArray alloc] initWithArray:filters];
+        filters = [[NSMutableDictionary alloc] initWithDictionary:filters];
         [filterListTable reloadData];
     }
-    [self sortFilters];
+//    [self sortFilters];
 }
 
 - (void) resetConnectButton {
@@ -115,6 +117,8 @@
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification
 {
     NSLog(@"applicationDidFinishLaunching: %@", aNotification);
+    
+    baseRowTemplates = nil;
     
     logDatasource = [[LogDatasource alloc] init];
     [logDatasource setDelegate:self];
@@ -186,7 +190,7 @@
     if ([aNotification object] == [[self.logDataTable enclosingScrollView] contentView]) {
         NSRect visibleRect = [[[self.logDataTable enclosingScrollView] contentView] visibleRect];
         float maxy = 0;
-        maxy = [logDatasource getDisplayCount] * 19;
+        maxy = [logData count] * 19;
         if (visibleRect.origin.y + visibleRect.size.height >= maxy) {
             scrollToBottom = YES;
         } else {
@@ -198,7 +202,7 @@
 - (NSInteger)numberOfRowsInTableView:(NSTableView *)aTableView
 {
     if (aTableView == logDataTable) {
-        return [logDatasource getDisplayCount];
+        return [logData count];
     }
     return [filters count] + 1;
 }
@@ -207,13 +211,14 @@
 {
     if (aTableView == logDataTable) {
         NSDictionary* row;
-        row = [logDatasource valueForIndex: rowIndex];
+        row = [logData objectAtIndex: rowIndex];
         return [row objectForKey:[aTableColumn identifier]];
     }
     if (rowIndex == 0) {
         return @"All messages";
     } else {
-        return [[filters objectAtIndex:rowIndex-1] valueForKey:KEY_FILTER_NAME];
+        
+        return @"TODO"; //[[filters objectAtIndex:rowIndex-1] valueForKey:KEY_FILTER_NAME];
     }
 }
 
@@ -225,7 +230,7 @@
 
     NSTextFieldCell *aCell = [tableColumn dataCell];
     NSString* rowType;
-    NSDictionary* data = [logDatasource valueForIndex: rowIndex];
+    NSDictionary* data = [logData objectAtIndex: rowIndex];
 
     rowType = [data objectForKey:KEY_TYPE];
     [aCell setTextColor:[colors objectForKey:rowType]];
@@ -235,8 +240,9 @@
 
 - (IBAction)search:(id)sender
 {
-    NSString* searchString = [[sender stringValue] copy];
-    [logDatasource setSearchString:searchString];
+    NSLog(@"Search is no find.");
+//    NSString* searchString = [[sender stringValue] copy];
+//    [logDatasource setSearchString:searchString];
 }
 
 /**
@@ -248,45 +254,45 @@
         return YES;
     }
     
-    bool filterSelected = rowIndex != 0;
-    if (filterSelected) {
-        [filterToolbar setEnabled:filterSelected forSegment:1];
-        NSDictionary* filter = [filters objectAtIndex:rowIndex-1];
-        [logDatasource setFilter:filter];
-    } else {
-        [logDatasource setFilter:nil];
-    }
+//    bool filterSelected = rowIndex != 0;
+//    if (filterSelected) {
+//        [filterToolbar setEnabled:filterSelected forSegment:1];
+//        NSDictionary* filter = [filters objectAtIndex:rowIndex-1];
+//        [logDatasource setFilter:filter];
+//    } else {
+//        [logDatasource setFilter:nil];
+//    }
     
     return YES;
 }
 
 - (IBAction)addFilter
 {
-    if (sheetAddFilter == nil) {
-        [NSBundle loadNibNamed:FILTER_SHEET owner:self];
-    }
-    [tfFilterName becomeFirstResponder];
-    
-    [[sheetAddFilter filterName] setStringValue:@""];
-    [[sheetAddFilter filterCriteria]  setStringValue:@""];
-    
-    [NSApp beginSheet:sheetAddFilter modalForWindow:self.window modalDelegate:self didEndSelector:@selector(didEndSheet:returnCode:contextInfo:) contextInfo:nil];
+//    if (sheetAddFilter == nil) {
+//        [NSBundle loadNibNamed:FILTER_SHEET owner:self];
+//    }
+//    [tfFilterName becomeFirstResponder];
+//    
+//    [[sheetAddFilter filterName] setStringValue:@""];
+//    [[sheetAddFilter filterCriteria]  setStringValue:@""];
+//    
+//    [NSApp beginSheet:sheetAddFilter modalForWindow:self.window modalDelegate:self didEndSelector:@selector(didEndSheet:returnCode:contextInfo:) contextInfo:nil];
 }
 
 - (IBAction)removeFilter
 {
-    [filters removeObjectAtIndex:[[filterListTable selectedRowIndexes] firstIndex] - 1];
-    [filterListTable reloadData];
-    [[NSUserDefaults standardUserDefaults] setValue:filters forKey:KEY_PREFS_FILTERS];
+//    [filters removeObjectAtIndex:[[filterListTable selectedRowIndexes] firstIndex] - 1];
+//    [filterListTable reloadData];
+//    [[NSUserDefaults standardUserDefaults] setValue:filters forKey:KEY_PREFS_FILTERS];
 
 }
 
 - (void) sortFilters {
-    NSSortDescriptor *sortDescriptor = [[NSSortDescriptor alloc] initWithKey:KEY_FILTER_NAME ascending:YES];
-    NSArray *sortDescriptors = [NSArray arrayWithObject:sortDescriptor];
-    [filters sortUsingDescriptors:sortDescriptors];
-    
-    [filterListTable reloadData];
+//    NSSortDescriptor *sortDescriptor = [[NSSortDescriptor alloc] initWithKey:KEY_FILTER_NAME ascending:YES];
+//    NSArray *sortDescriptors = [NSArray arrayWithObject:sortDescriptor];
+//    [filters sortUsingDescriptors:sortDescriptors];
+//    
+//    [filterListTable reloadData];
 }
 
 - (IBAction)cancelSheet:(id)sender
@@ -308,6 +314,7 @@
 {
 //    [self clearLog];
     [logDatasource clearLog];
+    logData = [NSArray array];
 }
 
 - (IBAction)restartAdb:(id)sender
@@ -403,39 +410,39 @@
 {
     NSLog(@"didEndSheet: %ld", returnCode);
 
-    [sheetAddFilter orderOut:self];
-    if (returnCode == NSCancelButton) {
-        return;
-    }
-
-    NSString* filterName = [tfFilterName stringValue];
-    NSString* filterType = [puFilterField titleOfSelectedItem];
-    NSString* filterText = [tfFilterText stringValue];
-    
-    NSDictionary* filter = (__bridge NSDictionary *)contextInfo;
-    if (filter == nil) {
-        filter = [NSDictionary dictionaryWithObjects:[NSArray arrayWithObjects:filterName, filterType, filterText, nil]
-                                        forKeys:[NSArray arrayWithObjects:KEY_FILTER_NAME, KEY_FILTER_TYPE, KEY_FILTER_TEXT, nil]];
-        [filters addObject:filter];
-        NSLog(@"Added filter: %@", filter);
-    } else {
-        [filters removeObject:filter];
-        [filter setValue:filterName forKey:KEY_FILTER_NAME];
-        [filter setValue:filterType forKey:KEY_FILTER_TYPE];
-        [filter setValue:filterText forKey:KEY_FILTER_TEXT];
-        NSLog(@"Filter changed to: %@", filter);
-        
-        [filters addObject:filter];
-    }
-    
-    
-    [[NSUserDefaults standardUserDefaults] setValue:filters forKey:KEY_PREFS_FILTERS];
-
-    [tfFilterName setStringValue:@""];
-    [puFilterField selectItemAtIndex:0];
-    [tfFilterText setStringValue:@""];
-    
-    [self sortFilters];
+//    [sheetAddFilter orderOut:self];
+//    if (returnCode == NSCancelButton) {
+//        return;
+//    }
+//
+//    NSString* filterName = [tfFilterName stringValue];
+//    NSString* filterType = [puFilterField titleOfSelectedItem];
+//    NSString* filterText = [tfFilterText stringValue];
+//    
+//    NSDictionary* filter = (__bridge NSDictionary *)contextInfo;
+//    if (filter == nil) {
+//        filter = [NSDictionary dictionaryWithObjects:[NSArray arrayWithObjects:filterName, filterType, filterText, nil]
+//                                        forKeys:[NSArray arrayWithObjects:KEY_FILTER_NAME, KEY_FILTER_TYPE, KEY_FILTER_TEXT, nil]];
+//        [filters addObject:filter];
+//        NSLog(@"Added filter: %@", filter);
+//    } else {
+//        [filters removeObject:filter];
+//        [filter setValue:filterName forKey:KEY_FILTER_NAME];
+//        [filter setValue:filterType forKey:KEY_FILTER_TYPE];
+//        [filter setValue:filterText forKey:KEY_FILTER_TEXT];
+//        NSLog(@"Filter changed to: %@", filter);
+//        
+//        [filters addObject:filter];
+//    }
+//    
+//    
+//    [[NSUserDefaults standardUserDefaults] setValue:filters forKey:KEY_PREFS_FILTERS];
+//
+//    [tfFilterName setStringValue:@""];
+//    [puFilterField selectItemAtIndex:0];
+//    [tfFilterText setStringValue:@""];
+//    
+//    [self sortFilters];
 }
 
 - (IBAction)copyPlain:(id)sender {
@@ -450,44 +457,44 @@
 }
 
 - (void) editFilter:(id)sender {
-    NSLog(@"editFilter: %ld, %ld [%@]", [filterListTable rightClickedColumn], [filterListTable rightClickedRow], sender);
-    if ([filterListTable rightClickedRow] < 1) {
-        return;
-    }
-    
-    NSDictionary* filter = [filters objectAtIndex:[filterListTable rightClickedRow]-1];
-    
-    if (sheetAddFilter == nil) {
-        [NSBundle loadNibNamed:FILTER_SHEET owner:self];
-    }
-    
-
-    [[sheetAddFilter filterName] setStringValue:[filter objectForKey:KEY_FILTER_NAME]];
-    [sheetAddFilter selectItemWithTitie:[filter objectForKey:KEY_FILTER_TYPE]];
-    [[sheetAddFilter filterCriteria]  setStringValue:[filter objectForKey:KEY_FILTER_TEXT]];
-    
-    [NSApp beginSheet:sheetAddFilter modalForWindow:self.window modalDelegate:self didEndSelector:@selector(didEndSheet:returnCode:contextInfo:) contextInfo:(__bridge void *)(filter)];
+//    NSLog(@"editFilter: %ld, %ld [%@]", [filterListTable rightClickedColumn], [filterListTable rightClickedRow], sender);
+//    if ([filterListTable rightClickedRow] < 1) {
+//        return;
+//    }
+//    
+//    NSDictionary* filter = [filters objectAtIndex:[filterListTable rightClickedRow]-1];
+//    
+//    if (sheetAddFilter == nil) {
+//        [NSBundle loadNibNamed:FILTER_SHEET owner:self];
+//    }
+//    
+//
+//    [[sheetAddFilter filterName] setStringValue:[filter objectForKey:KEY_FILTER_NAME]];
+//    [sheetAddFilter selectItemWithTitie:[filter objectForKey:KEY_FILTER_TYPE]];
+//    [[sheetAddFilter filterCriteria]  setStringValue:[filter objectForKey:KEY_FILTER_TEXT]];
+//    
+//    [NSApp beginSheet:sheetAddFilter modalForWindow:self.window modalDelegate:self didEndSelector:@selector(didEndSheet:returnCode:contextInfo:) contextInfo:(__bridge void *)(filter)];
 }
 
 - (IBAction)filterBySelected:(id)sender {
     
-    NSLog(@"filterBySelected: %ld, %ld [%@]", [logDataTable rightClickedColumn], [logDataTable rightClickedRow], sender);
-    if (sheetAddFilter == nil) {
-        [NSBundle loadNibNamed:FILTER_SHEET owner:self];
-    }
-    NSTableColumn* aColumn = [[logDataTable tableColumns] objectAtIndex:[logDataTable rightClickedColumn]];
-    
-    [tfFilterName becomeFirstResponder];
-    NSDictionary* rowDetails = [self dataForRow: [logDataTable rightClickedRow]];
-    
-    NSString* columnName = [[aColumn headerCell] title];
-    NSLog(@"ColumnName: %@", columnName);
-    NSString* value = [rowDetails valueForKey:[aColumn identifier]];
-    [[sheetAddFilter filterName] setStringValue:[NSString stringWithFormat:@"%@_%@", columnName, value]];
-    [sheetAddFilter selectItemWithTitie:[aColumn identifier]];
-    [[sheetAddFilter filterCriteria]  setStringValue:value];
-    
-    [NSApp beginSheet:sheetAddFilter modalForWindow:self.window modalDelegate:self didEndSelector:@selector(didEndSheet:returnCode:contextInfo:) contextInfo:nil];
+//    NSLog(@"filterBySelected: %ld, %ld [%@]", [logDataTable rightClickedColumn], [logDataTable rightClickedRow], sender);
+//    if (sheetAddFilter == nil) {
+//        [NSBundle loadNibNamed:FILTER_SHEET owner:self];
+//    }
+//    NSTableColumn* aColumn = [[logDataTable tableColumns] objectAtIndex:[logDataTable rightClickedColumn]];
+//    
+//    [tfFilterName becomeFirstResponder];
+//    NSDictionary* rowDetails = [self dataForRow: [logDataTable rightClickedRow]];
+//    
+//    NSString* columnName = [[aColumn headerCell] title];
+//    NSLog(@"ColumnName: %@", columnName);
+//    NSString* value = [rowDetails valueForKey:[aColumn identifier]];
+//    [[sheetAddFilter filterName] setStringValue:[NSString stringWithFormat:@"%@_%@", columnName, value]];
+//    [sheetAddFilter selectItemWithTitie:[aColumn identifier]];
+//    [[sheetAddFilter filterCriteria]  setStringValue:value];
+//    
+//    [NSApp beginSheet:sheetAddFilter modalForWindow:self.window modalDelegate:self didEndSelector:@selector(didEndSheet:returnCode:contextInfo:) contextInfo:nil];
 
 }
 
@@ -517,7 +524,7 @@
 }
 
 - (NSDictionary*) dataForRow: (NSUInteger) rowIndex {
-    NSDictionary* rowDetails = [logDatasource valueForIndex:rowIndex];
+    NSDictionary* rowDetails = [logData objectAtIndex:rowIndex];
 
     return rowDetails;
 }
@@ -635,9 +642,11 @@
 }
 
 - (void) onLogUpdated {
+    logData = [logDatasource eventsForPredicate: [self.predicateEditor predicate]];
     [self.logDataTable reloadData];
+    
     if (scrollToBottom) {
-        [self.logDataTable scrollRowToVisible:[logDatasource getDisplayCount]-1];
+        [self.logDataTable scrollRowToVisible:[logData count]-1];
     }
 
 }
@@ -650,6 +659,92 @@
 - (void) onDeviceNotFound {
     NSLog(@"LogcatDatasourceDelegate::onDeviceNotFound");
     [logDatasource setDeviceId:nil];
+}
+
+
+#pragma -
+#pragma mark Predicate Editor
+#pragma -
+
+- (IBAction)showPredicateEditor:(id)sender {
+    
+    NSLog(@"Filter Name: %@", @"This will be used for saved predicates");
+    BOOL isFirstRun = NO;
+    if (baseRowTemplates == nil)
+    {
+        baseRowTemplates = [self.predicateEditor rowTemplates];
+        NSLog(@"Existing Templates: [%@]", baseRowTemplates);
+        isFirstRun = YES;
+        
+    }
+    
+    NSMutableArray* allTemplates = [NSMutableArray arrayWithArray:baseRowTemplates];
+//    if (self.coreDataIntrospection.coreDataHistory != nil && [self.coreDataIntrospection.coreDataHistory count] > 0)
+//    {
+//        CoreDataHistoryObject *historyObj = (self.coreDataIntrospection.coreDataHistory)[[self.coreDataIntrospection getCurrentHistoryIndex]];
+//        NSPredicateEditorRowTemplate *row = [[NSPredicateEditorRowTemplate alloc] init];
+//        [row setPredicate:historyObj.predicate];
+//        [allTemplates addObject:row];
+//    }
+    
+//    NSArray *keyPaths = [self.coreDataIntrospection keyPathsForEntity:entityDescription];
+//    NSArray * keyPaths = [NSArray arrayWithObjects: KEY_TIME, KEY_APP, KEY_PID, KEY_TID, KEY_TYPE, KEY_NAME, KEY_TEXT, nil];
+//    NSArray *templates = [NSPredicateEditorRowTemplate templatesWithAttributeKeyPaths:keyPaths inEntityDescription:entityDescription];
+//    [allTemplates addObjectsFromArray:templates];
+	
+    [self.predicateEditor setRowTemplates:allTemplates];
+    if (isFirstRun)
+    {
+        [self.predicateEditor addRow:self];
+    }
+    
+    NSLog(@"showPredicateEditor");
+    [NSApp beginSheet:self.predicateSheet
+	   modalForWindow:nil
+		modalDelegate:nil
+	   didEndSelector:NULL
+		  contextInfo:nil];
+}
+
+- (IBAction)onPredicateEdited:(id)sender
+{
+    NSLog(@"onPredicateEdited");
+    NSLog(@"onPredicateEdited: %@", [self.predicateEditor objectValue]);
+//    [self.generatedPredicateLabel setStringValue:[self.predicateEditor objectValue]];
+}
+
+- (IBAction)closePredicateSheet:(id)sender
+{
+    NSLog(@"closePredicateSheet");
+    [self applyPredicate:sender];
+    
+    
+    
+//    [self.coreDataIntrospection updateCoreDataHistory:[[self getEntityForPredicateEditor] name] :[self.predicateEditor objectValue]];
+//    [self enableDisableHistorySegmentedControls];
+    
+    [NSApp endSheet:self.predicateSheet];
+	[self.predicateSheet orderOut:sender];
+}
+
+- (IBAction)cancelPredicateEditing:(id)sender
+{
+    NSLog(@"cancelPredicateEditing");
+
+//    [self.coreDataIntrospection applyPredicate:[[self getEntityForPredicateEditor] name] :nil];
+    
+//    [self.entityContentTable reloadData];
+    
+    [NSApp endSheet:self.predicateSheet];
+	[self.predicateSheet orderOut:sender];
+}
+
+- (IBAction)applyPredicate:(id)sender
+{
+    NSLog(@"applyPredicate: %@", [self.predicateEditor predicate]);
+    [self.predicateText setStringValue:[self.predicateEditor objectValue]];
+    logData = [logDatasource eventsForPredicate: [self.predicateEditor predicate]];
+    [self.logDataTable reloadData];
 }
 
 

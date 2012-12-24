@@ -25,7 +25,7 @@
     
     bool scrollToBottom;
     
-    NSMutableArray* filters;
+    NSMutableDictionary* filters;
     IBOutlet FilterSheet *sheetAddFilter;
     IBOutlet DevicePickerSheet* sheetDevicePicker;
     IBOutlet RemoteScreenMonitorSheet* remoteScreen;
@@ -33,12 +33,15 @@
     IBOutlet NSPopUpButton *puFilterField;
     IBOutlet NSTextField *tfFilterText;
     IBOutlet NSSegmentedControl *filterToolbar;
+    __unsafe_unretained NSWindow *_predicateSheet;
+    __weak NSTextField *_predicateText;
     
     NSDictionary* colors;
     NSDictionary* fonts;
     
     __weak NSTextField *textEntry;
     __weak NSButtonCell *remoteScreenMonitorButton;
+    
 }
 
 
@@ -48,6 +51,7 @@
 @property (weak) IBOutlet NSTextField *textEntry;
 @property (weak) IBOutlet NSButton *restartAdb;
 @property (weak) IBOutlet NSButtonCell *remoteScreenMonitorButton;
+@property (weak) IBOutlet NSPredicateEditor *predicateEditor;
 
 - (IBAction)remoteScreenMonitor:(id)sender;
 - (IBAction)cancelDevicePicker:(id)sender;
@@ -66,4 +70,12 @@
 - (IBAction)openTypingTerminal:(id)sender;
 - (IBAction)newWindow:(id)sender;
 
+- (IBAction)showPredicateEditor:(id)sender;
+- (IBAction)onPredicateEdited:(id)sender;
+- (IBAction)closePredicateSheet:(id)sender;
+- (IBAction)cancelPredicateEditing:(id)sender;
+- (IBAction)applyPredicate:(id)sender;
+
+@property (unsafe_unretained) IBOutlet NSWindow *predicateSheet;
+@property (weak) IBOutlet NSTextField *predicateText;
 @end

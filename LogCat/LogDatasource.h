@@ -39,12 +39,13 @@
 - (void) stopLogger;
 - (void) clearLog;
 
-- (void) setSearchString: (NSString*) search;
-- (void) setFilter: (NSDictionary*) filter;
+//- (void) setSearchString: (NSString*) search;
+//- (void) setFilter: (NSDictionary*) filter;
 
-- (NSUInteger) getDisplayCount;
-- (NSDictionary*) valueForIndex: (NSUInteger) index;
+//- (NSUInteger) getDisplayCount;
+//- (NSDictionary*) valueForIndex: (NSUInteger) index;
 
 - (void) logMessage: (NSString*) message;
+- (NSArray*) eventsForPredicate: (NSPredicate*) predicate;
 
 @end

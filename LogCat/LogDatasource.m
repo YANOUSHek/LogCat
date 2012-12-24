@@ -29,11 +29,11 @@
     
     NSMutableDictionary* pidMap;
     NSMutableArray* logData;
-    NSMutableArray* filteredLogData;
-    NSMutableArray* searchLogData;
+//    NSMutableArray* filteredLogData;
+//    NSMutableArray* searchLogData;
     
-    NSDictionary* filter;
-    NSString* searchString;
+//    NSDictionary* filter;
+//    NSString* searchString;
 
     
     NSArray* keysArray;
@@ -53,8 +53,8 @@
 - (void) parsePID: (NSString*) pidInfo;
 - (void) loadPID;
 
-- (BOOL)filterMatchesRow:(NSDictionary*)row;
-- (BOOL)searchMatchesRow:(NSDictionary*)row;
+//- (BOOL)filterMatchesRow:(NSDictionary*)row;
+//- (BOOL)searchMatchesRow:(NSDictionary*)row;
 
 - (NSString*) getKeyFromType: (NSString*) selectedType;
 
@@ -62,9 +62,9 @@
 - (void) onLoggerStarted;
 - (void) onLoggerStopped;
 
-- (NSMutableArray*)findLogsMatching:(NSString*)string forKey:(NSString*)key;
+//- (NSMutableArray*)findLogsMatching:(NSString*)string forKey:(NSString*)key;
 
-- (void) applySearch;
+//- (void) applySearch;
 - (NSArray*) argumentsForDevice: (NSArray*) args;
 
 @end
@@ -80,7 +80,7 @@
     if (self = [super init]) {
         pidMap = [NSMutableDictionary dictionary];
         logData = [NSMutableArray arrayWithCapacity:0];
-        searchLogData = [NSMutableArray arrayWithCapacity:0];
+//        searchLogData = [NSMutableArray arrayWithCapacity:0];
         text = [NSMutableString stringWithCapacity:0];
         keysArray = [NSArray arrayWithObjects: KEY_TIME, KEY_APP, KEY_PID, KEY_TID, KEY_TYPE, KEY_NAME, KEY_TEXT, nil];
         isLogging = NO;
@@ -89,6 +89,17 @@
     }
     return self;
 }
+
+- (NSArray*) eventsForPredicate: (NSPredicate*) predicate {
+    NSArray* filteredEvents = [logData copy];
+    if (predicate != nil) {
+        filteredEvents = [filteredEvents filteredArrayUsingPredicate:predicate];
+    }
+    
+    return filteredEvents;
+    
+}
+
 
 - (void) startLogger {
     if (isLogging) {
@@ -115,105 +126,105 @@
 
 - (void) clearLog {
     [pidMap removeAllObjects];
-    [searchLogData removeAllObjects];
-    [filteredLogData removeAllObjects];
+//    [searchLogData removeAllObjects];
+//    [filteredLogData removeAllObjects];
     [logData removeAllObjects];
     [self onLogUpdated];
     
 }
 
-- (NSUInteger) getDisplayCount {
-    if ([searchString length] > 0) {
-        return [searchLogData count];
-    } else if (filteredLogData != nil) {
-        return [filteredLogData count];
-    } else {
-        return [logData count];
-    }
-}
+//- (NSUInteger) getDisplayCount {
+//    if ([searchString length] > 0) {
+//        return [searchLogData count];
+//    } else if (filteredLogData != nil) {
+//        return [filteredLogData count];
+//    } else {
+//        return [logData count];
+//    }
+//}
 
-- (NSDictionary*) valueForIndex: (NSUInteger) index {
-    NSDictionary* row;
-    if ([searchString length] > 0) {
-        row = [searchLogData objectAtIndex:index];
-    } else if (filteredLogData != nil) {
-        row = [filteredLogData objectAtIndex:index];
-    } else {
-        row = [logData objectAtIndex:index];
-    }
-    return row;
-}
+//- (NSDictionary*) valueForIndex: (NSUInteger) index {
+//    NSDictionary* row;
+//    if ([searchString length] > 0) {
+//        row = [searchLogData objectAtIndex:index];
+//    } else if (filteredLogData != nil) {
+//        row = [filteredLogData objectAtIndex:index];
+//    } else {
+//        row = [logData objectAtIndex:index];
+//    }
+//    return row;
+//}
 
-- (void) setSearchString: (NSString*) search {
-    NSLog(@"setSearchString: %@", search);
-    if (search != nil && [search isEqualToString:searchString]) {
-        NSLog(@"Search did not change abort re-scan");
-        return;
-    }
-    
-    searchString = search;
-    if (searchString == nil || [searchString length] == 0) {
-        [searchLogData removeAllObjects];
-        [self onLogUpdated];
-        
-    } else {
-        [self applySearch];
-    }
-}
+//- (void) setSearchString: (NSString*) search {
+//    NSLog(@"setSearchString: %@", search);
+//    if (search != nil && [search isEqualToString:searchString]) {
+//        NSLog(@"Search did not change abort re-scan");
+//        return;
+//    }
+//    
+//    searchString = search;
+//    if (searchString == nil || [searchString length] == 0) {
+//        [searchLogData removeAllObjects];
+//        [self onLogUpdated];
+//        
+//    } else {
+//        [self applySearch];
+//    }
+//}
 
-- (void) applySearch {
-    [searchLogData removeAllObjects];
-    
-    if (searchString == nil || [searchString length] == 0) {
-        [self onLogUpdated];
-        return;
-    }
-    
-    NSMutableArray* rows = logData;
-    if (filteredLogData != nil && [filteredLogData count] > 0) {
-        rows = filteredLogData;
-    }
-    
-    [searchLogData removeAllObjects];
-    for (NSDictionary* row in rows) {
-        if ([[row objectForKey:KEY_NAME] rangeOfString:searchString options:NSCaseInsensitiveSearch].location != NSNotFound) {
-            [searchLogData addObject:[row copy]];
-        } else if ([[row objectForKey:KEY_TEXT] rangeOfString:searchString options:NSCaseInsensitiveSearch].location != NSNotFound) {
-            [searchLogData addObject:[row copy]];
-        }
-    }
-    
-    [self onLogUpdated];
-}
+//- (void) applySearch {
+//    [searchLogData removeAllObjects];
+//    
+//    if (searchString == nil || [searchString length] == 0) {
+//        [self onLogUpdated];
+//        return;
+//    }
+//    
+//    NSMutableArray* rows = logData;
+//    if (filteredLogData != nil && [filteredLogData count] > 0) {
+//        rows = filteredLogData;
+//    }
+//    
+//    [searchLogData removeAllObjects];
+//    for (NSDictionary* row in rows) {
+//        if ([[row objectForKey:KEY_NAME] rangeOfString:searchString options:NSCaseInsensitiveSearch].location != NSNotFound) {
+//            [searchLogData addObject:[row copy]];
+//        } else if ([[row objectForKey:KEY_TEXT] rangeOfString:searchString options:NSCaseInsensitiveSearch].location != NSNotFound) {
+//            [searchLogData addObject:[row copy]];
+//        }
+//    }
+//    
+//    [self onLogUpdated];
+//}
 
-- (void) setFilter: (NSDictionary*) newFilter {
-    NSLog(@"setFilter: %@", newFilter);
-        
-    filter = newFilter;
-    
-    if (filter == nil) {
-        filteredLogData = nil;
-    } else {
-        NSString* realType = [self getKeyFromType:[filter objectForKey:KEY_FILTER_TYPE]];
-        filteredLogData = [self findLogsMatching:[filter objectForKey:KEY_FILTER_TEXT] forKey:realType];
-    }
-    
-    [self applySearch];
-}
+//- (void) setFilter: (NSDictionary*) newFilter {
+//    NSLog(@"setFilter: %@", newFilter);
+//        
+//    filter = newFilter;
+//    
+//    if (filter == nil) {
+//        filteredLogData = nil;
+//    } else {
+//        NSString* realType = [self getKeyFromType:[filter objectForKey:KEY_FILTER_TYPE]];
+//        filteredLogData = [self findLogsMatching:[filter objectForKey:KEY_FILTER_TEXT] forKey:realType];
+//    }
+//    
+//    [self applySearch];
+//}
 
-- (NSMutableArray*)findLogsMatching:(NSString*)string forKey:(NSString*)key
-{
-    NSMutableArray* result = [NSMutableArray new];
-
-    // temp fix so log can be filtered when first starting and log messages
-    // are runnig very fast. This can cause some data to be missed by the filter.
-    for (NSDictionary* logItem in [logData copy]) {
-        if ([self filterMatchesRow:logItem]) {
-            [result addObject:[logItem copy]];
-        }
-    }
-    return result;
-}
+//- (NSMutableArray*)findLogsMatching:(NSString*)string forKey:(NSString*)key
+//{
+//    NSMutableArray* result = [NSMutableArray new];
+//
+//    // temp fix so log can be filtered when first starting and log messages
+//    // are runnig very fast. This can cause some data to be missed by the filter.
+//    for (NSDictionary* logItem in [logData copy]) {
+//        if ([self filterMatchesRow:logItem]) {
+//            [result addObject:[logItem copy]];
+//        }
+//    }
+//    return result;
+//}
 
 #pragma mark -
 #pragma mark PID Loader
@@ -792,16 +803,16 @@
 
 - (void) appendRow: (NSDictionary*) row {
     [logData addObject:row];
-    
-    if (filteredLogData != nil && [self filterMatchesRow:row]) {
-        if ([searchString length] > 0 && [self searchMatchesRow:row]) {
-            [searchLogData addObject:row];
-        } else {
-            [filteredLogData addObject:row];
-        }
-    } else if (filteredLogData == nil && [searchString length] > 0 && [self searchMatchesRow:row]) {
-        [searchLogData addObject:row];
-    }
+//    
+//    if (filteredLogData != nil && [self filterMatchesRow:row]) {
+//        if ([searchString length] > 0 && [self searchMatchesRow:row]) {
+//            [searchLogData addObject:row];
+//        } else {
+//            [filteredLogData addObject:row];
+//        }
+//    } else if (filteredLogData == nil && [searchString length] > 0 && [self searchMatchesRow:row]) {
+//        [searchLogData addObject:row];
+//    }
 }
 
 - (void) logMessage: (NSString*) message {
@@ -818,27 +829,27 @@
 #pragma mark Filter and Search
 #pragma mark -
 
-- (BOOL)filterMatchesRow:(NSDictionary*)row
-{
-    if (filter == nil) {
-        return NO;
-    }
-    
-    NSString* selectedType = [filter objectForKey:KEY_FILTER_TYPE];
-    NSString* realType = [self getKeyFromType:selectedType];
-    if ([realType isEqualToString:KEY_TYPE]) {
-        NSInteger filterLevel = [self getLogLevelForValue:[filter objectForKey:KEY_FILTER_TEXT]];
-        NSInteger logItemLevel = [self getLogLevelForValue:[row objectForKey:realType]];
-        
-        if (logItemLevel >= filterLevel) {
-            return YES;
-        }
-        return NO;
-    
-    } else {
-        return [[row objectForKey:realType] rangeOfString:[filter objectForKey:KEY_FILTER_TEXT] options:NSCaseInsensitiveSearch].location != NSNotFound;
-    }
-}
+//- (BOOL)filterMatchesRow:(NSDictionary*)row
+//{
+//    if (filter == nil) {
+//        return NO;
+//    }
+//    
+//    NSString* selectedType = [filter objectForKey:KEY_FILTER_TYPE];
+//    NSString* realType = [self getKeyFromType:selectedType];
+//    if ([realType isEqualToString:KEY_TYPE]) {
+//        NSInteger filterLevel = [self getLogLevelForValue:[filter objectForKey:KEY_FILTER_TEXT]];
+//        NSInteger logItemLevel = [self getLogLevelForValue:[row objectForKey:realType]];
+//        
+//        if (logItemLevel >= filterLevel) {
+//            return YES;
+//        }
+//        return NO;
+//    
+//    } else {
+//        return [[row objectForKey:realType] rangeOfString:[filter objectForKey:KEY_FILTER_TEXT] options:NSCaseInsensitiveSearch].location != NSNotFound;
+//    }
+//}
 
 - (NSString*) appNameForPid:(NSString*) pidVal {
     NSString* appVal = [pidMap objectForKey:pidVal];
@@ -934,16 +945,16 @@
 }
 
 
-- (BOOL)searchMatchesRow:(NSDictionary*)row
-{
-    if ([[row objectForKey:KEY_NAME] rangeOfString:searchString options:NSCaseInsensitiveSearch].location != NSNotFound) {
-        return YES;
-    } else if ([[row objectForKey:KEY_TEXT] rangeOfString:searchString options:NSCaseInsensitiveSearch].location != NSNotFound) {
-        return YES;
-    }
-    
-    return NO;
-}
+//- (BOOL)searchMatchesRow:(NSDictionary*)row
+//{
+//    if ([[row objectForKey:KEY_NAME] rangeOfString:searchString options:NSCaseInsensitiveSearch].location != NSNotFound) {
+//        return YES;
+//    } else if ([[row objectForKey:KEY_TEXT] rangeOfString:searchString options:NSCaseInsensitiveSearch].location != NSNotFound) {
+//        return YES;
+//    }
+//    
+//    return NO;
+//}
 
 
 #pragma mark -

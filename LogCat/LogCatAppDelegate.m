@@ -229,10 +229,7 @@
 
 
 - (NSCell *)tableView:(NSTableView *)tableView dataCellForTableColumn:(NSTableColumn *)tableColumn row:(NSInteger)rowIndex {
-    if (tableView == filterListTable) {
-//        NSArray *sortedKeys = [[filters allKeys] sortedArrayUsingSelector: @selector(compare:)];
-//        return [sortedKeys objectAtIndex:rowIndex-1];
-        
+    if (tableView == filterListTable) {        
         return [tableColumn dataCell];
     }
 
@@ -322,16 +319,9 @@
     NSString* sortKey = [sortedKeys objectAtIndex:selectedIndex];
 
     [filters removeObjectForKey:sortKey];
+    [self saveFilters];
     [filterListTable reloadData];
 }
-
-//- (void) sortFilters {
-//    NSSortDescriptor *sortDescriptor = [[NSSortDescriptor alloc] initWithKey:KEY_FILTER_NAME ascending:YES];
-//    NSArray *sortDescriptors = [NSArray arrayWithObject:sortDescriptor];
-//    [filters sortUsingDescriptors:sortDescriptors];
-//    
-//    [filterListTable reloadData];
-//}
 
 - (IBAction)cancelSheet:(id)sender
 {
@@ -350,7 +340,6 @@
 
 - (IBAction)clearLog:(id)sender 
 {
-//    [self clearLog];
     [logDatasource clearLog];
     logData = [NSArray array];
 }
@@ -441,48 +430,6 @@
 }
 
 
-/**
- FilterSheet closes to calls this method
- **/
-- (void)didEndSheet:(NSWindow *)sheet returnCode:(NSInteger)returnCode contextInfo:(void *)contextInfo
-{
-    NSLog(@"didEndSheet: %ld", returnCode);
-
-//    [sheetAddFilter orderOut:self];
-//    if (returnCode == NSCancelButton) {
-//        return;
-//    }
-//
-//    NSString* filterName = [tfFilterName stringValue];
-//    NSString* filterType = [puFilterField titleOfSelectedItem];
-//    NSString* filterText = [tfFilterText stringValue];
-//    
-//    NSDictionary* filter = (__bridge NSDictionary *)contextInfo;
-//    if (filter == nil) {
-//        filter = [NSDictionary dictionaryWithObjects:[NSArray arrayWithObjects:filterName, filterType, filterText, nil]
-//                                        forKeys:[NSArray arrayWithObjects:KEY_FILTER_NAME, KEY_FILTER_TYPE, KEY_FILTER_TEXT, nil]];
-//        [filters addObject:filter];
-//        NSLog(@"Added filter: %@", filter);
-//    } else {
-//        [filters removeObject:filter];
-//        [filter setValue:filterName forKey:KEY_FILTER_NAME];
-//        [filter setValue:filterType forKey:KEY_FILTER_TYPE];
-//        [filter setValue:filterText forKey:KEY_FILTER_TEXT];
-//        NSLog(@"Filter changed to: %@", filter);
-//        
-//        [filters addObject:filter];
-//    }
-//    
-//    
-//    [[NSUserDefaults standardUserDefaults] setValue:filters forKey:KEY_PREFS_FILTERS];
-//
-//    [tfFilterName setStringValue:@""];
-//    [puFilterField selectItemAtIndex:0];
-//    [tfFilterText setStringValue:@""];
-//    
-//    [self sortFilters];
-}
-
 - (IBAction)copyPlain:(id)sender {
     NSLog(@"copyPlain");
     [self copySelectedRow:NO: NO];
@@ -514,41 +461,30 @@
 	   didEndSelector:NULL
 		  contextInfo:nil];
     
-//
-//    NSDictionary* filter = [filters objectAtIndex:[filterListTable rightClickedRow]-1];
-//    
-//    if (sheetAddFilter == nil) {
-//        [NSBundle loadNibNamed:FILTER_SHEET owner:self];
-//    }
-//    
-//
-//    [[sheetAddFilter filterName] setStringValue:[filter objectForKey:KEY_FILTER_NAME]];
-//    [sheetAddFilter selectItemWithTitie:[filter objectForKey:KEY_FILTER_TYPE]];
-//    [[sheetAddFilter filterCriteria]  setStringValue:[filter objectForKey:KEY_FILTER_TEXT]];
-//    
-//    [NSApp beginSheet:sheetAddFilter modalForWindow:self.window modalDelegate:self didEndSelector:@selector(didEndSheet:returnCode:contextInfo:) contextInfo:(__bridge void *)(filter)];
 }
 
 - (IBAction)filterBySelected:(id)sender {
     NSLog(@"filterBySelected: %ld, %ld [%@]", [logDataTable rightClickedColumn], [logDataTable rightClickedRow], sender);
 
-//    if (sheetAddFilter == nil) {
-//        [NSBundle loadNibNamed:FILTER_SHEET owner:self];
-//    }
-//    NSTableColumn* aColumn = [[logDataTable tableColumns] objectAtIndex:[logDataTable rightClickedColumn]];
-//    
-//    [tfFilterName becomeFirstResponder];
-//    NSDictionary* rowDetails = [self dataForRow: [logDataTable rightClickedRow]];
-//    
-//    NSString* columnName = [[aColumn headerCell] title];
-//    NSLog(@"ColumnName: %@", columnName);
-//    NSString* value = [rowDetails valueForKey:[aColumn identifier]];
-//    [[sheetAddFilter filterName] setStringValue:[NSString stringWithFormat:@"%@_%@", columnName, value]];
-//    [sheetAddFilter selectItemWithTitie:[aColumn identifier]];
-//    [[sheetAddFilter filterCriteria]  setStringValue:value];
-//    
-//    [NSApp beginSheet:sheetAddFilter modalForWindow:self.window modalDelegate:self didEndSelector:@selector(didEndSheet:returnCode:contextInfo:) contextInfo:nil];
+    NSTableColumn* aColumn = [[logDataTable tableColumns] objectAtIndex:[logDataTable rightClickedColumn]];
+    NSDictionary* rowDetails = [self dataForRow: [logDataTable rightClickedRow]];
 
+    NSString* columnName = [[aColumn headerCell] title];
+    NSLog(@"ColumnName: %@", columnName);
+    NSString* value = [rowDetails valueForKey:[aColumn identifier]];
+    
+    NSPredicate* newPredicate = [NSPredicate predicateWithFormat:@"%K ==[cd] %@", [aColumn identifier], value];
+    
+    [self.predicateEditor setObjectValue:newPredicate];
+    [self.savePredicateName setStringValue:[NSString stringWithFormat:@"%@_%@", columnName, value]];
+    
+    NSLog(@"showPredicateEditor");
+    [NSApp beginSheet:self.predicateSheet
+	   modalForWindow:nil
+		modalDelegate:nil
+	   didEndSelector:NULL
+		  contextInfo:nil];
+    
 }
 
 - (NSMenu*) menuForTableView: (NSTableView*) tableView column:(NSInteger) column row:(NSInteger) row {
@@ -732,18 +668,6 @@
     }
     
     NSMutableArray* allTemplates = [NSMutableArray arrayWithArray:baseRowTemplates];
-//    if (self.coreDataIntrospection.coreDataHistory != nil && [self.coreDataIntrospection.coreDataHistory count] > 0)
-//    {
-//        CoreDataHistoryObject *historyObj = (self.coreDataIntrospection.coreDataHistory)[[self.coreDataIntrospection getCurrentHistoryIndex]];
-//        NSPredicateEditorRowTemplate *row = [[NSPredicateEditorRowTemplate alloc] init];
-//        [row setPredicate:historyObj.predicate];
-//        [allTemplates addObject:row];
-//    }
-    
-//    NSArray *keyPaths = [self.coreDataIntrospection keyPathsForEntity:entityDescription];
-//    NSArray * keyPaths = [NSArray arrayWithObjects: KEY_TIME, KEY_APP, KEY_PID, KEY_TID, KEY_TYPE, KEY_NAME, KEY_TEXT, nil];
-//    NSArray *templates = [NSPredicateEditorRowTemplate templatesWithAttributeKeyPaths:keyPaths inEntityDescription:entityDescription];
-//    [allTemplates addObjectsFromArray:templates];
 	
     [self.predicateEditor setRowTemplates:allTemplates];
     if (isFirstRun)
@@ -761,9 +685,9 @@
 
 - (IBAction)onPredicateEdited:(id)sender
 {
-    NSLog(@"onPredicateEdited");
     NSLog(@"onPredicateEdited: %@", [self.predicateEditor objectValue]);
 //    [self.generatedPredicateLabel setStringValue:[self.predicateEditor objectValue]];
+    
 }
 
 - (IBAction)closePredicateSheet:(id)sender {

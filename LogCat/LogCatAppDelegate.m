@@ -21,6 +21,7 @@
     DeviceListDatasource* deviceSource;
     NSArray* baseRowTemplates;
     NSArray* logData;
+    NSPredicate* predicate;
 }
 
 - (void)registerDefaults;
@@ -72,7 +73,7 @@
     
     NSArray* typeKeys = [NSArray arrayWithObjects:@"V", @"D", @"I", @"W", @"E", @"F", nil];
     
-    colors = [NSDictionary dictionaryWithObjects:[NSArray arrayWithObjects:v, d, i, w, e, f, nil] 
+    colors = [NSDictionary dictionaryWithObjects:[NSArray arrayWithObjects:v, d, i, w, e, f, nil]
                                           forKeys:typeKeys];
     
     NSFont* vfont = [[defaults objectForKey:@"logVerboseBold"] boolValue] ? BOLD_FONT : REGULAR_FONT;
@@ -233,14 +234,23 @@
     NSDictionary* data = [logData objectAtIndex: rowIndex];
 
     rowType = [data objectForKey:KEY_TYPE];
-    [aCell setTextColor:[colors objectForKey:rowType]];
-    [aCell setFont:[fonts objectForKey:rowType]];
+    NSIndexSet *selection = [tableView selectedRowIndexes];
+    if ([selection containsIndex:rowIndex]) {
+        [aCell setTextColor:[NSColor selectedControlTextColor]];
+        [aCell setFont:[NSFont boldSystemFontOfSize:12]];
+        
+    } else {
+        [aCell setTextColor:[colors objectForKey:rowType]];
+        [aCell setFont:[fonts objectForKey:rowType]];
+        
+    }
     return aCell;
 }
 
 - (IBAction)search:(id)sender
 {
-    NSLog(@"Search is no find.");
+    NSLog(@"TODO: change search to find.");
+    
 //    NSString* searchString = [[sender stringValue] copy];
 //    [logDatasource setSearchString:searchString];
 }
@@ -254,14 +264,18 @@
         return YES;
     }
     
-//    bool filterSelected = rowIndex != 0;
-//    if (filterSelected) {
+    bool filterSelected = rowIndex != 0;
+    if (filterSelected) {
+        NSLog(@"TODO: filter by saved predicate");
 //        [filterToolbar setEnabled:filterSelected forSegment:1];
 //        NSDictionary* filter = [filters objectAtIndex:rowIndex-1];
 //        [logDatasource setFilter:filter];
-//    } else {
+    } else {
 //        [logDatasource setFilter:nil];
-//    }
+        predicate = nil;
+        logData = [logDatasource eventsForPredicate:predicate];
+        [logDataTable reloadData];
+    }
     
     return YES;
 }
@@ -477,8 +491,8 @@
 }
 
 - (IBAction)filterBySelected:(id)sender {
-    
-//    NSLog(@"filterBySelected: %ld, %ld [%@]", [logDataTable rightClickedColumn], [logDataTable rightClickedRow], sender);
+    NSLog(@"filterBySelected: %ld, %ld [%@]", [logDataTable rightClickedColumn], [logDataTable rightClickedRow], sender);
+
 //    if (sheetAddFilter == nil) {
 //        [NSBundle loadNibNamed:FILTER_SHEET owner:self];
 //    }
@@ -713,37 +727,31 @@
 //    [self.generatedPredicateLabel setStringValue:[self.predicateEditor objectValue]];
 }
 
-- (IBAction)closePredicateSheet:(id)sender
-{
+- (IBAction)closePredicateSheet:(id)sender {
     NSLog(@"closePredicateSheet");
     [self applyPredicate:sender];
-    
-    
-    
-//    [self.coreDataIntrospection updateCoreDataHistory:[[self getEntityForPredicateEditor] name] :[self.predicateEditor objectValue]];
-//    [self enableDisableHistorySegmentedControls];
-    
+
     [NSApp endSheet:self.predicateSheet];
 	[self.predicateSheet orderOut:sender];
 }
 
-- (IBAction)cancelPredicateEditing:(id)sender
-{
+- (IBAction)cancelPredicateEditing:(id)sender {
     NSLog(@"cancelPredicateEditing");
 
-//    [self.coreDataIntrospection applyPredicate:[[self getEntityForPredicateEditor] name] :nil];
-    
-//    [self.entityContentTable reloadData];
+    predicate = nil;
+    logData = [logDatasource eventsForPredicate: predicate];
+    [self.logDataTable reloadData];
     
     [NSApp endSheet:self.predicateSheet];
 	[self.predicateSheet orderOut:sender];
 }
 
-- (IBAction)applyPredicate:(id)sender
-{
+- (IBAction)applyPredicate:(id)sender {
     NSLog(@"applyPredicate: %@", [self.predicateEditor predicate]);
+    predicate = [self.predicateEditor predicate];
+    
     [self.predicateText setStringValue:[self.predicateEditor objectValue]];
-    logData = [logDatasource eventsForPredicate: [self.predicateEditor predicate]];
+    logData = [logDatasource eventsForPredicate: predicate];
     [self.logDataTable reloadData];
 }
 

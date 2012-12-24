@@ -52,6 +52,7 @@
 @property (weak) IBOutlet NSButton *restartAdb;
 @property (weak) IBOutlet NSButtonCell *remoteScreenMonitorButton;
 @property (weak) IBOutlet NSPredicateEditor *predicateEditor;
+@property (weak) IBOutlet NSTextField *savePredicateName;
 
 - (IBAction)remoteScreenMonitor:(id)sender;
 - (IBAction)cancelDevicePicker:(id)sender;
@@ -75,6 +76,7 @@
 - (IBAction)closePredicateSheet:(id)sender;
 - (IBAction)cancelPredicateEditing:(id)sender;
 - (IBAction)applyPredicate:(id)sender;
+- (IBAction)savePredicate:(id)sender;
 
 @property (unsafe_unretained) IBOutlet NSWindow *predicateSheet;
 @property (weak) IBOutlet NSTextField *predicateText;

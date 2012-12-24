@@ -83,17 +83,21 @@
     NSFont* efont = [[defaults objectForKey:@"logErrorBold"] boolValue] ? BOLD_FONT : REGULAR_FONT;
     NSFont* ffont = [[defaults objectForKey:@"logFatalBold"] boolValue] ? BOLD_FONT : REGULAR_FONT;
     
-    fonts = [NSDictionary dictionaryWithObjects:[NSArray arrayWithObjects:vfont, dfont, ifont, wfont, efont, ffont, nil] 
+    fonts = [NSDictionary dictionaryWithObjects:[NSArray arrayWithObjects:vfont, dfont, ifont, wfont, efont, ffont, nil]
                                          forKeys:typeKeys];
     
-    filters = [[NSUserDefaults standardUserDefaults] valueForKey:KEY_PREFS_FILTERS];
-    if (filters == nil) {
-        filters = [NSMutableDictionary new];
-    } else {
-        filters = [[NSMutableDictionary alloc] initWithDictionary:filters];
-        [filterListTable reloadData];
+    // Load User Defined Filters
+    NSDictionary* loadedFilters = [[NSUserDefaults standardUserDefaults] valueForKey:KEY_PREFS_FILTERS];
+    filters = [NSMutableDictionary new];
+    if (loadedFilters != nil) {
+        NSArray *sortedKeys = [[loadedFilters allKeys] sortedArrayUsingSelector: @selector(compare:)];
+        for (NSString* key in sortedKeys) {
+            NSPredicate* savePredicate = [NSPredicate predicateWithFormat:[loadedFilters objectForKey:key]];
+            [filters setObject:savePredicate forKey:key];
+        }
     }
-//    [self sortFilters];
+    [filterListTable reloadData];
+
 }
 
 - (void) resetConnectButton {
@@ -218,14 +222,17 @@
     if (rowIndex == 0) {
         return @"All messages";
     } else {
-        
-        return @"TODO"; //[[filters objectAtIndex:rowIndex-1] valueForKey:KEY_FILTER_NAME];
+        NSArray *sortedKeys = [[filters allKeys] sortedArrayUsingSelector: @selector(compare:)];
+        return [sortedKeys objectAtIndex:rowIndex-1];
     }
 }
 
 
 - (NSCell *)tableView:(NSTableView *)tableView dataCellForTableColumn:(NSTableColumn *)tableColumn row:(NSInteger)rowIndex {
     if (tableView == filterListTable) {
+//        NSArray *sortedKeys = [[filters allKeys] sortedArrayUsingSelector: @selector(compare:)];
+//        return [sortedKeys objectAtIndex:rowIndex-1];
+        
         return [tableColumn dataCell];
     }
 
@@ -236,6 +243,7 @@
     rowType = [data objectForKey:KEY_TYPE];
     NSIndexSet *selection = [tableView selectedRowIndexes];
     if ([selection containsIndex:rowIndex]) {
+        // Make selected cell text selected color so it is easier to read
         [aCell setTextColor:[NSColor selectedControlTextColor]];
         [aCell setFont:[NSFont boldSystemFontOfSize:12]];
         
@@ -266,48 +274,64 @@
     
     bool filterSelected = rowIndex != 0;
     if (filterSelected) {
-        NSLog(@"TODO: filter by saved predicate");
-//        [filterToolbar setEnabled:filterSelected forSegment:1];
-//        NSDictionary* filter = [filters objectAtIndex:rowIndex-1];
-//        [logDatasource setFilter:filter];
+        NSArray *sortedKeys = [[filters allKeys] sortedArrayUsingSelector: @selector(compare:)];
+        NSString* sortKey = [sortedKeys objectAtIndex:rowIndex-1];
+        
+        predicate = [filters objectForKey:sortKey];
+        
+        NSLog(@"Filter By: %@", [predicate description]);
+        
     } else {
-//        [logDatasource setFilter:nil];
         predicate = nil;
-        logData = [logDatasource eventsForPredicate:predicate];
-        [logDataTable reloadData];
+        NSLog(@"Clear Filter");
     }
+    scrollToBottom = YES;
+    logData = [logDatasource eventsForPredicate:predicate];
+    [logDataTable reloadData];
     
     return YES;
 }
 
-- (IBAction)addFilter
-{
-//    if (sheetAddFilter == nil) {
-//        [NSBundle loadNibNamed:FILTER_SHEET owner:self];
-//    }
-//    [tfFilterName becomeFirstResponder];
-//    
-//    [[sheetAddFilter filterName] setStringValue:@""];
-//    [[sheetAddFilter filterCriteria]  setStringValue:@""];
-//    
-//    [NSApp beginSheet:sheetAddFilter modalForWindow:self.window modalDelegate:self didEndSelector:@selector(didEndSheet:returnCode:contextInfo:) contextInfo:nil];
+- (IBAction)addFilter {
+    NSString* unamedFilter = @"unamed";
+    
+    NSPredicate* filter = [filters objectForKey:unamedFilter];
+    if (filter != nil) {
+        NSUInteger unamedCounter = 0;
+        while (filter != nil) {
+            // Find a filter name that has not been used yet
+            unamedFilter = [NSString stringWithFormat:@"unamed_%ld", unamedCounter];
+            filter = [filters objectForKey:unamedFilter];
+        }
+    }
+    
+    [self.savePredicateName setStringValue:unamedFilter];
+    [self showPredicateEditor:self];
+    
 }
 
 - (IBAction)removeFilter
 {
-//    [filters removeObjectAtIndex:[[filterListTable selectedRowIndexes] firstIndex] - 1];
-//    [filterListTable reloadData];
-//    [[NSUserDefaults standardUserDefaults] setValue:filters forKey:KEY_PREFS_FILTERS];
+    NSInteger selectedIndex = [[filterListTable selectedRowIndexes] firstIndex]-1;
+    if (selectedIndex < 0) {
+        // Can't remove "All Messages"
+        return;
+    }
+    
+    NSArray *sortedKeys = [[filters allKeys] sortedArrayUsingSelector: @selector(compare:)];
+    NSString* sortKey = [sortedKeys objectAtIndex:selectedIndex];
 
+    [filters removeObjectForKey:sortKey];
+    [filterListTable reloadData];
 }
 
-- (void) sortFilters {
+//- (void) sortFilters {
 //    NSSortDescriptor *sortDescriptor = [[NSSortDescriptor alloc] initWithKey:KEY_FILTER_NAME ascending:YES];
 //    NSArray *sortDescriptors = [NSArray arrayWithObject:sortDescriptor];
 //    [filters sortUsingDescriptors:sortDescriptors];
 //    
 //    [filterListTable reloadData];
-}
+//}
 
 - (IBAction)cancelSheet:(id)sender
 {
@@ -471,11 +495,26 @@
 }
 
 - (void) editFilter:(id)sender {
-//    NSLog(@"editFilter: %ld, %ld [%@]", [filterListTable rightClickedColumn], [filterListTable rightClickedRow], sender);
-//    if ([filterListTable rightClickedRow] < 1) {
-//        return;
-//    }
-//    
+    NSLog(@"editFilter: %ld, %ld [%@]", [filterListTable rightClickedColumn], [filterListTable rightClickedRow], sender);
+    if ([filterListTable rightClickedRow] < 1) {
+        return;
+    }
+    NSArray *sortedKeys = [[filters allKeys] sortedArrayUsingSelector: @selector(compare:)];
+    NSInteger selected = [filterListTable rightClickedRow]-1;
+    
+    NSString* key = [sortedKeys objectAtIndex:selected];
+    NSPredicate* savedPredicate = [filters objectForKey:key];
+    [self.predicateEditor setObjectValue:savedPredicate];
+    [self.savePredicateName setStringValue:key];
+    
+    NSLog(@"showPredicateEditor");
+    [NSApp beginSheet:self.predicateSheet
+	   modalForWindow:nil
+		modalDelegate:nil
+	   didEndSelector:NULL
+		  contextInfo:nil];
+    
+//
 //    NSDictionary* filter = [filters objectAtIndex:[filterListTable rightClickedRow]-1];
 //    
 //    if (sheetAddFilter == nil) {
@@ -656,7 +695,7 @@
 }
 
 - (void) onLogUpdated {
-    logData = [logDatasource eventsForPredicate: [self.predicateEditor predicate]];
+    logData = [logDatasource eventsForPredicate:predicate];
     [self.logDataTable reloadData];
     
     if (scrollToBottom) {
@@ -755,5 +794,43 @@
     [self.logDataTable reloadData];
 }
 
+- (IBAction)savePredicate:(id)sender {
+    NSString* filterName = [self.savePredicateName stringValue];
+    if (filterName == nil || [filterName length] == 0) {
+        filterName = [self newUnusedPredicateName];
+    }
+    
+    [filters setObject:[self.predicateEditor predicate] forKey: filterName];
+    [self saveFilters];
+    [self.savePredicateName setStringValue:@""];
+    [filterListTable reloadData];
+}
+
+- (void) saveFilters {
+    NSMutableDictionary* filtersToSave = [NSMutableDictionary dictionaryWithCapacity:[filters count]];
+    NSArray *sortedKeys = [[filters allKeys] sortedArrayUsingSelector: @selector(compare:)];
+    for(NSString* key in sortedKeys) {
+        NSPredicate* aPredicate = [filters objectForKey:key];
+        [filtersToSave setObject:[aPredicate predicateFormat] forKey:key];
+    }
+    
+    [[NSUserDefaults standardUserDefaults] setValue:filtersToSave forKey:KEY_PREFS_FILTERS];
+}
+
+- (NSString*) newUnusedPredicateName {
+    NSString* unamedFilter = @"unamed";
+    
+    NSPredicate* filter = [filters objectForKey:unamedFilter];
+    if (filter != nil) {
+        NSUInteger unamedCounter = 0;
+        while (filter != nil) {
+            // Find a filter name that has not been used yet
+            unamedFilter = [NSString stringWithFormat:@"unamed_%ld", unamedCounter];
+            filter = [filters objectForKey:unamedFilter];
+        }
+    }
+    
+    return unamedFilter;
+}
 
 @end

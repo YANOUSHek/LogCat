@@ -257,7 +257,7 @@
 - (IBAction)search:(id)sender
 {
     NSString* searchString = [[sender stringValue] copy];
-    if (searchString == nil || [searchString length] == 0) {
+    if (logData == nil || searchString == nil || [searchString length] == 0) {
         scrollToBottom = YES;
         return;
     }

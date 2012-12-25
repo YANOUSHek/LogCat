@@ -53,6 +53,7 @@
 @property (weak) IBOutlet NSButtonCell *remoteScreenMonitorButton;
 @property (weak) IBOutlet NSPredicateEditor *predicateEditor;
 @property (weak) IBOutlet NSTextField *savePredicateName;
+@property (weak) IBOutlet NSSearchFieldCell *searchField;
 
 - (IBAction)remoteScreenMonitor:(id)sender;
 - (IBAction)cancelDevicePicker:(id)sender;
@@ -60,6 +61,8 @@
 
 - (void)fontsChanged;
 - (IBAction)search:(id)sender;
+- (IBAction)findNext:(id)sender;
+- (IBAction)findPrevious:(id)sender;
 - (IBAction)addFilter;
 - (IBAction)removeFilter;
 - (IBAction)cancelSheet:(id)sender;
@@ -77,6 +80,8 @@
 - (IBAction)cancelPredicateEditing:(id)sender;
 - (IBAction)applyPredicate:(id)sender;
 - (IBAction)savePredicate:(id)sender;
+- (IBAction)importFilters:(id)sender;
+- (IBAction)exportFilters:(id)sender;
 
 @property (unsafe_unretained) IBOutlet NSWindow *predicateSheet;
 @property (weak) IBOutlet NSTextField *predicateText;

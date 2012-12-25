@@ -16,6 +16,9 @@
 
 #define DARK_GREEN_COLOR [NSColor colorWithCalibratedRed:0 green:0.50 blue:0 alpha:1.0]
 
+#define SEARCH_FORWARDS   1
+#define SEARCH_BACKWARDS -1
+
 @interface LogCatAppDelegate () {
     LogDatasource* logDatasource;
     DeviceListDatasource* deviceSource;
@@ -281,13 +284,19 @@
 - (IBAction)search:(id)sender
 {
     NSString* searchString = [[sender stringValue] copy];
+    [self doSearch:searchString : SEARCH_FORWARDS];
+    
+    
+}
+
+- (void) doSearch: (NSString*) searchString : (NSInteger) direction {
     if (logData == nil || searchString == nil || [searchString length] == 0) {
         scrollToBottom = YES;
         return;
     }
     
     [logDataTable deselectAll:self];
-    NSLog(@"Search for: \"%@\" from index %ld", searchString, findIndex);
+    NSLog(@"Search for: \"%@\" from index %ld direction=%ld", searchString, findIndex, direction);
     if (findIndex == -1) {
         findIndex = [[logDataTable selectedRowIndexes] lastIndex];
         if (findIndex > [logData count]) {
@@ -298,7 +307,7 @@
     // TODO: allow for search up or down Command-G and Shift-Command-G
     NSInteger searchedRows = 0;
     while (true) {
-        findIndex++;
+        findIndex += direction;
         searchedRows++;
         findIndex = (findIndex%[logData count]);
         NSDictionary* logEvent = [logData objectAtIndex: findIndex ];
@@ -327,6 +336,16 @@
             return;
         }
     }
+}
+
+- (IBAction)findNext:(id)sender {
+    NSString* searchString = [[self.searchField stringValue] copy];
+    [self doSearch:searchString : SEARCH_FORWARDS];
+}
+
+- (IBAction)findPrevious:(id)sender {
+    NSString* searchString = [[self.searchField stringValue] copy];
+    [self doSearch:searchString : SEARCH_BACKWARDS];
 }
 
 /**
@@ -720,6 +739,9 @@
     [logDatasource setDeviceId:nil];
 }
 
+- (IBAction)saveDocument:(id)sender {
+    NSLog(@"TODO: save document.");
+}
 
 #pragma -
 #pragma mark Predicate Editor
@@ -798,6 +820,14 @@
     [self saveFilters];
     [self.savePredicateName setStringValue:@""];
     [filterListTable reloadData];
+}
+
+- (IBAction)importFilters:(id)sender {
+    // TODO: popup file broswer for selecting from list of filters
+}
+
+- (IBAction)exportFilters:(id)sender {
+    // TODO: popup list of filters to for user to select from
 }
 
 - (void) saveFilters {

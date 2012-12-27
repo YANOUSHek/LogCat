@@ -11,6 +11,7 @@
 @interface RemoteScreenMonitorSheet : NSWindowController <NSWindowDelegate, DeviceScreenDatasourceDelegate> {
     __weak NSImageCell *screenImage;
     NSString* deviceId;
+    __weak NSView *_containingImageView;
 }
 
 @property (weak) IBOutlet NSImageCell *screenImage;
@@ -18,4 +19,8 @@
 
 - (IBAction)segmentedControl:(id)sender;
 - (IBAction)copy:(id)sender;
+- (IBAction)copyScaledImage:(id)sender;
+
+@property (weak) IBOutlet NSView *containingImageView;
+
 @end

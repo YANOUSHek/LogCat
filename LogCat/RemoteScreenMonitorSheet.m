@@ -12,6 +12,8 @@
     DeviceScreenDatasource* screenSource;
 }
 
+- (NSImage*) resize:(NSImage*)aImage width:(CGFloat)width height:(CGFloat)height scalingType:(NSImageScaling) type;
+
 @end
 
 @implementation RemoteScreenMonitorSheet
@@ -63,6 +65,9 @@
     [screenSource stopMonitoring];
 }
 
+- (IBAction)refreshScreen:(id)sender {
+    NSLog(@"TODO: refresh screen");
+}
 
 
 - (void) onScreenUpdate: (NSString*) deviceId: (NSImage*) screen {
@@ -72,19 +77,71 @@
     
 }
 
+- (NSMenu *)menuForEvent:(NSEvent *)theEvent {
+    NSLog(@"TODO: menuForEvent: %@", theEvent);
+    return nil;
+}
+
+- (void)mouseDown:(NSEvent *)theEvent {
+    
+    NSMenu *theMenu = [[NSMenu alloc] initWithTitle:@"Contextual Menu"];
+    [theMenu insertItemWithTitle:@"Copy Scaled Image" action:@selector(copyScaledImage:) keyEquivalent:@"" atIndex:0];
+    [theMenu insertItemWithTitle:@"Copy Full Image" action:@selector(copy:) keyEquivalent:@"" atIndex:1];
+    
+    [NSMenu popUpContextMenu:theMenu withEvent:theEvent forView:[self containingImageView]];
+}
+
 - (IBAction)segmentedControl:(id)sender {
     NSLog(@"Segmented Control Selected: %@", sender);
 }
 
-- (void) copy:(id)sender {
-    NSLog(@"Copy Screen");
+- (IBAction)copyScaledImage:(id)sender {
+    NSLog(@"copyScaledImage");
+
     NSImage *image = [screenImage image];
+    if (image == nil) {
+        return;
+    }
+    
+    image = [self resize:image
+                   width:[self containingImageView].frame.size.width
+                  height:[self containingImageView].frame.size.height
+             scalingType:[[self screenImage] imageScaling]];
+    
+    [self copyImage:image];
+
+}
+
+- (IBAction)copyFullImage:(id)sender {
+    NSLog(@"copyFullImage");
+    NSImage *image = [screenImage image];
+    [self copyImage:image];
+}
+
+- (void) copyImage:(NSImage*) image {
     if (image != nil) {
         NSPasteboard *pasteboard = [NSPasteboard generalPasteboard];
         [pasteboard clearContents];
         NSArray *copiedObjects = [NSArray arrayWithObject:image];
         [pasteboard writeObjects:copiedObjects];
     }
+}
+
+- (IBAction)copy:(id)sender {
+    [self copyScaledImage:self];
+}
+
+- (NSImage*) resize:(NSImage*)aImage width:(CGFloat)width height:(CGFloat)height scalingType:(NSImageScaling) type {
+    NSImageView* kView = [[NSImageView alloc] initWithFrame:NSMakeRect(0, 0, width, height)];
+    [kView setImageScaling:type];
+    [kView setImage:aImage];
+    
+    NSRect kRect = kView.frame;
+    NSBitmapImageRep* kRep = [kView bitmapImageRepForCachingDisplayInRect:kRect];
+    [kView cacheDisplayInRect:kRect toBitmapImageRep:kRep];
+    
+    NSData* kData = [kRep representationUsingType:NSJPEGFileType properties:nil];
+    return [[NSImage alloc] initWithData:kData];
 }
 
 @end

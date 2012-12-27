@@ -338,13 +338,21 @@
     }
 }
 
+- (IBAction)find:(id)sender {
+    [self.searchField becomeFirstResponder];
+}
+
 - (IBAction)findNext:(id)sender {
-    NSString* searchString = [[self.searchField stringValue] copy];
+    NSString* searchString = [[self.searchFieldCell stringValue] copy];
+    if (searchString == nil || [searchString length] == 0) {
+        [self.searchField becomeFirstResponder];
+        return;
+    }
     [self doSearch:searchString : SEARCH_FORWARDS];
 }
 
 - (IBAction)findPrevious:(id)sender {
-    NSString* searchString = [[self.searchField stringValue] copy];
+    NSString* searchString = [[self.searchFieldCell stringValue] copy];
     [self doSearch:searchString : SEARCH_BACKWARDS];
 }
 
@@ -748,6 +756,8 @@
 #pragma -
 
 - (IBAction)showPredicateEditor:(id)sender {
+    
+    // TODO: make default predicat this: (app ==[cd] "YOUR_APP_NAME") AND (name ==[cd] "YOUR_TAG")
     
     NSLog(@"Filter Name: %@", @"This will be used for saved predicates");
     BOOL isFirstRun = NO;

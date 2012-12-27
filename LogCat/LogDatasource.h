@@ -38,7 +38,7 @@
 - (void) startLogger;
 - (void) stopLogger;
 - (void) clearLog;
-
+- (NSUInteger) logEventCount;
 - (void) logMessage: (NSString*) message;
 - (NSArray*) eventsForPredicate: (NSPredicate*) predicate;
 

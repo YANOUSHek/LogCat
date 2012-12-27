@@ -289,6 +289,10 @@
     NSLog(@"Data: %@", stringBuffer);
 }
 
+- (NSUInteger) logEventCount {
+    return [logData count];
+}
+
 /**
  The binary parsing code here is a mess. It seems adb gives a corrupted binary stream
  */

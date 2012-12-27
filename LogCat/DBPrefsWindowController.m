@@ -42,13 +42,13 @@ static DBPrefsWindowController *_sharedPrefsWindowController = nil;
 {
 	self = [super initWithWindow:nil];
 	if (self != nil) {
-			// Set up an array and some dictionaries to keep track
-			// of the views we'll be displaying.
+        // Set up an array and some dictionaries to keep track
+        // of the views we'll be displaying.
 		toolbarIdentifiers = [[NSMutableArray alloc] init];
 		toolbarViews = [[NSMutableDictionary alloc] init];
 		toolbarItems = [[NSMutableDictionary alloc] init];
 
-			// Set up an NSViewAnimation to animate the transitions.
+        // Set up an NSViewAnimation to animate the transitions.
 		viewAnimation = [[NSViewAnimation alloc] init];
 		[viewAnimation setAnimationBlockingMode:NSAnimationNonblocking];
 		[viewAnimation setAnimationCurve:NSAnimationEaseInOut];
@@ -67,9 +67,9 @@ static DBPrefsWindowController *_sharedPrefsWindowController = nil;
 
 - (void)windowDidLoad
 {
-		// Create a new window to display the preference views.
-		// If the developer attached a window to this controller
-		// in Interface Builder, it gets replaced with this one.
+    // Create a new window to display the preference views.
+    // If the developer attached a window to this controller
+    // in Interface Builder, it gets replaced with this one.
 	NSWindow *window = [[NSWindow alloc] initWithContentRect:NSMakeRect(0,0,1000,1000)
 												    styleMask:(NSTitledWindowMask |
 															   NSClosableWindowMask |

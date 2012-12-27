@@ -130,8 +130,28 @@
             [filters setObject:savePredicate forKey:key];
         }
     }
+//    [filterListTable setBackgroundColor:[NSColor blackColor]];
+//    [logDataTable setBackgroundColor:[NSColor blackColor]];
+    
     [filterListTable reloadData];
 
+}
+
+- (void) updateStatus {
+
+    NSString* status = @"";
+    
+    if (loadedLogData != nil) {
+        status = [NSString stringWithFormat:@"viewing %ld of %ld", [logData count], [loadedLogData count]];
+    } else {
+        status = [NSString stringWithFormat:@"viewing %ld of %ld", [logData count], [logDatasource logEventCount]];
+    }
+    
+    if (predicate != nil) {
+        status = [NSString stringWithFormat:@"%@ \t\t\t filter: %@", status, [predicate description]];
+    }
+    
+    [self.statusTextField setStringValue:status];
 }
 
 - (void) resetConnectButton {
@@ -238,16 +258,20 @@
     }
 }
 
-- (NSInteger)numberOfRowsInTableView:(NSTableView *)aTableView
-{
+- (NSInteger)numberOfRowsInTableView:(NSTableView *)aTableView {
     if (aTableView == logDataTable) {
         return [logData count];
     }
+    
     return [filters count] + 1;
 }
 
-- (id)tableView:(NSTableView *)aTableView objectValueForTableColumn:(NSTableColumn *)aTableColumn row:(NSInteger)rowIndex
-{
+//- (void)tableView:(NSTableView *)tableView willDisplayCell:(id)cell forTableColumn:(NSTableColumn *)tableColumn row:(NSInteger)row {
+//    [cell setDrawsBackground:YES];
+//    [cell setBackgroundColor:[NSColor blackColor]];
+//}
+
+- (id)tableView:(NSTableView *)aTableView objectValueForTableColumn:(NSTableColumn *)aTableColumn row:(NSInteger)rowIndex {
     if (aTableView == logDataTable) {
         NSDictionary* row;
         row = [logData objectAtIndex: rowIndex];
@@ -421,7 +445,7 @@
         logData = [logDatasource eventsForPredicate:predicate];
     }
     [logDataTable reloadData];
-
+    [self updateStatus];
 }
 
 - (IBAction)addFilter {
@@ -783,7 +807,8 @@
     if (scrollToBottom) {
         [self.logDataTable scrollRowToVisible:[logData count]-1];
     }
-
+    
+    [self updateStatus];
 }
 
 - (void) onMultipleDevicesConnected {

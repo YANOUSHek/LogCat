@@ -41,7 +41,9 @@
     
     __weak NSTextField *textEntry;
     __weak NSButtonCell *remoteScreenMonitorButton;
+//    __weak NSTextFieldCell* statusField;
     
+    __weak NSTextField *_statusTextField;
 }
 
 
@@ -88,4 +90,6 @@
 
 @property (unsafe_unretained) IBOutlet NSWindow *predicateSheet;
 @property (weak) IBOutlet NSTextField *predicateText;
+//@property (weak) IBOutlet NSTextFieldCell *statusField;
+@property (weak) IBOutlet NSTextField *statusTextField;
 @end

@@ -20,8 +20,8 @@ X programmer in the world so it must look silly :)
 
 Download
 --------
-[Download LogCat Release ](https://github.com/yepher/LogCat/wiki/LogCat_LatestBuild_2012121900.zip)
-[Download LogCat DEV](https://github.com/yepher/LogCat/wiki/LogCat_LatestBuild_2012121900.zip)
+* [Download LogCat Release ](https://github.com/yepher/LogCat/wiki/LogCat_LatestBuild_2012121900.zip)
+* [Download LogCat DEV](https://github.com/yepher/LogCat/wiki/LogCat_LatestBuild_2012121900.zip)
 
 Features
 --------

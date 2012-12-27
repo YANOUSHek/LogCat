@@ -5,3 +5,28 @@
 #ifdef __OBJC__
     #import <Cocoa/Cocoa.h>
 #endif
+
+#define KEY_TIME @"time"
+#define KEY_APP @"app"
+#define KEY_PID @"pid"
+#define KEY_TID @"tid"
+#define KEY_TYPE @"type"
+#define KEY_NAME @"name"
+#define KEY_TEXT @"text"
+
+#define KEY_FILTER_TEXT @"text"
+#define KEY_FILTER_NAME @"name"
+#define KEY_FILTER_TYPE @"type"
+
+#define KEY_PREFS_FILTERS @"predicates"
+
+#define FILTER_SHEET @"FilterSheet"
+#define DEVICE_PICKER_SHEET @"DevicePickerSheet"
+#define REMOTE_SCREEN_SHEET @"RemoteScreenMonitor"
+
+#define MULTIPLE_DEVICE_MSG @"error: more than one device and emulator"
+#define DEVICE_NOT_FOUND_MSG @"error: device not found"
+
+#define BOLD_FONT [NSFont boldSystemFontOfSize:11]
+#define REGULAR_FONT [NSFont systemFontOfSize:11]
+

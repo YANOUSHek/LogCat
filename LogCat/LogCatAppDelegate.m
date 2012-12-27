@@ -7,43 +7,38 @@
 //
 
 #import "LogCatAppDelegate.h"
+#import "LogDatasource.h"
 #import "LogCatPreferences.h"
 #import "SelectableTableView.h"
 #import "MenuDelegate.h"
 #import "NSString_Extension.h"
+#import "DeviceListDatasource.h"
 
-#define KEY_TIME @"time"
-#define KEY_APP @"app"
-#define KEY_PID @"pid"
-#define KEY_TID @"tid"
-#define KEY_TYPE @"type"
-#define KEY_NAME @"name"
-#define KEY_TEXT @"text"
+#define DARK_GREEN_COLOR [NSColor colorWithCalibratedRed:0 green:0.50 blue:0 alpha:1.0]
 
-#define KEY_FILTER_TEXT @"text"
-#define KEY_FILTER_NAME @"name"
-#define KEY_FILTER_TYPE @"type"
+#define SEARCH_FORWARDS   1
+#define SEARCH_BACKWARDS -1
 
-#define KEY_PREFS_FILTERS @"filters"
+@interface LogCatAppDelegate () {
+    LogDatasource* logDatasource;
+    DeviceListDatasource* deviceSource;
+    NSArray* baseRowTemplates;
+    NSArray* logData;
+    NSPredicate* predicate;
+    
+    NSInteger findIndex;
+}
 
-#define FILTER_SHEET @"FilterSheet"
-
-#define BOLD_FONT [NSFont boldSystemFontOfSize:11]
-#define REGULAR_FONT [NSFont systemFontOfSize:11]
-
-@interface LogCatAppDelegate(private)
 - (void)registerDefaults;
-- (BOOL)filterMatchesRow:(NSDictionary*)row;
-- (BOOL)searchMatchesRow:(NSDictionary*)row;
 - (void)readSettings;
 - (void)startAdb;
-- (void) loadPid;
-- (void) parsePID: (NSString*) pidInfo;
-- (void) copySelectedRow: (BOOL) escapeSpecialChars;
+- (void) copySelectedRow: (BOOL) escapeSpecialChars :(BOOL) messageOnly;
 - (NSDictionary*) dataForRow: (NSUInteger) rowIndex;
+
 @end
 
 @implementation LogCatAppDelegate
+@synthesize remoteScreenMonitorButton;
 
 @synthesize filterListTable;
 @synthesize window = _window;
@@ -62,7 +57,8 @@
     [s setObject:[NSNumber numberWithInt:1] forKey:@"logFatalBold"];
     [s setObject:[NSArchiver archivedDataWithRootObject:[NSColor blueColor]] forKey:@"logVerboseColor"];
     [s setObject:[NSArchiver archivedDataWithRootObject:[NSColor blackColor]] forKey:@"logDebugColor"];
-    [s setObject:[NSArchiver archivedDataWithRootObject:[NSColor greenColor]] forKey:@"logInfoColor"];
+    [s setObject:[NSArchiver archivedDataWithRootObject:DARK_GREEN_COLOR] forKey:@"logInfoColor"];
+    
     [s setObject:[NSArchiver archivedDataWithRootObject:[NSColor orangeColor]] forKey:@"logWarningColor"];
     [s setObject:[NSArchiver archivedDataWithRootObject:[NSColor redColor]] forKey:@"logErrorColor"];
     [s setObject:[NSArchiver archivedDataWithRootObject:[NSColor redColor]] forKey:@"logFatalColor"];
@@ -82,7 +78,7 @@
     
     NSArray* typeKeys = [NSArray arrayWithObjects:@"V", @"D", @"I", @"W", @"E", @"F", nil];
     
-    colors = [NSDictionary dictionaryWithObjects:[NSArray arrayWithObjects:v, d, i, w, e, f, nil] 
+    colors = [NSDictionary dictionaryWithObjects:[NSArray arrayWithObjects:v, d, i, w, e, f, nil]
                                           forKeys:typeKeys];
     
     NSFont* vfont = [[defaults objectForKey:@"logVerboseBold"] boolValue] ? BOLD_FONT : REGULAR_FONT;
@@ -92,21 +88,49 @@
     NSFont* efont = [[defaults objectForKey:@"logErrorBold"] boolValue] ? BOLD_FONT : REGULAR_FONT;
     NSFont* ffont = [[defaults objectForKey:@"logFatalBold"] boolValue] ? BOLD_FONT : REGULAR_FONT;
     
-    fonts = [NSDictionary dictionaryWithObjects:[NSArray arrayWithObjects:vfont, dfont, ifont, wfont, efont, ffont, nil] 
+    fonts = [NSDictionary dictionaryWithObjects:[NSArray arrayWithObjects:vfont, dfont, ifont, wfont, efont, ffont, nil]
                                          forKeys:typeKeys];
     
-    filters = [[NSUserDefaults standardUserDefaults] valueForKey:KEY_PREFS_FILTERS];
-    if (filters == nil) {
-        filters = [NSMutableArray new];
+    // Load User Defined Filters
+    filters = [NSMutableDictionary new];
+    NSDictionary* loadedFilters = [[NSUserDefaults standardUserDefaults] valueForKey:KEY_PREFS_FILTERS];
+    if (loadedFilters == nil) {
+        NSArray* keys = [NSArray arrayWithObjects:
+                         @"LogLevel Verbose",
+                         @"LogLevel Info",
+                         @"LogLevel Debug",
+                         @"LogLevel Warn",
+                         @"LogLevel Error", nil];
+        
+        NSArray* logLevels = [NSArray arrayWithObjects:
+                 @"type ==[cd] 'V' OR type ==[cd] 'I' OR type ==[cd] 'W' OR type ==[cd] 'E' OR type ==[cd] 'F' OR type ==[cd] 'A'",
+                 @"type ==[cd] 'I' OR type ==[cd] 'W' OR type ==[cd] 'E' OR type ==[cd] 'F' OR type ==[cd] 'A'",
+                 @"type ==[cd] 'D' OR type ==[cd] 'I' OR type ==[cd] 'W' OR type ==[cd] 'E' OR type ==[cd] 'F' OR type ==[cd] 'A'",
+                 @"type ==[cd] 'W' OR type CONTAINS[cd] 'E' OR type ==[cd] 'F'",
+                 @"type ==[cd] 'E' OR type ==[cd] 'F' OR type ==[cd] 'A'",
+                 nil];
+
+        for(int i = 0; i < [keys count]; i++) {
+            NSString* key = [keys objectAtIndex:i];
+            NSString* value = [logLevels objectAtIndex:i];
+            
+            NSPredicate* savePredicate = [NSPredicate predicateWithFormat:value];
+            [filters setObject:savePredicate forKey:key];
+        }
+        
     } else {
-        filters = [[NSMutableArray alloc] initWithArray:filters];
-        [filterListTable reloadData];
+        NSArray *sortedKeys = [[loadedFilters allKeys] sortedArrayUsingSelector: @selector(compare:)];
+        for (NSString* key in sortedKeys) {
+            NSPredicate* savePredicate = [NSPredicate predicateWithFormat:[loadedFilters objectForKey:key]];
+            [filters setObject:savePredicate forKey:key];
+        }
     }
-    [self sortFilters];
+    [filterListTable reloadData];
+
 }
 
 - (void) resetConnectButton {
-    if (isRunning) {
+    if ([logDatasource isLogging]) {
         [self.restartAdb setTitle:@"Disconnect"];
     } else {
         [self.restartAdb setTitle:@"Connect"];
@@ -126,26 +150,30 @@
 
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification
 {
-    [logDataTable setMenuDelegate:self];
-    [filterListTable setMenuDelegate:self];
+    NSLog(@"applicationDidFinishLaunching: %@", aNotification);
+    findIndex = -1;
+    baseRowTemplates = nil;
     
-    pidMap = [NSMutableDictionary dictionary];
+    logDatasource = [[LogDatasource alloc] init];
+    [logDatasource setDelegate:self];
+    
+    [self.logDataTable setMenuDelegate:self];
+    [self.filterListTable setMenuDelegate:self];
+    
     [self registerDefaults];
-    isRunning = NO;
-    [self resetConnectButton];
+    
     [self readSettings];
-
-    [self loadPID];
-    [self startAdb];
     
     previousString = nil;
     scrollToBottom = YES;
-    logcat = [NSMutableArray new];
-    search = [NSMutableArray new];
-    text = [NSMutableString new];
-    keysArray = [NSArray arrayWithObjects: KEY_TIME, KEY_APP, KEY_PID, KEY_TID, KEY_TYPE, KEY_NAME, KEY_TEXT, nil];
     
-    [filterListTable selectRowIndexes:[NSIndexSet indexSetWithIndex:0] byExtendingSelection:NO];
+    deviceSource = [[DeviceListDatasource alloc] init];
+    [deviceSource setDelegate:self];
+    [deviceSource loadDeviceList];
+
+    //[self startAdb];
+    
+    [self.filterListTable selectRowIndexes:[NSIndexSet indexSetWithIndex:0] byExtendingSelection:NO];
     
     id clipView = [[self.logDataTable enclosingScrollView] contentView];
     [[NSNotificationCenter defaultCenter] addObserver:self
@@ -154,77 +182,35 @@
                                                object:clipView];
 }
 
-- (void) loadPID {
-    NSArray *arguments = [NSArray arrayWithObjects: @"shell", @"ps", nil];
-    NSTask *task = [self adbTask: arguments];
-    
-    NSPipe *pipe;
-    pipe = [NSPipe pipe];
-    [task setStandardOutput: pipe];
-    [task setStandardInput:[NSPipe pipe]];
-    
-    NSFileHandle *file;
-    file = [pipe fileHandleForReading];
-    
-    [task launch];
-    
-    NSMutableData *readData = [[NSMutableData alloc] init];
-    
-    NSData *data = nil;
-    while ((data = [file availableData]) && [data length]) {
-        [readData appendData:data];
-    }
-    
-    NSString *string;
-    string = [[NSString alloc] initWithData: readData encoding: NSUTF8StringEncoding];
-    [self performSelectorOnMainThread:@selector(parsePID:) withObject:string waitUntilDone:YES];
-    
-}
-
-- (void) parsePID: (NSString*) pidInfo {
-    Boolean isFirstLine = YES;
-    
-    NSArray* lines = [pidInfo componentsSeparatedByString:@"\n"];
-    
-    for (NSString* line in lines) {
-        
-        NSArray* args =  [line componentsSeparatedByString:@" "];
-        if (isFirstLine) {
-            isFirstLine = NO;
-        } else if ([args count] < 4) {
-            
-        } else {
-            
-            NSString* aPid = @"";
-            // find first integer and call that PID
-            if (![aPid isInteger]) {
-                for (NSString* arg in args) {
-                    if ([arg isInteger]) {
-                        aPid = arg;
-                        break;
-                    }
-                }
-            }
-            
-            NSString* aName = [args objectAtIndex:[args count]-1];
-            if ([aPid isInteger]) {
-                [pidMap setValue:aName forKey:aPid];
-            } else {
-                NSLog(@"Could not get PID: %@", line);
-            }
-            
-        }
-    }
-    
-}
-
 - (void)startAdb
 {
     [self.window makeKeyAndOrderFront:self];
-    NSThread* thread = [[NSThread alloc] initWithTarget:self selector:@selector(readLog:) object:nil];
-    [thread start];
-    isRunning = YES;
-    [self resetConnectButton];
+    [logDatasource startLogger];
+
+}
+
+- (IBAction)remoteScreenMonitor:(id)sender {
+
+    if (remoteScreen  == nil) {
+        remoteScreen = [[RemoteScreenMonitorSheet alloc] init];
+        [remoteScreen setDeviceId:[logDatasource deviceId]];
+    }
+
+    if(! [[remoteScreen window] isVisible] ) {
+        NSLog(@"window: %@", [remoteScreen window]);
+        [remoteScreen setDeviceId:[logDatasource deviceId]];
+        [remoteScreen showWindow:self];
+    }
+}
+
+- (IBAction)cancelDevicePicker:(id)sender {
+    NSLog(@"cancelDevicePicker");
+    [NSApp endSheet:sheetDevicePicker returnCode:NSCancelButton];
+}
+
+- (IBAction)startLogForDevice:(id)sender {
+    NSLog(@"cancelDevicePicker");
+    [NSApp endSheet:sheetDevicePicker returnCode:NSOKButton];
 }
 
 - (void)fontsChanged
@@ -238,243 +224,19 @@
     if ([aNotification object] == [[self.logDataTable enclosingScrollView] contentView]) {
         NSRect visibleRect = [[[self.logDataTable enclosingScrollView] contentView] visibleRect];
         float maxy = 0;
-        if ([searchString length] > 0) {
-            maxy = [search count] * 19;
-        } else if (filtered != nil) {
-            maxy = [filtered count] * 19;
-        } else {
-            maxy = [logcat count] * 19;
-        }
-        
+        maxy = [logData count] * 19;
         if (visibleRect.origin.y + visibleRect.size.height >= maxy) {
             scrollToBottom = YES;
         } else {
             scrollToBottom = NO;
         }
-
     }
-}
-
-- (void)readLog:(id)param
-{
-    NSArray *arguments = [NSArray arrayWithObjects: @"logcat", @"-v", @"long", nil];
-    
-    NSTask *task = [self adbTask:arguments];
-    
-    NSPipe *pipe;
-    pipe = [NSPipe pipe];
-    [task setStandardOutput: pipe];
-    [task setStandardInput:[NSPipe pipe]];
-    
-    NSFileHandle *file;
-    file = [pipe fileHandleForReading];
-    
-    [task launch];
-    
-    while (isRunning && [task isRunning]) {
-        NSData *data = nil;
-        while (data == nil) {
-            data = [file availableData];
-        }
-        if (data != nil) {
-
-            NSString *string;
-            string = [[NSString alloc] initWithData: data encoding: NSUTF8StringEncoding];
-            [self performSelectorOnMainThread:@selector(appendLog:) withObject:string waitUntilDone:YES];
-        } else {
-            NSLog(@"Data was nil...");
-        }
-    }
-    
-    [task terminate];
-    
-    isRunning = NO;
-    [self resetConnectButton];
-    NSLog(@"ADB Exited.");
-}
-
-- (NSTask*) adbTask: (NSArray*) arguments {
-    NSTask *task;
-    task = [[NSTask alloc] init];
-    NSBundle *mainBundle=[NSBundle mainBundle];
-    NSString *path=[mainBundle pathForResource:@"adb" ofType:nil];
-    
-    [task setLaunchPath:path];
-    [task setArguments: arguments];
-
-    return task;
-}
-
-- (void)appendLog:(NSString*)paramString
-{
-    NSString* currentString;
-    if (previousString != nil) {
-        currentString = [NSString stringWithFormat:@"%@%@", previousString, paramString];
-        previousString = nil;
-    } else {
-        currentString = [NSString stringWithFormat:@"%@", paramString];
-    }
-    
-    if ([currentString rangeOfString:@"\n"].location == NSNotFound) {
-        previousString = [currentString copy];
-        return;
-    }
-    
-    NSArray* lines = [currentString componentsSeparatedByString:@"\r\n"];
-    
-    if (![currentString hasSuffix:@"\r\n"]) {
-        previousString = [[lines objectAtIndex:[lines count]-1] copy];
-    }
-    
-    for (NSString* line in lines) {
-        if ([line hasPrefix:@"--"]) {
-            continue;
-        }
-        NSRegularExpression* expr = [NSRegularExpression regularExpressionWithPattern:
-                                     @"^\\[\\s(\\d\\d-\\d\\d\\s\\d\\d:\\d\\d:\\d\\d.\\d+)\\s+(\\d*):(.*)\\s(.)/(.*)\\]$"
-                                                                              options:0
-                                                                                error:nil];
-        
-        NSTextCheckingResult* match = [expr firstMatchInString:line options:0 range:NSMakeRange(0, [line length])];
-        if (match != nil) {
-            time = [line substringWithRange:[match rangeAtIndex:1]];
-            pid = [line substringWithRange:[match rangeAtIndex:2]];
-            tid = [line substringWithRange:[match rangeAtIndex:3]];
-            app = [pidMap objectForKey:pid];
-            if (app == nil) {
-                NSLog(@"%@ not found in pid map.", pid);
-                [self loadPID];
-                app = [pidMap objectForKey:pid];
-                if (app == nil) {
-                    // This is normal during startup because there can be log
-                    // messages from apps that are not running anymore.
-                    app = @"unknown";
-                    [pidMap setValue:app forKey:pid];
-                }
-            }
-            type = [line substringWithRange:[match rangeAtIndex:4]];
-            name = [line substringWithRange:[match rangeAtIndex:5]];
-            
-            // NSLog(@"xxx--- 1 time: %@, app: %@, pid: %@, tid: %@, type: %@, name: %@", time, app, pid, tid, type, name);
-        } else if (match == nil && [line length] != 0 && !([previousString length] > 0 && [line isEqualToString:previousString])) {
-            [text appendString:@"\n"];
-            [text appendString:line];
-            
-            // NSLog(@"xxx--- 2 text: %@", text);
-        } else if ([line length] == 0 && time != nil) {
-            // NSLog(@"xxx--- 3 text: %@", text);
-            
-            if ([text rangeOfString:@"\n"].location != NSNotFound) {
-                // NSLog(@"JEST!");
-                NSArray* linesOfText = [text componentsSeparatedByString:@"\n"];
-                for (NSString* lineOfText in linesOfText) {
-                    if ([lineOfText length] == 0) {
-                        continue;
-                    }
-                    NSArray* values = [NSArray arrayWithObjects: time, app, pid, tid, type, name, lineOfText, nil];
-                    NSDictionary* row = [NSDictionary dictionaryWithObjects:values
-                                                                    forKeys:keysArray];
-                    [logcat addObject:row];
-                    
-                    if (filtered != nil && [self filterMatchesRow:row]) {
-                        if ([searchString length] > 0 && [self searchMatchesRow:row]) {
-                            [search addObject:row];
-                        } else {
-                            [filtered addObject:row];
-                        }
-                    } else if (filtered == nil && [searchString length] > 0 && [self searchMatchesRow:row]) {
-                        [search addObject:row];
-                    }    
-                }
-            } else {
-                // NSLog(@"xxx--- 4 text: %@", text);
-                
-                NSArray* values = [NSArray arrayWithObjects: time, app, pid, tid, type, name, text, nil];
-                NSDictionary* row = [NSDictionary dictionaryWithObjects:values
-                                                                forKeys:keysArray];
-                [logcat addObject:row];
-                
-                if (filtered != nil && [self filterMatchesRow:row]) {
-                    if ([searchString length] > 0 && [self searchMatchesRow:row]) {
-                        [search addObject:row];
-                    } else {
-                        [filtered addObject:row];
-                    }
-                } else if (filtered == nil && [searchString length] > 0 && [self searchMatchesRow:row]) {
-                    [search addObject:row];
-                }
-            }
-            
-            time = nil;
-            app = nil;
-            pid = nil;
-            tid = nil;
-            type = nil;
-            name = nil;
-            text = [NSMutableString new];
-        }
-    }
-    
-    [self.logDataTable reloadData];
-    if (scrollToBottom) {
-        if ([searchString length] > 0) {
-            [self.logDataTable scrollRowToVisible:[search count]-1];
-        } else if (filtered != nil) {
-            [self.logDataTable scrollRowToVisible:[filtered count]-1];
-        } else {
-            [self.logDataTable scrollRowToVisible:[logcat count]-1];
-        }
-    }
-
-}
-
-- (BOOL)filterMatchesRow:(NSDictionary*)row
-{
-    NSDictionary* filter = [filters objectAtIndex:[filterListTable selectedRow]-1];
-    NSString* selectedType = [filter objectForKey:KEY_FILTER_TYPE];
-    NSString* realType = [self getKeyFromType:selectedType];
-                          
-    return [[row objectForKey:realType] rangeOfString:[filter objectForKey:KEY_FILTER_TEXT] options:NSCaseInsensitiveSearch].location != NSNotFound;
-}
-
-- (NSString*) getKeyFromType: (NSString*) selectedType {
-    NSString* realType = KEY_TEXT;
-    if ([selectedType isEqualToString:@"PID"]) {
-        realType = KEY_PID;
-    } else if ([selectedType isEqualToString:@"TID"]) {
-        realType = KEY_TID;
-    } else if ([selectedType isEqualToString:@"APP"]) {
-        realType = KEY_APP;
-    } else if ([selectedType isEqualToString:@"Tag"]) {
-        realType = KEY_NAME;
-    } else if ([selectedType isEqualToString:@"Type"]) {
-        realType = KEY_TYPE;
-    }
-    
-    return realType;
-}
-
-- (BOOL)searchMatchesRow:(NSDictionary*)row
-{
-    if ([[row objectForKey:KEY_NAME] rangeOfString:searchString options:NSCaseInsensitiveSearch].location != NSNotFound) {
-        return YES;
-    } else if ([[row objectForKey:KEY_TEXT] rangeOfString:searchString options:NSCaseInsensitiveSearch].location != NSNotFound) {
-        return YES;
-    }
-    
-    return NO;
 }
 
 - (NSInteger)numberOfRowsInTableView:(NSTableView *)aTableView
 {
     if (aTableView == logDataTable) {
-        if ([searchString length] > 0) {
-            return [search count];
-        } else if (filtered != nil) {
-            return [filtered count];
-        } else {
-            return [logcat count];
-        }
+        return [logData count];
     }
     return [filters count] + 1;
 }
@@ -483,132 +245,170 @@
 {
     if (aTableView == logDataTable) {
         NSDictionary* row;
-        if ([searchString length] > 0) {
-            row = [search objectAtIndex:rowIndex];
-        } else if (filtered != nil) {
-            row = [filtered objectAtIndex:rowIndex];
-        } else {
-            row = [logcat objectAtIndex:rowIndex];
-        }
+        row = [logData objectAtIndex: rowIndex];
         return [row objectForKey:[aTableColumn identifier]];
     }
     if (rowIndex == 0) {
         return @"All messages";
     } else {
-        return [[filters objectAtIndex:rowIndex-1] valueForKey:KEY_FILTER_NAME];
+        NSArray *sortedKeys = [[filters allKeys] sortedArrayUsingSelector: @selector(compare:)];
+        return [sortedKeys objectAtIndex:rowIndex-1];
     }
 }
 
 
 - (NSCell *)tableView:(NSTableView *)tableView dataCellForTableColumn:(NSTableColumn *)tableColumn row:(NSInteger)rowIndex {
-    if (tableView == filterListTable) {
+    if (tableView == filterListTable) {        
         return [tableColumn dataCell];
     }
 
     NSTextFieldCell *aCell = [tableColumn dataCell];
     NSString* rowType;
-    if ([searchString length] > 0) {
-        rowType = [[search objectAtIndex:rowIndex] objectForKey:KEY_TYPE];
-    } else if (filtered != nil) {
-        rowType = [[filtered objectAtIndex:rowIndex] objectForKey:KEY_TYPE];
+    NSDictionary* data = [logData objectAtIndex: rowIndex];
+
+    rowType = [data objectForKey:KEY_TYPE];
+    NSIndexSet *selection = [tableView selectedRowIndexes];
+    if ([selection containsIndex:rowIndex]) {
+        // Make selected cell text selected color so it is easier to read
+        [aCell setTextColor:[NSColor selectedControlTextColor]];
+        [aCell setFont:[NSFont boldSystemFontOfSize:12]];
+        
     } else {
-        rowType = [[logcat objectAtIndex:rowIndex] objectForKey:KEY_TYPE];
+        [aCell setTextColor:[colors objectForKey:rowType]];
+        [aCell setFont:[fonts objectForKey:rowType]];
+        
     }
-    
-    [aCell setTextColor:[colors objectForKey:rowType]];
-    [aCell setFont:[fonts objectForKey:rowType]];
     return aCell;
 }
 
 - (IBAction)search:(id)sender
 {
-    search = [NSMutableArray new];
+    NSString* searchString = [[sender stringValue] copy];
+    [self doSearch:searchString : SEARCH_FORWARDS];
     
-    if (sender != nil) {
-        searchString = [[sender stringValue] copy];
-    }
     
-    NSMutableArray* rows = logcat;
-    if (filtered != nil) {
-        rows = filtered;
-    }
-    
-    for (NSDictionary* row in rows) {
-        if ([[row objectForKey:KEY_NAME] rangeOfString:searchString options:NSCaseInsensitiveSearch].location != NSNotFound) {
-            [search addObject:[row copy]];
-        } else if ([[row objectForKey:KEY_TEXT] rangeOfString:searchString options:NSCaseInsensitiveSearch].location != NSNotFound) {
-            [search addObject:[row copy]];
-        }
-    }
-    [self.logDataTable reloadData];
-    [self.logDataTable scrollRowToVisible:[search count]-1];
 }
 
-- (NSMutableArray*)findLogsMatching:(NSString*)string forKey:(NSString*)key
-{
-    NSMutableArray* result = [NSMutableArray new];
+- (void) doSearch: (NSString*) searchString : (NSInteger) direction {
+    if (logData == nil || searchString == nil || [searchString length] == 0) {
+        scrollToBottom = YES;
+        return;
+    }
     
-    for (NSDictionary* row in logcat) {
-        if ([[row objectForKey:key] rangeOfString:string options:NSCaseInsensitiveSearch].location != NSNotFound) {
-            [result addObject:[row copy]];
+    [logDataTable deselectAll:self];
+    NSLog(@"Search for: \"%@\" from index %ld direction=%ld", searchString, findIndex, direction);
+    if (findIndex == -1) {
+        findIndex = [[logDataTable selectedRowIndexes] lastIndex];
+        if (findIndex > [logData count]) {
+            findIndex = [logData count]-1;
         }
     }
-    return result;
+    
+    // TODO: allow for search up or down Command-G and Shift-Command-G
+    NSInteger searchedRows = 0;
+    while (true) {
+        findIndex += direction;
+        searchedRows++;
+        findIndex = (findIndex%[logData count]);
+        NSDictionary* logEvent = [logData objectAtIndex: findIndex ];
+        NSString* stringToSearch = [NSString stringWithFormat:@"%@ %@ %@ %@ %@ %@",
+                                    [logEvent valueForKey:KEY_APP],
+                                    [logEvent valueForKey:KEY_TEXT],
+                                    [logEvent valueForKey:KEY_PID],
+                                    [logEvent valueForKey:KEY_TID],
+                                    [logEvent valueForKey:KEY_TYPE],
+                                    [logEvent valueForKey:KEY_NAME]
+                                    ];
+        
+        if ([stringToSearch rangeOfString:searchString options:NSCaseInsensitiveSearch].location != NSNotFound) {
+            NSLog(@"Row %ld matches", findIndex);
+            NSIndexSet *indexSet = [NSIndexSet indexSetWithIndex:findIndex];
+            [logDataTable selectRowIndexes:indexSet byExtendingSelection:NO];
+            
+            
+            [self.logDataTable scrollRowToVisible:findIndex];
+            return;
+        }
+        
+        if (searchedRows >= [logData count]) {
+            NSLog(@"No matches found");
+            NSBeep();
+            return;
+        }
+    }
 }
 
+- (IBAction)findNext:(id)sender {
+    NSString* searchString = [[self.searchField stringValue] copy];
+    [self doSearch:searchString : SEARCH_FORWARDS];
+}
+
+- (IBAction)findPrevious:(id)sender {
+    NSString* searchString = [[self.searchField stringValue] copy];
+    [self doSearch:searchString : SEARCH_BACKWARDS];
+}
+
+/**
+ A filter was selected
+ **/
 - (BOOL)tableView:(NSTableView *)aTableView shouldSelectRow:(NSInteger)rowIndex
 {
     if (aTableView != filterListTable) {
+        findIndex = rowIndex;
         return YES;
     }
     
     bool filterSelected = rowIndex != 0;
-    [filterToolbar setEnabled:filterSelected forSegment:1];
-    
     if (filterSelected) {
-        NSDictionary* filter = [filters objectAtIndex:rowIndex-1];
-        NSString* selectedType = [filter objectForKey:KEY_FILTER_TYPE];
-        NSString* realType = [self getKeyFromType:selectedType];
-
-        filtered = [self findLogsMatching:[filter objectForKey:KEY_FILTER_TEXT] forKey:realType];
+        NSArray *sortedKeys = [[filters allKeys] sortedArrayUsingSelector: @selector(compare:)];
+        NSString* sortKey = [sortedKeys objectAtIndex:rowIndex-1];
+        
+        predicate = [filters objectForKey:sortKey];
+        
+        NSLog(@"Filter By: %@", [predicate description]);
+        
     } else {
-        filtered = nil;
+        predicate = nil;
+        NSLog(@"Clear Filter");
     }
-    if ([searchString length] > 0) {
-        [self search:nil];
-    }
+    scrollToBottom = YES;
+    logData = [logDatasource eventsForPredicate:predicate];
     [logDataTable reloadData];
-    [logDataTable scrollRowToVisible:[[logDataTable dataSource] numberOfRowsInTableView:logDataTable]-1];
     
     return YES;
 }
 
-- (IBAction)addFilter
-{
-    if (sheetAddFilter == nil) {
-        [NSBundle loadNibNamed:FILTER_SHEET owner:self];
+- (IBAction)addFilter {
+    NSString* unamedFilter = @"unamed";
+    
+    NSPredicate* filter = [filters objectForKey:unamedFilter];
+    if (filter != nil) {
+        NSUInteger unamedCounter = 0;
+        while (filter != nil) {
+            // Find a filter name that has not been used yet
+            unamedFilter = [NSString stringWithFormat:@"unamed_%ld", unamedCounter];
+            filter = [filters objectForKey:unamedFilter];
+        }
     }
-    [tfFilterName becomeFirstResponder];
     
-    [[sheetAddFilter filterName] setStringValue:@""];
-    [[sheetAddFilter filterCriteria]  setStringValue:@""];
+    [self.savePredicateName setStringValue:unamedFilter];
+    [self showPredicateEditor:self];
     
-    [NSApp beginSheet:sheetAddFilter modalForWindow:self.window modalDelegate:self didEndSelector:@selector(didEndSheet:returnCode:contextInfo:) contextInfo:nil];
 }
 
 - (IBAction)removeFilter
 {
-    [filters removeObjectAtIndex:[[filterListTable selectedRowIndexes] firstIndex] - 1];
-    [filterListTable reloadData];
-    [[NSUserDefaults standardUserDefaults] setValue:filters forKey:KEY_PREFS_FILTERS];
-
-}
-
-- (void) sortFilters {
-    NSSortDescriptor *sortDescriptor = [[NSSortDescriptor alloc] initWithKey:KEY_FILTER_NAME ascending:YES];
-    NSArray *sortDescriptors = [NSArray arrayWithObject:sortDescriptor];
-    [filters sortUsingDescriptors:sortDescriptors];
+    NSInteger selectedIndex = [[filterListTable selectedRowIndexes] firstIndex]-1;
+    if (selectedIndex < 0) {
+        // Can't remove "All Messages"
+        return;
+    }
     
+    NSArray *sortedKeys = [[filters allKeys] sortedArrayUsingSelector: @selector(compare:)];
+    NSString* sortKey = [sortedKeys objectAtIndex:selectedIndex];
+
+    [filters removeObjectForKey:sortKey];
+    [self saveFilters];
     [filterListTable reloadData];
 }
 
@@ -629,30 +429,17 @@
 
 - (IBAction)clearLog:(id)sender 
 {
-    [self clearLog];
+    [logDatasource clearLog];
+    logData = [NSArray array];
 }
 
 - (IBAction)restartAdb:(id)sender
 {
-    if (isRunning) {
-        isRunning = NO;
+    if ([logDatasource isLogging]) {
+        [logDatasource stopLogger];
     } else {
-        [pidMap removeAllObjects];
-        [self clearLog];
         [self startAdb];
     }
-}
-
-- (void)clearLog
-{
-    logcat = [NSMutableArray new];
-    if (filtered != nil) {
-        filtered = [NSMutableArray new];
-    }
-    if ([searchString length] > 0) {
-        search = [NSMutableArray new];
-    }
-    [self.logDataTable reloadData];
 }
 
 - (IBAction)filterToolbarClicked:(NSSegmentedControl*)sender 
@@ -670,6 +457,10 @@
     }
 }
 
+/**
+ I am being lazy and calling a perl script I wrote to send text typed in the terminal to the device.
+ It would be ncie to do it all in ObjC.
+ **/
 - (IBAction)openTypingTerminal:(id)sender {
     NSLog(@"openTypingTerminal");
     NSBundle *mainBundle=[NSBundle mainBundle];
@@ -683,39 +474,50 @@
     
 }
 
-- (void)didEndSheet:(NSWindow *)sheet returnCode:(NSInteger)returnCode contextInfo:(void *)contextInfo
-{
-    NSLog(@"didEndSheet: %ld", returnCode);
+- (IBAction)newWindow:(id)sender {
+    
+    // This is a quick hack to try out multiple logger windows.
+    NSTask *task;
+    task = [[NSTask alloc] init];
+    NSBundle *mainBundle=[NSBundle mainBundle];
+    
+    NSString *path = @"/usr/bin/open";
+    [task setLaunchPath:path];
+    
+    NSArray* arguments = [NSArray arrayWithObjects: @"-n", [mainBundle bundlePath], nil];
+    [task setArguments: arguments];
+    [task launch];
 
-    [sheetAddFilter orderOut:self];
+}
+
+
+- (void)deviceSheetDidEnd:(NSWindow *)sheet returnCode:(NSInteger)returnCode contextInfo:(void *)contextInfo
+{
+    NSLog(@"Device Picker Sheet Finished %ld", returnCode);
+    [sheetDevicePicker orderOut:self];
     if (returnCode == NSCancelButton) {
         return;
     }
-
-    NSString* filterName = [tfFilterName stringValue];
-    NSString* filterType = [puFilterField titleOfSelectedItem];
-    NSString* filterText = [tfFilterText stringValue];
     
-    NSDictionary* filter = (__bridge NSDictionary *)contextInfo;
-    if (filter == nil) {
-        filter = [NSDictionary dictionaryWithObjects:[NSArray arrayWithObjects:filterName, filterType, filterText, nil]
-                                        forKeys:[NSArray arrayWithObjects:KEY_FILTER_NAME, KEY_FILTER_TYPE, KEY_FILTER_TEXT, nil]];
-    } else {
-        [filter setValue:filterName forKey:KEY_FILTER_NAME];
-        [filter setValue:filterType forKey:KEY_FILTER_TYPE];
-        [filter setValue:filterText forKey:KEY_FILTER_TEXT];
-        [filters removeObject:filter];
+    NSInteger index = [[sheetDevicePicker deviceButton] indexOfSelectedItem];
+    
+    NSDictionary* device = [[sheetDevicePicker devices] objectAtIndex:index];
+    if (device != nil) {
+        [logDatasource setDeviceId:[device valueForKey:DEVICE_ID_KEY]];
+        [[self window] setTitle:[[sheetDevicePicker deviceButton] titleOfSelectedItem]];
+        [self startAdb];
     }
-    
-    [filters addObject:filter];
-    [[NSUserDefaults standardUserDefaults] setValue:filters forKey:KEY_PREFS_FILTERS];
-    
-    [tfFilterName setStringValue:@""];
-    [puFilterField selectItemAtIndex:0];
-    [tfFilterText setStringValue:@""];
-    
-    [self sortFilters];
 }
+
+/*
+ Called when RemoteScreenSheet ends
+ */
+- (void)remoteScreenDidEndSheet:(NSWindow *)sheet returnCode:(NSInteger)returnCode contextInfo:(void *)contextInfo
+{
+    NSLog(@"Remote Screen Sheet Did End: %ld", returnCode);
+
+}
+
 
 - (IBAction)copyPlain:(id)sender {
     NSLog(@"copyPlain");
@@ -733,42 +535,45 @@
     if ([filterListTable rightClickedRow] < 1) {
         return;
     }
+    NSArray *sortedKeys = [[filters allKeys] sortedArrayUsingSelector: @selector(compare:)];
+    NSInteger selected = [filterListTable rightClickedRow]-1;
     
-    NSDictionary* filter = [filters objectAtIndex:[filterListTable rightClickedRow]-1];
+    NSString* key = [sortedKeys objectAtIndex:selected];
+    NSPredicate* savedPredicate = [filters objectForKey:key];
+    [self.predicateEditor setObjectValue:savedPredicate];
+    [self.savePredicateName setStringValue:key];
     
-    if (sheetAddFilter == nil) {
-        [NSBundle loadNibNamed:FILTER_SHEET owner:self];
-    }
+    NSLog(@"showPredicateEditor");
+    [NSApp beginSheet:self.predicateSheet
+	   modalForWindow:nil
+		modalDelegate:nil
+	   didEndSelector:NULL
+		  contextInfo:nil];
     
-
-    [[sheetAddFilter filterName] setStringValue:[filter objectForKey:KEY_FILTER_NAME]];
-    [sheetAddFilter selectItemWithTitie:[filter objectForKey:KEY_FILTER_TYPE]];
-    [[sheetAddFilter filterCriteria]  setStringValue:[filter objectForKey:KEY_FILTER_TEXT]];
-    
-    [NSApp beginSheet:sheetAddFilter modalForWindow:self.window modalDelegate:self didEndSelector:@selector(didEndSheet:returnCode:contextInfo:) contextInfo:(__bridge void *)(filter)];
 }
 
 - (IBAction)filterBySelected:(id)sender {
-    
     NSLog(@"filterBySelected: %ld, %ld [%@]", [logDataTable rightClickedColumn], [logDataTable rightClickedRow], sender);
-    if (sheetAddFilter == nil) {
-        [NSBundle loadNibNamed:FILTER_SHEET owner:self];
-    }
+
     NSTableColumn* aColumn = [[logDataTable tableColumns] objectAtIndex:[logDataTable rightClickedColumn]];
-    //NSCell *aCell = [aColumn dataCellForRow:[table rightClickedRow]];
-    
-    [tfFilterName becomeFirstResponder];
     NSDictionary* rowDetails = [self dataForRow: [logDataTable rightClickedRow]];
-    
+
     NSString* columnName = [[aColumn headerCell] title];
     NSLog(@"ColumnName: %@", columnName);
     NSString* value = [rowDetails valueForKey:[aColumn identifier]];
-    [[sheetAddFilter filterName] setStringValue:[NSString stringWithFormat:@"%@_%@", columnName, value]];
-    [sheetAddFilter selectItemWithTitie:[aColumn identifier]];
-    [[sheetAddFilter filterCriteria]  setStringValue:value];
     
-    [NSApp beginSheet:sheetAddFilter modalForWindow:self.window modalDelegate:self didEndSelector:@selector(didEndSheet:returnCode:contextInfo:) contextInfo:nil];
-
+    NSPredicate* newPredicate = [NSPredicate predicateWithFormat:@"%K ==[cd] %@", [aColumn identifier], value];
+    
+    [self.predicateEditor setObjectValue:newPredicate];
+    [self.savePredicateName setStringValue:[NSString stringWithFormat:@"%@_%@", columnName, value]];
+    
+    NSLog(@"showPredicateEditor");
+    [NSApp beginSheet:self.predicateSheet
+	   modalForWindow:nil
+		modalDelegate:nil
+	   didEndSelector:NULL
+		  contextInfo:nil];
+    
 }
 
 - (NSMenu*) menuForTableView: (NSTableView*) tableView column:(NSInteger) column row:(NSInteger) row {
@@ -797,16 +602,8 @@
 }
 
 - (NSDictionary*) dataForRow: (NSUInteger) rowIndex {
-    NSDictionary* rowDetails = nil;
-    
-    if ([searchString length] > 0) {
-        rowDetails = [search objectAtIndex:rowIndex];
-    } else if (filtered != nil) {
-        rowDetails = [filtered objectAtIndex:rowIndex];
-    } else {
-        rowDetails = [logcat objectAtIndex:rowIndex];
-    }
-    
+    NSDictionary* rowDetails = [logData objectAtIndex:rowIndex];
+
     return rowDetails;
 }
 
@@ -871,6 +668,193 @@
     }
 }
 
+#pragma mark -
+#pragma mark DeviceListDatasourceDelegate
+#pragma mark -
 
+- (void) onDevicesConneceted: (NSArray*) devices {
+    NSLog(@"Connected Devices: %@", devices);
+    
+    if (sheetDevicePicker == nil) {
+        [NSBundle loadNibNamed:DEVICE_PICKER_SHEET owner:self];
+    }
+    
+    [NSApp beginSheet:sheetDevicePicker modalForWindow:self.window modalDelegate:self didEndSelector:@selector(deviceSheetDidEnd:returnCode:contextInfo:) contextInfo:nil];
+    NSPopUpButton* devicePicker = [sheetDevicePicker deviceButton];
+    [devicePicker removeAllItems];
+    [sheetDevicePicker setDevices:devices];
+
+    NSMutableArray* titles = [NSMutableArray arrayWithCapacity:[devices count]];
+    for (NSDictionary* device in devices) {
+        NSString* title = [NSString stringWithFormat:@"%@ - %@", [device valueForKey:DEVICE_TYPE_KEY], [device valueForKey:DEVICE_ID_KEY]];
+        
+        [titles addObject:title];
+    }
+        
+    [devicePicker addItemsWithTitles:titles];    
+}
+
+- (void) onDeviceModel: (NSString*) deviceId: (NSString*) model {
+    NSLog(@"DeviceID: %@, Model: %@", deviceId, model);
+    [[self window] setTitle:[NSString stringWithFormat:@"%@ - %@", model, deviceId]];
+}
+
+
+#pragma mark -
+#pragma mark LogcatDatasourceDelegate
+#pragma mark -
+
+- (void) onLoggerStarted {
+    NSLog(@"LogcatDatasourceDelegate::onLoggerStarted");
+    [self resetConnectButton];
+    
+    NSString* deviceId = [logDatasource deviceId];
+    if (deviceId != nil && [deviceId length] > 0) {
+        [deviceSource requestDeviceModel:deviceId];
+    }
+}
+
+- (void) onLoggerStopped {
+    NSLog(@"LogcatDatasourceDelegate::onLoggerStopped");
+    [self resetConnectButton];
+}
+
+- (void) onLogUpdated {
+    logData = [logDatasource eventsForPredicate:predicate];
+    [self.logDataTable reloadData];
+    
+    if (scrollToBottom) {
+        [self.logDataTable scrollRowToVisible:[logData count]-1];
+    }
+
+}
+
+- (void) onMultipleDevicesConnected {
+    NSLog(@"LogcatDatasourceDelegate::onMultipleDevicesConnected");
+    [deviceSource loadDeviceList];
+}
+
+- (void) onDeviceNotFound {
+    NSLog(@"LogcatDatasourceDelegate::onDeviceNotFound");
+    [logDatasource setDeviceId:nil];
+}
+
+- (IBAction)saveDocument:(id)sender {
+    NSLog(@"TODO: save document.");
+}
+
+#pragma -
+#pragma mark Predicate Editor
+#pragma -
+
+- (IBAction)showPredicateEditor:(id)sender {
+    
+    NSLog(@"Filter Name: %@", @"This will be used for saved predicates");
+    BOOL isFirstRun = NO;
+    if (baseRowTemplates == nil)
+    {
+        baseRowTemplates = [self.predicateEditor rowTemplates];
+        NSLog(@"Existing Templates: [%@]", baseRowTemplates);
+        isFirstRun = YES;
+        
+    }
+    
+    NSMutableArray* allTemplates = [NSMutableArray arrayWithArray:baseRowTemplates];
+	
+    [self.predicateEditor setRowTemplates:allTemplates];
+    if (isFirstRun)
+    {
+        [self.predicateEditor addRow:self];
+    }
+    
+    NSLog(@"showPredicateEditor");
+    [NSApp beginSheet:self.predicateSheet
+	   modalForWindow:nil
+		modalDelegate:nil
+	   didEndSelector:NULL
+		  contextInfo:nil];
+}
+
+- (IBAction)onPredicateEdited:(id)sender
+{
+    NSLog(@"onPredicateEdited: %@", [self.predicateEditor objectValue]);
+//    [self.generatedPredicateLabel setStringValue:[self.predicateEditor objectValue]];
+    
+}
+
+- (IBAction)closePredicateSheet:(id)sender {
+    NSLog(@"closePredicateSheet");
+    [self applyPredicate:sender];
+
+    [NSApp endSheet:self.predicateSheet];
+	[self.predicateSheet orderOut:sender];
+}
+
+- (IBAction)cancelPredicateEditing:(id)sender {
+    NSLog(@"cancelPredicateEditing");
+
+    predicate = nil;
+    logData = [logDatasource eventsForPredicate: predicate];
+    [self.logDataTable reloadData];
+    
+    [NSApp endSheet:self.predicateSheet];
+	[self.predicateSheet orderOut:sender];
+}
+
+- (IBAction)applyPredicate:(id)sender {
+    NSLog(@"applyPredicate: %@", [self.predicateEditor predicate]);
+    predicate = [self.predicateEditor predicate];
+    
+    [self.predicateText setStringValue:[self.predicateEditor objectValue]];
+    logData = [logDatasource eventsForPredicate: predicate];
+    [self.logDataTable reloadData];
+}
+
+- (IBAction)savePredicate:(id)sender {
+    NSString* filterName = [self.savePredicateName stringValue];
+    if (filterName == nil || [filterName length] == 0) {
+        filterName = [self newUnusedPredicateName];
+    }
+    
+    [filters setObject:[self.predicateEditor predicate] forKey: filterName];
+    [self saveFilters];
+    [self.savePredicateName setStringValue:@""];
+    [filterListTable reloadData];
+}
+
+- (IBAction)importFilters:(id)sender {
+    // TODO: popup file broswer for selecting from list of filters
+}
+
+- (IBAction)exportFilters:(id)sender {
+    // TODO: popup list of filters to for user to select from
+}
+
+- (void) saveFilters {
+    NSMutableDictionary* filtersToSave = [NSMutableDictionary dictionaryWithCapacity:[filters count]];
+    NSArray *sortedKeys = [[filters allKeys] sortedArrayUsingSelector: @selector(compare:)];
+    for(NSString* key in sortedKeys) {
+        NSPredicate* aPredicate = [filters objectForKey:key];
+        [filtersToSave setObject:[aPredicate predicateFormat] forKey:key];
+    }
+    
+    [[NSUserDefaults standardUserDefaults] setValue:filtersToSave forKey:KEY_PREFS_FILTERS];
+}
+
+- (NSString*) newUnusedPredicateName {
+    NSString* unamedFilter = @"unamed";
+    
+    NSPredicate* filter = [filters objectForKey:unamedFilter];
+    if (filter != nil) {
+        NSUInteger unamedCounter = 0;
+        while (filter != nil) {
+            // Find a filter name that has not been used yet
+            unamedFilter = [NSString stringWithFormat:@"unamed_%ld", unamedCounter];
+            filter = [filters objectForKey:unamedFilter];
+        }
+    }
+    
+    return unamedFilter;
+}
 
 @end

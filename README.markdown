@@ -18,6 +18,11 @@ P.S. This is my first open source project so please go easy on me :)
 P.P.S. This was hacked in a couple of hours and I'm not the best Mac OS
 X programmer in the world so it must look silly :)
 
+Download
+--------
+[Download LogCat Release ](https://github.com/yepher/LogCat/wiki/LogCat_Release.zip)
+[Download LogCat DEV](https://github.com/yepher/LogCat/wiki/LogCat_LatestBuild_2012121900.zip)
+
 Features
 --------
 
@@ -60,6 +65,18 @@ This is a not prioritized list of what I'd like to add to LogCat:
 4. RegExp searching and filtering.
 5. Autodetection of adb location (or bundling the adb within LogCat?).
 6. A better solution for reading and parsing adb output.
+
+Features Requests
+==================
+(In no particular order)
+* Filter by log level and higher. For instance select info and still see warn, error, and assert
+* Make cells that have been highlighted easier to see
+* Initial default info log color is too bright
+* Categorize filters
+* Search should search TID and PID too
+* Ability to save and open log files
+* Ability to bookmark a lines and annotate
+* Add ability to find a string. It should jump to next instance
 
 Contributing
 ============

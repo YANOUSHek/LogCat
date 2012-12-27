@@ -919,8 +919,10 @@
     NSLog(@"closePredicateSheet");
     [self applyPredicate:sender];
 
+    [self.savePredicateName setStringValue:@""];
     [NSApp endSheet:self.predicateSheet];
 	[self.predicateSheet orderOut:sender];
+    
 }
 
 - (IBAction)cancelPredicateEditing:(id)sender {
@@ -951,7 +953,7 @@
     
     [filters setObject:[self.predicateEditor predicate] forKey: filterName];
     [self saveFilters];
-    [self.savePredicateName setStringValue:@""];
+    //[self.savePredicateName setStringValue:@""];
     [filterListTable reloadData];
 }
 

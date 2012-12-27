@@ -416,7 +416,7 @@
 
     NSLog(@"Filter By: %@", [predicate description]);
     if (loadedLogData != nil) {
-        logData = [loadedLogData  filteredArrayUsingPredicate: predicate];
+        logData = [loadedLogData filteredArrayUsingPredicate: predicate];
     } else {
         logData = [logDatasource eventsForPredicate:predicate];
     }
@@ -444,6 +444,16 @@
 
 - (IBAction)removeFilter
 {
+    NSIndexSet* selectedIndexes = [filterListTable selectedRowIndexes];
+    if ([selectedIndexes count] > 1) {
+        NSAlert *alert = [NSAlert alertWithMessageText:@"Delete Failed"
+                                         defaultButton:@"OK" alternateButton:nil
+                                           otherButton:nil
+                             informativeTextWithFormat:@"Select one filter at a time to delete."];
+        [alert runModal];
+        return;
+    }
+    
     NSInteger selectedIndex = [[filterListTable selectedRowIndexes] firstIndex]-1;
     if (selectedIndex < 0) {
         // Can't remove "All Messages"

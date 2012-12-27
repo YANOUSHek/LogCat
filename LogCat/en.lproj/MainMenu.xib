@@ -216,6 +216,15 @@
 								</object>
 								<object class="NSMenuItem" id="1023925487">
 									<reference key="NSMenu" ref="720053764"/>
+									<string key="NSTitle">Open</string>
+									<string key="NSKeyEquiv">o</string>
+									<int key="NSKeyEquivModMask">1048576</int>
+									<int key="NSMnemonicLoc">2147483647</int>
+									<reference key="NSOnImage" ref="35465992"/>
+									<reference key="NSMixedImage" ref="502551668"/>
+								</object>
+								<object class="NSMenuItem" id="437296199">
+									<reference key="NSMenu" ref="720053764"/>
 									<string key="NSTitle">Save Log to File</string>
 									<string key="NSKeyEquiv">s</string>
 									<int key="NSKeyEquivModMask">1048576</int>
@@ -225,6 +234,7 @@
 								</object>
 								<object class="NSMenuItem" id="614484235">
 									<reference key="NSMenu" ref="720053764"/>
+									<bool key="NSIsDisabled">YES</bool>
 									<string key="NSTitle">Import Filters...</string>
 									<string key="NSKeyEquiv"/>
 									<int key="NSMnemonicLoc">2147483647</int>
@@ -233,6 +243,7 @@
 								</object>
 								<object class="NSMenuItem" id="445225002">
 									<reference key="NSMenu" ref="720053764"/>
+									<bool key="NSIsDisabled">YES</bool>
 									<string key="NSTitle">Export Filters...</string>
 									<string key="NSKeyEquiv"/>
 									<int key="NSMnemonicLoc">2147483647</int>
@@ -292,7 +303,7 @@
 									<reference key="NSOnImage" ref="35465992"/>
 									<reference key="NSMixedImage" ref="502551668"/>
 								</object>
-								<object class="NSMenuItem" id="13228175">
+								<object class="NSMenuItem" id="740534051">
 									<reference key="NSMenu" ref="789758025"/>
 									<string key="NSTitle">Find Next</string>
 									<string key="NSKeyEquiv">g</string>
@@ -1088,7 +1099,7 @@
 																</object>
 															</object>
 															<double key="NSRowHeight">17</double>
-															<int key="NSTvFlags">1111490560</int>
+															<int key="NSTvFlags">1245708288</int>
 															<reference key="NSDelegate"/>
 															<reference key="NSDataSource"/>
 															<int key="NSColumnAutoresizingStyle">4</int>
@@ -1450,6 +1461,7 @@
 													<string key="NSFrame">{{1, 316}, {401, 16}}</string>
 													<reference key="NSSuperview" ref="675400260"/>
 													<reference key="NSWindow"/>
+													<reference key="NSNextKeyView"/>
 													<string key="NSReuseIdentifierKey">_NS:1847</string>
 													<bool key="NSAllowsLogicalLayoutDirection">NO</bool>
 													<int key="NSsFlags">1</int>
@@ -2968,14 +2980,6 @@
 				</object>
 				<object class="IBConnectionRecord">
 					<object class="IBActionConnection" key="connection">
-						<string key="label">saveDocument:</string>
-						<reference key="source" ref="1014"/>
-						<reference key="destination" ref="1023925487"/>
-					</object>
-					<int key="connectionID">362</int>
-				</object>
-				<object class="IBConnectionRecord">
-					<object class="IBActionConnection" key="connection">
 						<string key="label">hide:</string>
 						<reference key="source" ref="1014"/>
 						<reference key="destination" ref="755159360"/>
@@ -3013,6 +3017,14 @@
 						<reference key="destination" ref="296257095"/>
 					</object>
 					<int key="connectionID">228</int>
+				</object>
+				<object class="IBConnectionRecord">
+					<object class="IBActionConnection" key="connection">
+						<string key="label">saveDocument:</string>
+						<reference key="source" ref="1014"/>
+						<reference key="destination" ref="437296199"/>
+					</object>
+					<int key="connectionID">1000</int>
 				</object>
 				<object class="IBConnectionRecord">
 					<object class="IBOutletConnection" key="connection">
@@ -3258,7 +3270,7 @@
 					<object class="IBActionConnection" key="connection">
 						<string key="label">findNext:</string>
 						<reference key="source" ref="976324537"/>
-						<reference key="destination" ref="13228175"/>
+						<reference key="destination" ref="740534051"/>
 					</object>
 					<int key="connectionID">992</int>
 				</object>
@@ -3269,6 +3281,14 @@
 						<reference key="destination" ref="986532781"/>
 					</object>
 					<int key="connectionID">993</int>
+				</object>
+				<object class="IBConnectionRecord">
+					<object class="IBActionConnection" key="connection">
+						<string key="label">openLogcatFile:</string>
+						<reference key="source" ref="976324537"/>
+						<reference key="destination" ref="1023925487"/>
+					</object>
+					<int key="connectionID">1001</int>
 				</object>
 				<object class="IBConnectionRecord">
 					<object class="IBOutletConnection" key="connection">
@@ -3381,6 +3401,7 @@
 							<reference ref="776162233"/>
 							<reference ref="614484235"/>
 							<reference ref="445225002"/>
+							<reference ref="437296199"/>
 						</array>
 						<reference key="parent" ref="379814623"/>
 					</object>
@@ -3409,7 +3430,7 @@
 							<reference ref="832576629"/>
 							<reference ref="986532781"/>
 							<reference ref="645882883"/>
-							<reference ref="13228175"/>
+							<reference ref="740534051"/>
 						</array>
 						<reference key="parent" ref="952259628"/>
 					</object>
@@ -4419,8 +4440,13 @@
 					</object>
 					<object class="IBObjectRecord">
 						<int key="objectID">991</int>
-						<reference key="object" ref="13228175"/>
+						<reference key="object" ref="740534051"/>
 						<reference key="parent" ref="789758025"/>
+					</object>
+					<object class="IBObjectRecord">
+						<int key="objectID">999</int>
+						<reference key="object" ref="437296199"/>
+						<reference key="parent" ref="720053764"/>
 					</object>
 				</array>
 			</object>
@@ -4611,12 +4637,13 @@
 				<string key="980.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
 				<string key="982.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
 				<string key="991.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
+				<string key="999.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
 			</dictionary>
 			<dictionary class="NSMutableDictionary" key="unlocalizedProperties"/>
 			<nil key="activeLocalization"/>
 			<dictionary class="NSMutableDictionary" key="localizations"/>
 			<nil key="sourceID"/>
-			<int key="maxID">993</int>
+			<int key="maxID">1001</int>
 		</object>
 		<object class="IBClassDescriber" key="IBDocument.Classes">
 			<array class="NSMutableArray" key="referencedPartialClassDescriptions">
@@ -4688,6 +4715,7 @@
 						<string key="importFilters:">id</string>
 						<string key="newWindow:">id</string>
 						<string key="onPredicateEdited:">id</string>
+						<string key="openLogcatFile:">id</string>
 						<string key="openTypingTerminal:">id</string>
 						<string key="preferences:">id</string>
 						<string key="remoteScreenMonitor:">id</string>
@@ -4769,6 +4797,10 @@
 						</object>
 						<object class="IBActionInfo" key="onPredicateEdited:">
 							<string key="name">onPredicateEdited:</string>
+							<string key="candidateClassName">id</string>
+						</object>
+						<object class="IBActionInfo" key="openLogcatFile:">
+							<string key="name">openLogcatFile:</string>
 							<string key="candidateClassName">id</string>
 						</object>
 						<object class="IBActionInfo" key="openTypingTerminal:">

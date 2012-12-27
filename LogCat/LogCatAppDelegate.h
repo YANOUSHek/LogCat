@@ -59,6 +59,7 @@
 - (IBAction)remoteScreenMonitor:(id)sender;
 - (IBAction)cancelDevicePicker:(id)sender;
 - (IBAction)startLogForDevice:(id)sender;
+- (IBAction)openLogcatFile:(id)sender;
 
 - (void)fontsChanged;
 - (IBAction)search:(id)sender;

@@ -19,12 +19,17 @@
 #define SEARCH_FORWARDS   1
 #define SEARCH_BACKWARDS -1
 
+#define LOG_DATA_KEY @"logdata"
+#define LOG_FILE_VERSION @"version"
+
 @interface LogCatAppDelegate () {
     LogDatasource* logDatasource;
     DeviceListDatasource* deviceSource;
     NSArray* baseRowTemplates;
     NSArray* logData;
     NSPredicate* predicate;
+    
+    NSArray* loadedLogData;
     
     NSInteger findIndex;
 }
@@ -367,23 +372,56 @@
     }
     
     bool filterSelected = rowIndex != 0;
-    if (filterSelected) {
-        NSArray *sortedKeys = [[filters allKeys] sortedArrayUsingSelector: @selector(compare:)];
-        NSString* sortKey = [sortedKeys objectAtIndex:rowIndex-1];
-        
-        predicate = [filters objectForKey:sortKey];
-        
-        NSLog(@"Filter By: %@", [predicate description]);
-        
-    } else {
+    if (!filterSelected) {
         predicate = nil;
         NSLog(@"Clear Filter");
+        [filterListTable deselectAll:self];
     }
     scrollToBottom = YES;
-    logData = [logDatasource eventsForPredicate:predicate];
-    [logDataTable reloadData];
     
     return YES;
+}
+
+- (void)tableViewSelectionDidChange:(NSNotification *)aNotification {
+    NSLog(@"Selected Did Change... %@", aNotification);
+    NSTableView* tv = [aNotification object];
+    if (tv != filterListTable) {
+        return;
+    }
+    
+    NSArray *sortedKeys = [[filters allKeys] sortedArrayUsingSelector: @selector(compare:)];
+
+    NSMutableArray* predicates = [NSMutableArray arrayWithCapacity:1];
+    if ([filterListTable selectedRow] > 0) {
+        NSLog(@"Filter by %ld predicate", [filterListTable selectedRow]);
+
+        NSIndexSet* selectedIndexes = [filterListTable selectedRowIndexes];
+        if ([selectedIndexes count] == 1) {
+            NSUInteger index = [selectedIndexes firstIndex];
+            NSString* key = [sortedKeys objectAtIndex:index-1];
+            predicate = [filters objectForKey:key];
+        } else {
+
+            NSUInteger index = [selectedIndexes firstIndex];
+            while (index != NSNotFound) {
+                NSString* key = [sortedKeys objectAtIndex: (index-1) ];
+                [predicates addObject:[filters objectForKey:key]];
+                index = [selectedIndexes indexGreaterThanIndex:index];
+            }
+            predicate = [NSCompoundPredicate andPredicateWithSubpredicates:predicates];
+        }
+     } else {
+         NSLog(@"No Predicated Selected");
+     }
+
+    NSLog(@"Filter By: %@", [predicate description]);
+    if (loadedLogData != nil) {
+        logData = [loadedLogData  filteredArrayUsingPredicate: predicate];
+    } else {
+        logData = [logDatasource eventsForPredicate:predicate];
+    }
+    [logDataTable reloadData];
+
 }
 
 - (IBAction)addFilter {
@@ -728,6 +766,7 @@
 }
 
 - (void) onLogUpdated {
+    loadedLogData = nil;
     logData = [logDatasource eventsForPredicate:predicate];
     [self.logDataTable reloadData];
     
@@ -748,7 +787,55 @@
 }
 
 - (IBAction)saveDocument:(id)sender {
-    NSLog(@"TODO: save document.");
+    if (logDatasource != nil && [logDatasource isLogging]) {
+        NSAlert *alert = [NSAlert alertWithMessageText:@"Cannot save."
+                                         defaultButton:@"OK" alternateButton:nil
+                                           otherButton:nil
+                             informativeTextWithFormat:@"Disconnect from device and try again."];
+        [alert runModal];
+        return;
+    }
+    
+    NSSavePanel* saveDlg = [NSSavePanel savePanel];
+    NSArray* extensions = [[NSArray alloc] initWithObjects:@"logcat", nil];
+    [saveDlg setAllowedFileTypes:extensions];
+    
+    if ( [saveDlg runModal] == NSOKButton ) {
+        
+        NSURL*  saveDocPath = [saveDlg URL];
+        NSLog(@"Save document to: %@", saveDocPath);
+        
+        NSMutableDictionary* saveDict = [NSMutableDictionary dictionaryWithCapacity:1];
+        [saveDict setObject:@"1" forKey:LOG_FILE_VERSION];
+        [saveDict setObject:logData forKey:LOG_DATA_KEY];
+        [saveDict writeToURL:saveDocPath atomically:NO];
+    }
+}
+
+- (IBAction)openLogcatFile:(id)sender {
+    
+    NSOpenPanel* openDlg = [NSOpenPanel openPanel];
+    [openDlg setCanChooseFiles:YES];
+    [openDlg setAllowsMultipleSelection:NO];
+    [openDlg setCanChooseDirectories:NO];
+    
+    if ( [openDlg runModal] == NSOKButton )
+    {
+        NSArray* urls = [openDlg URLs];
+        if (urls != nil && [urls count] > 0) {
+            if (logDatasource != nil && [logDatasource isLogging]) {
+                [logDatasource stopLogger];
+                logDatasource = nil;
+            }
+            
+            NSURL* url = [urls objectAtIndex:0];
+            NSLog(@"Open url: %@", url);
+            NSDictionary* savedData = [NSDictionary dictionaryWithContentsOfURL:url];
+            loadedLogData = [savedData valueForKey:LOG_DATA_KEY];
+            logData = loadedLogData;
+            [logDataTable reloadData];
+        }
+    }
 }
 
 #pragma -
@@ -757,7 +844,7 @@
 
 - (IBAction)showPredicateEditor:(id)sender {
     
-    // TODO: make default predicat this: (app ==[cd] "YOUR_APP_NAME") AND (name ==[cd] "YOUR_TAG")
+    // TODO: make default predicat this: (app ==[cd] 'YOUR_APP_NAME') AND (name ==[cd] 'YOUR_TAG')
     
     NSLog(@"Filter Name: %@", @"This will be used for saved predicates");
     BOOL isFirstRun = NO;
@@ -766,7 +853,6 @@
         baseRowTemplates = [self.predicateEditor rowTemplates];
         NSLog(@"Existing Templates: [%@]", baseRowTemplates);
         isFirstRun = YES;
-        
     }
     
     NSMutableArray* allTemplates = [NSMutableArray arrayWithArray:baseRowTemplates];
@@ -774,6 +860,8 @@
     [self.predicateEditor setRowTemplates:allTemplates];
     if (isFirstRun)
     {
+        NSPredicate* defaultPredicate = [NSPredicate predicateWithFormat:@"(app ==[cd] 'YOUR_APP_NAME') AND ((type ==[cd] 'E') OR (type ==[cd] 'W'))"];
+        [self.predicateEditor setObjectValue:defaultPredicate];
         [self.predicateEditor addRow:self];
     }
     

@@ -487,9 +487,17 @@
     NSArray *sortedKeys = [[filters allKeys] sortedArrayUsingSelector: @selector(caseInsensitiveCompare:)];
     NSString* sortKey = [sortedKeys objectAtIndex:selectedIndex];
 
-    [filters removeObjectForKey:sortKey];
-    [self saveFilters];
-    [filterListTable reloadData];
+    // This is a destructive action. Give user a chance to back out.
+    NSAlert *alert = [NSAlert alertWithMessageText:@"Delete Filter?"
+                                     defaultButton:@"Yes" alternateButton:@"No"
+                                       otherButton:nil
+                         informativeTextWithFormat:@"Are you sure you want to delete the filter named \"%@\"", sortKey];
+    
+    if ([alert runModal] ==  NSAlertDefaultReturn) {
+        [filters removeObjectForKey:sortKey];
+        [self saveFilters];
+        [filterListTable reloadData];
+    }
 }
 
 - (IBAction)cancelSheet:(id)sender {
@@ -590,7 +598,6 @@
 
 }
 
-
 - (IBAction)copyPlain:(id)sender {
     NSLog(@"copyPlain");
     [self copySelectedRow:NO: NO];
@@ -673,6 +680,8 @@
     NSPredicate* savedPredicate = [filters objectForKey:key];
     [self.predicateEditor setObjectValue:savedPredicate];
     [self.savePredicateName setStringValue:key];
+    
+    [self.predicateText setStringValue:[self.predicateEditor objectValue]];
     
     NSLog(@"showPredicateEditor");
     [NSApp beginSheet:self.predicateSheet
@@ -806,6 +815,16 @@
 
 - (void) onDevicesConneceted: (NSArray*) devices {
     NSLog(@"Connected Devices: %@", devices);
+    
+    if ([devices count] == 1) {
+        NSDictionary* device = [devices objectAtIndex:0];
+        if (device != nil) {
+            [logDatasource setDeviceId:[device valueForKey:DEVICE_ID_KEY]];
+            //[[self window] setTitle:[device objectForKey:@"id"]];
+            [self startAdb];
+        }
+        return;
+    }
     
     if (sheetDevicePicker == nil) {
         [NSBundle loadNibNamed:DEVICE_PICKER_SHEET owner:self];
@@ -952,6 +971,13 @@
         NSPredicate* defaultPredicate = [NSPredicate predicateWithFormat:DEFAULT_PREDICATE];
         [self.predicateEditor setObjectValue:defaultPredicate];
         [self.predicateEditor addRow:self];
+    }
+    
+    [self.predicateText setStringValue:[self.predicateEditor objectValue]];
+    
+    if ([self.savePredicateName stringValue] == nil || [[self.savePredicateName stringValue] length] == 0) {
+        NSString* unamedFilter = [self newUnusedPredicateName];
+        [self.savePredicateName setStringValue:unamedFilter];
     }
     
     NSLog(@"showPredicateEditor");

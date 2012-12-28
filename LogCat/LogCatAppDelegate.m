@@ -19,6 +19,7 @@
 #define SEARCH_FORWARDS   1
 #define SEARCH_BACKWARDS -1
 
+#define SEARCH_WITH_REGEX YES
 #define USE_DARK_BACKGROUND NO
 
 #define LOG_DATA_KEY @"logdata"
@@ -349,15 +350,27 @@
                                     [logEvent valueForKey:KEY_TYPE],
                                     [logEvent valueForKey:KEY_NAME]
                                     ];
-        
-        if ([stringToSearch rangeOfString:searchString options:NSCaseInsensitiveSearch].location != NSNotFound) {
-            NSLog(@"Row %ld matches", findIndex);
-            NSIndexSet *indexSet = [NSIndexSet indexSetWithIndex:findIndex];
-            [logDataTable selectRowIndexes:indexSet byExtendingSelection:NO];
-            
-            
-            [self.logDataTable scrollRowToVisible:findIndex];
-            return;
+        if (SEARCH_WITH_REGEX) {
+            NSRegularExpression *regex = [NSRegularExpression regularExpressionWithPattern:searchString options:0 error:NULL];
+            NSTextCheckingResult *match = [regex firstMatchInString:stringToSearch options:0 range:NSMakeRange(0, [stringToSearch length])];
+            if (match != nil && [match range].location != NSNotFound) {
+                NSLog(@"Row %ld matches", findIndex);
+                NSIndexSet *indexSet = [NSIndexSet indexSetWithIndex:findIndex];
+                [logDataTable selectRowIndexes:indexSet byExtendingSelection:NO];
+                
+                [self.logDataTable scrollRowToVisible:findIndex];
+                return;
+            }
+        } else {
+            if ([stringToSearch rangeOfString:searchString options:NSCaseInsensitiveSearch].location != NSNotFound) {
+                NSLog(@"Row %ld matches", findIndex);
+                NSIndexSet *indexSet = [NSIndexSet indexSetWithIndex:findIndex];
+                [logDataTable selectRowIndexes:indexSet byExtendingSelection:NO];
+                
+                
+                [self.logDataTable scrollRowToVisible:findIndex];
+                return;
+            }
         }
         
         if (searchedRows >= [logData count]) {
@@ -957,7 +970,6 @@
     if (scrollToBottom) {
         [self.logDataTable scrollRowToVisible:[logData count]-1];
     }
-    
 }
 
 #pragma -

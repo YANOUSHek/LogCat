@@ -600,6 +600,29 @@
     
 }
 
+- (void) newFilterFromSelected:(id)sender {
+    NSLog(@"newFilterFromSelected: %ld, %ld [%@]", [filterListTable rightClickedColumn], [filterListTable rightClickedRow], sender);
+    if (predicate == nil) {
+        NSLog(@"newFilterFromSelected: No predicate set.");
+        return;
+    }
+//    NSArray *sortedKeys = [[filters allKeys] sortedArrayUsingSelector: @selector(compare:)];
+//    NSInteger selected = [filterListTable rightClickedRow]-1;
+    
+//    NSString* key = [sortedKeys objectAtIndex:selected];
+//    NSPredicate* savedPredicate = [filters objectForKey:key];
+    [self.predicateEditor setObjectValue:predicate];
+    
+    [self.savePredicateName setStringValue:[self newUnusedPredicateName]];
+    
+    NSLog(@"showPredicateEditor");
+    [NSApp beginSheet:self.predicateSheet
+	   modalForWindow:nil
+		modalDelegate:nil
+	   didEndSelector:NULL
+		  contextInfo:nil];
+}
+
 - (void) editFilter:(id)sender {
     NSLog(@"editFilter: %ld, %ld [%@]", [filterListTable rightClickedColumn], [filterListTable rightClickedRow], sender);
     if ([filterListTable rightClickedRow] < 1) {
@@ -666,6 +689,7 @@
         NSMenu *menu = [[NSMenu alloc] init];
 
         [menu addItem:[[NSMenuItem alloc] initWithTitle:@"Edit Filter..." action:@selector(editFilter:) keyEquivalent:@""]];
+        [menu addItem:[[NSMenuItem alloc] initWithTitle:@"New Filter From Selected..." action:@selector(newFilterFromSelected:) keyEquivalent:@""]];
         
         return menu;
     }

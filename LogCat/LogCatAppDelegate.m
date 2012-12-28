@@ -600,6 +600,48 @@
     
 }
 
+- (IBAction) exportSelectedFilters:(id)sender {
+    NSIndexSet* selectedRows = [filterListTable selectedRowIndexes];
+    if ([selectedRows count] == 0) {
+        // TODO: show alert about selecting filters to export
+        return;
+    }
+    
+    NSUInteger currentIndex = [selectedRows firstIndex];
+    
+    NSMutableDictionary* dataToExport = [NSMutableDictionary dictionaryWithCapacity:[selectedRows count]];
+    
+    NSDictionary* loadedFilters = [[NSUserDefaults standardUserDefaults] valueForKey:KEY_PREFS_FILTERS];
+    NSArray *sortedKeys = [[loadedFilters allKeys] sortedArrayUsingSelector: @selector(compare:)];
+    
+    while (currentIndex != NSNotFound) {
+        if (currentIndex == 0) {
+            currentIndex = [selectedRows indexGreaterThanIndex: currentIndex];
+            continue;
+        }
+        
+        NSString* key = [sortedKeys objectAtIndex:currentIndex-1];
+        NSPredicate* aPredicate = [loadedFilters objectForKey:key];
+        [dataToExport setObject:aPredicate forKey:key];
+        
+        // Next Index
+        currentIndex = [selectedRows indexGreaterThanIndex: currentIndex];
+        
+    }
+    
+    NSSavePanel* saveDlg = [NSSavePanel savePanel];
+    NSArray* extensions = [[NSArray alloc] initWithObjects:@"filters", nil];
+    [saveDlg setAllowedFileTypes:extensions];
+    
+    if ( [saveDlg runModal] == NSOKButton ) {
+        
+        NSURL*  saveDocPath = [saveDlg URL];
+        NSLog(@"Save filter to: %@", saveDocPath);
+        [dataToExport writeToURL:saveDocPath atomically:NO];
+    }
+    
+}
+
 - (void) newFilterFromSelected:(id)sender {
     NSLog(@"newFilterFromSelected: %ld, %ld [%@]", [filterListTable rightClickedColumn], [filterListTable rightClickedRow], sender);
     if (predicate == nil) {
@@ -690,7 +732,7 @@
 
         [menu addItem:[[NSMenuItem alloc] initWithTitle:@"Edit Filter..." action:@selector(editFilter:) keyEquivalent:@""]];
         [menu addItem:[[NSMenuItem alloc] initWithTitle:@"New Filter From Selected..." action:@selector(newFilterFromSelected:) keyEquivalent:@""]];
-        
+        [menu addItem:[[NSMenuItem alloc] initWithTitle:@"Export Selected..." action:@selector(exportSelectedFilters:) keyEquivalent:@""]];
         return menu;
     }
 }

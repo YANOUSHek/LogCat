@@ -14,6 +14,8 @@
 
 #define SCREEN_CAP_TYPE SCREEN_CAP_SCREENCAP
 
+#define SCREEN_CAP_FILE @"/mnt/sdcard/.logcatPNG"
+
 @interface DeviceScreenDatasource () {
     uint32_t width;
     uint32_t height;
@@ -197,7 +199,7 @@
     [self doScreenshot];
     
     
-    NSArray *arguments = [NSArray arrayWithObjects: @"pull", @"/mnt/sdcard/logcat.png", @"/tmp/logcat.png", nil];
+    NSArray *arguments = [NSArray arrayWithObjects: @"pull", SCREEN_CAP_FILE, @"/tmp/logcat.png", nil];
     
     NSTask *task = [AdbTaskHelper adbTask: [self argumentsForDevice:arguments]];
     
@@ -239,7 +241,7 @@
 }
 
 - (void) doScreenshot {
-    NSArray *arguments = [NSArray arrayWithObjects: @"shell", @"/system/bin/screencap", @"-p", @"/mnt/sdcard/logcat.png", nil];
+    NSArray *arguments = [NSArray arrayWithObjects: @"shell", @"/system/bin/screencap", @"-p", SCREEN_CAP_FILE, nil];
     
     NSTask *task = [AdbTaskHelper adbTask: [self argumentsForDevice:arguments]];
     

@@ -123,7 +123,7 @@
         }
         
     } else {
-        NSArray *sortedKeys = [[loadedFilters allKeys] sortedArrayUsingSelector: @selector(compare:)];
+        NSArray *sortedKeys = [[loadedFilters allKeys] sortedArrayUsingSelector: @selector(caseInsensitiveCompare:)];
         for (NSString* key in sortedKeys) {
             NSPredicate* savePredicate = [NSPredicate predicateWithFormat:[loadedFilters objectForKey:key]];
             [filters setObject:savePredicate forKey:key];
@@ -280,7 +280,7 @@
     if (rowIndex == 0) {
         return @"All messages";
     } else {
-        NSArray *sortedKeys = [[filters allKeys] sortedArrayUsingSelector: @selector(compare:)];
+        NSArray *sortedKeys = [[filters allKeys] sortedArrayUsingSelector: @selector(caseInsensitiveCompare:)];
         return [sortedKeys objectAtIndex:rowIndex-1];
     }
 }
@@ -412,7 +412,7 @@
         return;
     }
     
-    NSArray *sortedKeys = [[filters allKeys] sortedArrayUsingSelector: @selector(compare:)];
+    NSArray *sortedKeys = [[filters allKeys] sortedArrayUsingSelector: @selector(caseInsensitiveCompare:)];
 
     NSMutableArray* predicates = [NSMutableArray arrayWithCapacity:1];
     if ([filterListTable selectedRow] > 0) {
@@ -482,7 +482,7 @@
         return;
     }
     
-    NSArray *sortedKeys = [[filters allKeys] sortedArrayUsingSelector: @selector(compare:)];
+    NSArray *sortedKeys = [[filters allKeys] sortedArrayUsingSelector: @selector(caseInsensitiveCompare:)];
     NSString* sortKey = [sortedKeys objectAtIndex:selectedIndex];
 
     [filters removeObjectForKey:sortKey];
@@ -611,8 +611,7 @@
     
     NSMutableDictionary* dataToExport = [NSMutableDictionary dictionaryWithCapacity:[selectedRows count]];
     
-    NSDictionary* loadedFilters = [[NSUserDefaults standardUserDefaults] valueForKey:KEY_PREFS_FILTERS];
-    NSArray *sortedKeys = [[loadedFilters allKeys] sortedArrayUsingSelector: @selector(compare:)];
+    NSArray *sortedKeys = [[filters allKeys] sortedArrayUsingSelector: @selector(caseInsensitiveCompare:)];
     
     while (currentIndex != NSNotFound) {
         if (currentIndex == 0) {
@@ -621,8 +620,8 @@
         }
         
         NSString* key = [sortedKeys objectAtIndex:currentIndex-1];
-        NSPredicate* aPredicate = [loadedFilters objectForKey:key];
-        [dataToExport setObject:aPredicate forKey:key];
+        NSPredicate* aPredicate = [filters objectForKey:key];
+        [dataToExport setObject:[aPredicate predicateFormat] forKey:key];
         
         // Next Index
         currentIndex = [selectedRows indexGreaterThanIndex: currentIndex];
@@ -648,13 +647,8 @@
         NSLog(@"newFilterFromSelected: No predicate set.");
         return;
     }
-//    NSArray *sortedKeys = [[filters allKeys] sortedArrayUsingSelector: @selector(compare:)];
-//    NSInteger selected = [filterListTable rightClickedRow]-1;
-    
-//    NSString* key = [sortedKeys objectAtIndex:selected];
-//    NSPredicate* savedPredicate = [filters objectForKey:key];
+
     [self.predicateEditor setObjectValue:predicate];
-    
     [self.savePredicateName setStringValue:[self newUnusedPredicateName]];
     
     NSLog(@"showPredicateEditor");
@@ -670,7 +664,7 @@
     if ([filterListTable rightClickedRow] < 1) {
         return;
     }
-    NSArray *sortedKeys = [[filters allKeys] sortedArrayUsingSelector: @selector(compare:)];
+    NSArray *sortedKeys = [[filters allKeys] sortedArrayUsingSelector: @selector(caseInsensitiveCompare:)];
     NSInteger selected = [filterListTable rightClickedRow]-1;
     
     NSString* key = [sortedKeys objectAtIndex:selected];
@@ -1012,16 +1006,40 @@
 }
 
 - (IBAction)importFilters:(id)sender {
-    // TODO: popup file broswer for selecting from list of filters
-}
-
-- (IBAction)exportFilters:(id)sender {
-    // TODO: popup list of filters to for user to select from
+    NSOpenPanel* openDlg = [NSOpenPanel openPanel];
+    [openDlg setCanChooseFiles:YES];
+    [openDlg setAllowsMultipleSelection:NO];
+    [openDlg setCanChooseDirectories:NO];
+    
+    if ( [openDlg runModal] == NSOKButton )
+    {
+        NSArray* urls = [openDlg URLs];
+        if (urls != nil && [urls count] > 0) {
+            if (logDatasource != nil && [logDatasource isLogging]) {
+                [logDatasource stopLogger];
+                logDatasource = nil;
+            }
+            
+            NSURL* url = [urls objectAtIndex:0];
+            NSLog(@"Open url: %@", url);
+            NSDictionary* filtersToImport = [NSDictionary dictionaryWithContentsOfURL:url];
+            
+            NSArray* keys = [filtersToImport keysSortedByValueUsingSelector:@selector(caseInsensitiveCompare:)];
+            for (NSString* key in keys) {
+                NSString* filter = [filtersToImport objectForKey:key];
+                // TODO: figure out what to do for filters that already exist. For now just overwrite
+                [filters setObject:[NSPredicate predicateWithFormat:filter] forKey:key];
+            }
+            
+            [self saveFilters];
+            [filterListTable reloadData];
+        }
+    }
 }
 
 - (void) saveFilters {
     NSMutableDictionary* filtersToSave = [NSMutableDictionary dictionaryWithCapacity:[filters count]];
-    NSArray *sortedKeys = [[filters allKeys] sortedArrayUsingSelector: @selector(compare:)];
+    NSArray *sortedKeys = [[filters allKeys] sortedArrayUsingSelector: @selector(caseInsensitiveCompare:)];
     for(NSString* key in sortedKeys) {
         NSPredicate* aPredicate = [filters objectForKey:key];
         [filtersToSave setObject:[aPredicate predicateFormat] forKey:key];

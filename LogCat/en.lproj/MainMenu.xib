@@ -234,7 +234,6 @@
 								</object>
 								<object class="NSMenuItem" id="614484235">
 									<reference key="NSMenu" ref="720053764"/>
-									<bool key="NSIsDisabled">YES</bool>
 									<string key="NSTitle">Import Filters...</string>
 									<string key="NSKeyEquiv"/>
 									<int key="NSMnemonicLoc">2147483647</int>
@@ -243,7 +242,6 @@
 								</object>
 								<object class="NSMenuItem" id="445225002">
 									<reference key="NSMenu" ref="720053764"/>
-									<bool key="NSIsDisabled">YES</bool>
 									<string key="NSTitle">Export Filters...</string>
 									<string key="NSKeyEquiv"/>
 									<int key="NSMnemonicLoc">2147483647</int>
@@ -1201,7 +1199,7 @@
 															<string key="NSFrameSize">{446, 295}</string>
 															<reference key="NSSuperview" ref="928530079"/>
 															<reference key="NSWindow"/>
-															<reference key="NSNextKeyView" ref="118326408"/>
+															<reference key="NSNextKeyView" ref="175096873"/>
 															<string key="NSReuseIdentifierKey">_NS:1828</string>
 															<bool key="NSEnabled">YES</bool>
 															<bool key="NSAllowsLogicalLayoutDirection">NO</bool>
@@ -1500,7 +1498,7 @@
 											<string key="NSFrame">{{0, 20}, {448, 313}}</string>
 											<reference key="NSSuperview" ref="89269519"/>
 											<reference key="NSWindow"/>
-											<reference key="NSNextKeyView" ref="175096873"/>
+											<reference key="NSNextKeyView" ref="928530079"/>
 											<string key="NSReuseIdentifierKey">_NS:1824</string>
 											<int key="NSsFlags">133682</int>
 											<reference key="NSVScroller" ref="118326408"/>
@@ -1518,7 +1516,6 @@
 											<string key="NSFrame">{{2, 2}, {443, 17}}</string>
 											<reference key="NSSuperview" ref="89269519"/>
 											<reference key="NSWindow"/>
-											<reference key="NSNextKeyView"/>
 											<string key="NSReuseIdentifierKey">_NS:1535</string>
 											<bool key="NSEnabled">YES</bool>
 											<object class="NSTextFieldCell" key="NSCell" id="322661613">
@@ -3275,14 +3272,6 @@
 				</object>
 				<object class="IBConnectionRecord">
 					<object class="IBActionConnection" key="connection">
-						<string key="label">exportFilters:</string>
-						<reference key="source" ref="976324537"/>
-						<reference key="destination" ref="445225002"/>
-					</object>
-					<int key="connectionID">985</int>
-				</object>
-				<object class="IBConnectionRecord">
-					<object class="IBActionConnection" key="connection">
 						<string key="label">findPrevious:</string>
 						<reference key="source" ref="976324537"/>
 						<reference key="destination" ref="645882883"/>
@@ -3344,6 +3333,14 @@
 						<reference key="destination" ref="1011231497"/>
 					</object>
 					<int key="connectionID">1034</int>
+				</object>
+				<object class="IBConnectionRecord">
+					<object class="IBActionConnection" key="connection">
+						<string key="label">exportSelectedFilters:</string>
+						<reference key="source" ref="976324537"/>
+						<reference key="destination" ref="445225002"/>
+					</object>
+					<int key="connectionID">1036</int>
 				</object>
 				<object class="IBConnectionRecord">
 					<object class="IBOutletConnection" key="connection">
@@ -4728,7 +4725,7 @@
 			<nil key="activeLocalization"/>
 			<dictionary class="NSMutableDictionary" key="localizations"/>
 			<nil key="sourceID"/>
-			<int key="maxID">1035</int>
+			<int key="maxID">1036</int>
 		</object>
 		<object class="IBClassDescriber" key="IBDocument.Classes">
 			<array class="NSMutableArray" key="referencedPartialClassDescriptions">
@@ -4791,7 +4788,7 @@
 						<string key="closePredicateSheet:">id</string>
 						<string key="copyMessageOnly:">id</string>
 						<string key="copyPlain:">id</string>
-						<string key="exportFilters:">id</string>
+						<string key="exportSelectedFilters:">id</string>
 						<string key="filterBySelected:">id</string>
 						<string key="filterToolbarClicked:">NSSegmentedControl</string>
 						<string key="find:">id</string>
@@ -4848,8 +4845,8 @@
 							<string key="name">copyPlain:</string>
 							<string key="candidateClassName">id</string>
 						</object>
-						<object class="IBActionInfo" key="exportFilters:">
-							<string key="name">exportFilters:</string>
+						<object class="IBActionInfo" key="exportSelectedFilters:">
+							<string key="name">exportSelectedFilters:</string>
 							<string key="candidateClassName">id</string>
 						</object>
 						<object class="IBActionInfo" key="filterBySelected:">

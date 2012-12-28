@@ -72,7 +72,7 @@
 - (IBAction)applyPredicate:(id)sender;
 - (IBAction)savePredicate:(id)sender;
 - (IBAction)importFilters:(id)sender;
-- (IBAction)exportFilters:(id)sender;
+- (IBAction) exportSelectedFilters:(id)sender;
 
 @property (unsafe_unretained) IBOutlet NSWindow *predicateSheet;
 @property (weak) IBOutlet NSTextField *predicateText;

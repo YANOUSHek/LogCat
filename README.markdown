@@ -17,8 +17,8 @@ them. Here it is - LogCat - a simple log viewer for Android.
 
 Download
 --------
-* [Download LogCat Release ](https://github.com/yepher/LogCat/wiki/LogCat_LatestBuild_2012121900.zip)
-* [Download LogCat DEV](https://github.com/yepher/LogCat/wiki/LogCat_LatestBuild_2012121900.zip)
+* [Download LogCat Release Dec 28](https://github.com/yepher/LogCat/wiki/LogCat.app_build_2012122800.zip)
+* [Download LogCat DEV Dec 28](https://github.com/yepher/LogCat/wiki/LogCat.app_build_2012122800.zip)
 
 Features
 --------

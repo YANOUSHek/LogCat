@@ -1,22 +1,19 @@
 LogCat
 ======
 
-LogCat is a simple adb logcat viewer written purely in Objective-C and designed
+LogCat is an adb logcat viewer written in Objective-C and designed
 with Apple's Human Interface Guidelines in mind. It uses the native GUI views
-and is a lot nicer for the eyes than Eclipse plugins.
+and is a lot nicer for the eyes than the Eclipse plugins.
 
-I'm a mobile device programmer. I've been working with Windows Mobile and iOS
-for quite some time now and when I started Android development I found Eclipse
+Originally written by Janusz Bossy who is a mobile device programmer. 
+He's been working with Windows Mobile and iOS
+for quite some time. When Janusz started Android development he found Eclipse
 as the main frustration generator. It offers a lot of tools to get the job done
-but the quality of their design is poor. I started using [eclim][eclim] on a regular
-basis which allowed me to write code in Vim but I was lacking a small app that
+but the quality of their design is poor. Janusz started using [eclim][eclim] on a regular
+basis which allowed him to write code in Vim but he was lacking a small app that
 would display Android logs and allow for easy filtering and searching within
 them. Here it is - LogCat - a simple log viewer for Android.
 
-P.S. This is my first open source project so please go easy on me :)
-
-P.P.S. This was hacked in a couple of hours and I'm not the best Mac OS
-X programmer in the world so it must look silly :)
 
 Download
 --------
@@ -26,14 +23,19 @@ Download
 Features
 --------
 
-* Search as you type filtering
+* Advanced log filtering
+* Filter with multiple filters at one time
 * Definable filters for quick access to frequently checked logs. Filterable by:
 	* message,
 	* log type,
 	* tag,
-	* PID
+	* PID,
+	* TID,
+	* Timestamp
 * "Intelligent" automatic scroll
-* Ability to change font color and style for each for different log types
+* Ability to change font color and style for different log types
+* Capture screen shots right from LogCat
+* Can send typed characters to device
 
 Screenshot
 ----------
@@ -54,29 +56,18 @@ Icon design: **Kamil Tatara** - [cakeshop.pl][cake]
 Special thanks: **Dawid Gatti** ([Dawid's GitHub profile][dggit]) for emerging
 with the idea for this project
 
-Roadmap
-=======
-
-This is a not prioritized list of what I'd like to add to LogCat:
-
-1. Support for more than 1 device at a time.
-2. Automatically generated filters for all the tags, types etc.
-3. Better and easier filter definitions with NSPredicateEditor.
-4. RegExp searching and filtering.
-5. Autodetection of adb location (or bundling the adb within LogCat?).
-6. A better solution for reading and parsing adb output.
-
 Features Requests
 ==================
 (In no particular order)
-* Filter by log level and higher. For instance select info and still see warn, error, and assert
-* Make cells that have been highlighted easier to see
-* Initial default info log color is too bright
-* Categorize filters
-* Search should search TID and PID too
-* Ability to save and open log files
-* Ability to bookmark a lines and annotate
-* Add ability to find a string. It should jump to next instance
+* Ability to categorize filters
+* Ability to bookmark a log events and annotate
+* Ability to import raw logs that were saved with abd or on device (from testers)
+* Recent search suggestions
+* Import/Export filters
+* Ability to manually type predicate
+* Provide configuration setting for default predicate
+* Ability to configure background to be dark instead of white
+* Send screen mouse touch events to device
 
 Contributing
 ============

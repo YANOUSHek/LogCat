@@ -63,7 +63,6 @@
 							<string key="NSFrame">{{-3, -3}, {268, 350}}</string>
 							<reference key="NSSuperview" ref="1006"/>
 							<reference key="NSWindow"/>
-							<reference key="NSNextKeyView"/>
 							<string key="NSReuseIdentifierKey">_NS:9</string>
 							<bool key="NSEnabled">YES</bool>
 							<object class="NSImageCell" key="NSCell" id="328317065">
@@ -73,7 +72,7 @@
 								<int key="NSAlign">0</int>
 								<int key="NSScale">0</int>
 								<int key="NSStyle">2</int>
-								<bool key="NSAnimates">NO</bool>
+								<bool key="NSAnimates">YES</bool>
 							</object>
 							<bool key="NSAllowsLogicalLayoutDirection">NO</bool>
 							<bool key="NSEditable">YES</bool>
@@ -89,41 +88,32 @@
 				<string key="NSFrameAutosaveName">screenView</string>
 				<bool key="NSWindowIsRestorable">YES</bool>
 			</object>
-			<object class="NSMenu" id="59269458">
+			<object class="NSMenu" id="512305371">
 				<string key="NSTitle"/>
 				<array class="NSMutableArray" key="NSMenuItems">
-					<object class="NSMenuItem" id="453650570">
-						<reference key="NSMenu" ref="59269458"/>
+					<object class="NSMenuItem" id="346250561">
+						<reference key="NSMenu" ref="512305371"/>
 						<string key="NSTitle">Copy Scaled Image</string>
 						<string key="NSKeyEquiv">c</string>
 						<int key="NSKeyEquivModMask">1048576</int>
 						<int key="NSMnemonicLoc">2147483647</int>
-						<object class="NSCustomResource" key="NSOnImage" id="601285012">
+						<object class="NSCustomResource" key="NSOnImage" id="912506621">
 							<string key="NSClassName">NSImage</string>
 							<string key="NSResourceName">NSMenuCheckmark</string>
 						</object>
-						<object class="NSCustomResource" key="NSMixedImage" id="57845331">
+						<object class="NSCustomResource" key="NSMixedImage" id="900098616">
 							<string key="NSClassName">NSImage</string>
 							<string key="NSResourceName">NSMenuMixedState</string>
 						</object>
 					</object>
-					<object class="NSMenuItem" id="420074026">
-						<reference key="NSMenu" ref="59269458"/>
+					<object class="NSMenuItem" id="624342750">
+						<reference key="NSMenu" ref="512305371"/>
 						<string key="NSTitle">Copy Full Image</string>
 						<string key="NSKeyEquiv">C</string>
 						<int key="NSKeyEquivModMask">1048576</int>
 						<int key="NSMnemonicLoc">2147483647</int>
-						<reference key="NSOnImage" ref="601285012"/>
-						<reference key="NSMixedImage" ref="57845331"/>
-					</object>
-					<object class="NSMenuItem" id="95986649">
-						<reference key="NSMenu" ref="59269458"/>
-						<string key="NSTitle">Refresh</string>
-						<string key="NSKeyEquiv">r</string>
-						<int key="NSKeyEquivModMask">1048576</int>
-						<int key="NSMnemonicLoc">2147483647</int>
-						<reference key="NSOnImage" ref="601285012"/>
-						<reference key="NSMixedImage" ref="57845331"/>
+						<reference key="NSOnImage" ref="912506621"/>
+						<reference key="NSMixedImage" ref="900098616"/>
 					</object>
 				</array>
 			</object>
@@ -158,25 +148,25 @@
 					<object class="IBActionConnection" key="connection">
 						<string key="label">copyScaledImage:</string>
 						<reference key="source" ref="1001"/>
-						<reference key="destination" ref="453650570"/>
+						<reference key="destination" ref="346250561"/>
 					</object>
 					<int key="connectionID">40</int>
 				</object>
 				<object class="IBConnectionRecord">
 					<object class="IBActionConnection" key="connection">
-						<string key="label">refreshScreen:</string>
-						<reference key="source" ref="1001"/>
-						<reference key="destination" ref="95986649"/>
-					</object>
-					<int key="connectionID">44</int>
-				</object>
-				<object class="IBConnectionRecord">
-					<object class="IBActionConnection" key="connection">
 						<string key="label">copyFullImage:</string>
 						<reference key="source" ref="1001"/>
-						<reference key="destination" ref="420074026"/>
+						<reference key="destination" ref="624342750"/>
 					</object>
 					<int key="connectionID">45</int>
+				</object>
+				<object class="IBConnectionRecord">
+					<object class="IBOutletConnection" key="connection">
+						<string key="label">imageView</string>
+						<reference key="source" ref="1001"/>
+						<reference key="destination" ref="697740969"/>
+					</object>
+					<int key="connectionID">46</int>
 				</object>
 				<object class="IBConnectionRecord">
 					<object class="IBOutletConnection" key="connection">
@@ -190,7 +180,7 @@
 					<object class="IBOutletConnection" key="connection">
 						<string key="label">menu</string>
 						<reference key="source" ref="1005"/>
-						<reference key="destination" ref="59269458"/>
+						<reference key="destination" ref="512305371"/>
 					</object>
 					<int key="connectionID">38</int>
 				</object>
@@ -198,7 +188,7 @@
 					<object class="IBOutletConnection" key="connection">
 						<string key="label">menu</string>
 						<reference key="source" ref="697740969"/>
-						<reference key="destination" ref="59269458"/>
+						<reference key="destination" ref="512305371"/>
 					</object>
 					<int key="connectionID">42</int>
 				</object>
@@ -260,28 +250,22 @@
 					</object>
 					<object class="IBObjectRecord">
 						<int key="objectID">34</int>
-						<reference key="object" ref="59269458"/>
+						<reference key="object" ref="512305371"/>
 						<array class="NSMutableArray" key="children">
-							<reference ref="453650570"/>
-							<reference ref="420074026"/>
-							<reference ref="95986649"/>
+							<reference ref="346250561"/>
+							<reference ref="624342750"/>
 						</array>
 						<reference key="parent" ref="0"/>
 					</object>
 					<object class="IBObjectRecord">
 						<int key="objectID">35</int>
-						<reference key="object" ref="453650570"/>
-						<reference key="parent" ref="59269458"/>
+						<reference key="object" ref="346250561"/>
+						<reference key="parent" ref="512305371"/>
 					</object>
 					<object class="IBObjectRecord">
 						<int key="objectID">36</int>
-						<reference key="object" ref="420074026"/>
-						<reference key="parent" ref="59269458"/>
-					</object>
-					<object class="IBObjectRecord">
-						<int key="objectID">43</int>
-						<reference key="object" ref="95986649"/>
-						<reference key="parent" ref="59269458"/>
+						<reference key="object" ref="624342750"/>
+						<reference key="parent" ref="512305371"/>
 					</object>
 				</array>
 			</object>
@@ -299,13 +283,12 @@
 				<string key="36.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
 				<dictionary class="NSMutableDictionary" key="4.IBAttributePlaceholdersKey"/>
 				<string key="4.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
-				<string key="43.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
 			</dictionary>
 			<dictionary class="NSMutableDictionary" key="unlocalizedProperties"/>
 			<nil key="activeLocalization"/>
 			<dictionary class="NSMutableDictionary" key="localizations"/>
 			<nil key="sourceID"/>
-			<int key="maxID">45</int>
+			<int key="maxID">47</int>
 		</object>
 		<object class="IBClassDescriber" key="IBDocument.Classes">
 			<array class="NSMutableArray" key="referencedPartialClassDescriptions">
@@ -317,7 +300,7 @@
 						<string key="copyFullImage:">id</string>
 						<string key="copyScaledImage:">id</string>
 						<string key="refreshScreen:">id</string>
-						<string key="segmentedControl:">id</string>
+						<string key="rotateImage:">id</string>
 						<string key="showWindow:">id</string>
 					</dictionary>
 					<dictionary class="NSMutableDictionary" key="actionInfosByName">
@@ -337,8 +320,8 @@
 							<string key="name">refreshScreen:</string>
 							<string key="candidateClassName">id</string>
 						</object>
-						<object class="IBActionInfo" key="segmentedControl:">
-							<string key="name">segmentedControl:</string>
+						<object class="IBActionInfo" key="rotateImage:">
+							<string key="name">rotateImage:</string>
 							<string key="candidateClassName">id</string>
 						</object>
 						<object class="IBActionInfo" key="showWindow:">
@@ -348,12 +331,17 @@
 					</dictionary>
 					<dictionary class="NSMutableDictionary" key="outlets">
 						<string key="containingImageView">NSView</string>
+						<string key="imageView">NSImageView</string>
 						<string key="screenImage">NSImageCell</string>
 					</dictionary>
 					<dictionary class="NSMutableDictionary" key="toOneOutletInfosByName">
 						<object class="IBToOneOutletInfo" key="containingImageView">
 							<string key="name">containingImageView</string>
 							<string key="candidateClassName">NSView</string>
+						</object>
+						<object class="IBToOneOutletInfo" key="imageView">
+							<string key="name">imageView</string>
+							<string key="candidateClassName">NSImageView</string>
 						</object>
 						<object class="IBToOneOutletInfo" key="screenImage">
 							<string key="name">screenImage</string>

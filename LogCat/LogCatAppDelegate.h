@@ -41,22 +41,8 @@
     
     __weak NSTextField *textEntry;
     __weak NSButtonCell *remoteScreenMonitorButton;
-//    __weak NSTextFieldCell* statusField;
-    
     __weak NSTextField *_statusTextField;
 }
-
-
-@property (strong) IBOutlet NSWindow *window;
-@property (weak) IBOutlet SelectableTableView *filterListTable;
-@property (weak) IBOutlet SelectableTableView *logDataTable;
-@property (weak) IBOutlet NSTextField *textEntry;
-@property (weak) IBOutlet NSButton *restartAdb;
-@property (weak) IBOutlet NSButtonCell *remoteScreenMonitorButton;
-@property (weak) IBOutlet NSPredicateEditor *predicateEditor;
-@property (weak) IBOutlet NSTextField *savePredicateName;
-@property (weak) IBOutlet NSSearchFieldCell *searchFieldCell;
-@property (weak) IBOutlet NSSearchField *searchField;
 
 - (IBAction)remoteScreenMonitor:(id)sender;
 - (IBAction)cancelDevicePicker:(id)sender;
@@ -90,6 +76,15 @@
 
 @property (unsafe_unretained) IBOutlet NSWindow *predicateSheet;
 @property (weak) IBOutlet NSTextField *predicateText;
-//@property (weak) IBOutlet NSTextFieldCell *statusField;
 @property (weak) IBOutlet NSTextField *statusTextField;
+@property (strong) IBOutlet NSWindow *window;
+@property (weak) IBOutlet SelectableTableView *filterListTable;
+@property (weak) IBOutlet SelectableTableView *logDataTable;
+@property (weak) IBOutlet NSTextField *textEntry;
+@property (weak) IBOutlet NSButton *restartAdb;
+@property (weak) IBOutlet NSButtonCell *remoteScreenMonitorButton;
+@property (weak) IBOutlet NSPredicateEditor *predicateEditor;
+@property (weak) IBOutlet NSTextField *savePredicateName;
+@property (weak) IBOutlet NSSearchFieldCell *searchFieldCell;
+@property (weak) IBOutlet NSSearchField *searchField;
 @end

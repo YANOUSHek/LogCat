@@ -19,6 +19,8 @@
 #define SEARCH_FORWARDS   1
 #define SEARCH_BACKWARDS -1
 
+#define USE_DARK_BACKGROUND NO
+
 #define LOG_DATA_KEY @"logdata"
 #define LOG_FILE_VERSION @"version"
 
@@ -50,8 +52,7 @@
 @synthesize logDataTable;
 @synthesize textEntry;
 
-- (void)registerDefaults
-{
+- (void)registerDefaults {
     NSUserDefaults* defaults = [NSUserDefaults standardUserDefaults];
     NSMutableDictionary* s = [NSMutableDictionary dictionary];
     [s setObject:[NSNumber numberWithInt:0] forKey:@"logVerboseBold"];
@@ -70,9 +71,7 @@
     [defaults registerDefaults:s];
 }
 
-
-- (void)readSettings
-{
+- (void)readSettings {
     NSUserDefaults* defaults = [NSUserDefaults standardUserDefaults];
     NSColor* v = [NSUnarchiver unarchiveObjectWithData:[defaults objectForKey:@"logVerboseColor"]];
     NSColor* d = [NSUnarchiver unarchiveObjectWithData:[defaults objectForKey:@"logDebugColor"]];
@@ -130,8 +129,14 @@
             [filters setObject:savePredicate forKey:key];
         }
     }
-//    [filterListTable setBackgroundColor:[NSColor blackColor]];
-//    [logDataTable setBackgroundColor:[NSColor blackColor]];
+    
+    if (USE_DARK_BACKGROUND) {
+        [filterListTable setBackgroundColor:[NSColor blackColor]];
+        [logDataTable setBackgroundColor:[NSColor blackColor]];
+        
+        //[logDataTable setGridStyleMask:NSTableViewGridNone];
+        [logDataTable setGridColor:[NSColor darkGrayColor]];
+    }
     
     [filterListTable reloadData];
 
@@ -162,8 +167,7 @@
     }
 }
 
-- (BOOL) windowShouldClose:(id) sender
-{
+- (BOOL) windowShouldClose:(id) sender {
     [self.window orderOut:self];
     return NO;
 }
@@ -173,8 +177,7 @@
     return YES;
 }
 
-- (void)applicationDidFinishLaunching:(NSNotification *)aNotification
-{
+- (void)applicationDidFinishLaunching:(NSNotification *)aNotification {
     NSLog(@"applicationDidFinishLaunching: %@", aNotification);
     findIndex = -1;
     baseRowTemplates = nil;
@@ -196,8 +199,6 @@
     [deviceSource setDelegate:self];
     [deviceSource loadDeviceList];
 
-    //[self startAdb];
-    
     [self.filterListTable selectRowIndexes:[NSIndexSet indexSetWithIndex:0] byExtendingSelection:NO];
     
     id clipView = [[self.logDataTable enclosingScrollView] contentView];
@@ -207,8 +208,7 @@
                                                object:clipView];
 }
 
-- (void)startAdb
-{
+- (void)startAdb {
     [self.window makeKeyAndOrderFront:self];
     [logDatasource startLogger];
 
@@ -238,14 +238,12 @@
     [NSApp endSheet:sheetDevicePicker returnCode:NSOKButton];
 }
 
-- (void)fontsChanged
-{
+- (void)fontsChanged {
     [self readSettings];
     [self.logDataTable reloadData];
 }
 
-- (void)myBoundsChangeNotificationHandler:(NSNotification *)aNotification
-{
+- (void)myBoundsChangeNotificationHandler:(NSNotification *)aNotification {
     if ([aNotification object] == [[self.logDataTable enclosingScrollView] contentView]) {
         NSRect visibleRect = [[[self.logDataTable enclosingScrollView] contentView] visibleRect];
         float maxy = 0;
@@ -266,10 +264,12 @@
     return [filters count] + 1;
 }
 
-//- (void)tableView:(NSTableView *)tableView willDisplayCell:(id)cell forTableColumn:(NSTableColumn *)tableColumn row:(NSInteger)row {
-//    [cell setDrawsBackground:YES];
-//    [cell setBackgroundColor:[NSColor blackColor]];
-//}
+- (void)tableView:(NSTableView *)tableView willDisplayCell:(id)cell forTableColumn:(NSTableColumn *)tableColumn row:(NSInteger)row {
+    if (USE_DARK_BACKGROUND) {
+        [cell setBackgroundColor:[NSColor blackColor]];
+        [cell setDrawsBackground: YES];
+    }
+}
 
 - (id)tableView:(NSTableView *)aTableView objectValueForTableColumn:(NSTableColumn *)aTableColumn row:(NSInteger)rowIndex {
     if (aTableView == logDataTable) {
@@ -310,8 +310,7 @@
     return aCell;
 }
 
-- (IBAction)search:(id)sender
-{
+- (IBAction)search:(id)sender {
     NSString* searchString = [[sender stringValue] copy];
     [self doSearch:searchString : SEARCH_FORWARDS];
     
@@ -466,8 +465,7 @@
     
 }
 
-- (IBAction)removeFilter
-{
+- (IBAction)removeFilter {
     NSIndexSet* selectedIndexes = [filterListTable selectedRowIndexes];
     if ([selectedIndexes count] > 1) {
         NSAlert *alert = [NSAlert alertWithMessageText:@"Delete Failed"
@@ -492,29 +490,24 @@
     [filterListTable reloadData];
 }
 
-- (IBAction)cancelSheet:(id)sender
-{
+- (IBAction)cancelSheet:(id)sender {
     [NSApp endSheet:sheetAddFilter returnCode:NSCancelButton];
 }
 
-- (IBAction)acceptSheet:(id)sender
-{
+- (IBAction)acceptSheet:(id)sender {
     [NSApp endSheet:sheetAddFilter returnCode:NSOKButton];
 }
 
-- (IBAction)preferences:(id)sender 
-{
+- (IBAction)preferences:(id)sender {
     [[LogCatPreferences sharedPrefsWindowController] showWindow:nil];
 }
 
-- (IBAction)clearLog:(id)sender 
-{
+- (IBAction)clearLog:(id)sender {
     [logDatasource clearLog];
     logData = [NSArray array];
 }
 
-- (IBAction)restartAdb:(id)sender
-{
+- (IBAction)restartAdb:(id)sender {
     if ([logDatasource isLogging]) {
         [logDatasource stopLogger];
     } else {
@@ -522,8 +515,7 @@
     }
 }
 
-- (IBAction)filterToolbarClicked:(NSSegmentedControl*)sender 
-{
+- (IBAction)filterToolbarClicked:(NSSegmentedControl*)sender {
     NSInteger segment = [sender selectedSegment];
     switch (segment) {
         case 0:
@@ -538,7 +530,7 @@
 }
 
 /**
- I am being lazy and calling a perl script I wrote to send text typed in the terminal to the device.
+ ChrisW: I am being lazy and calling a perl script I wrote to send text typed in the terminal to the device.
  It would be ncie to do it all in ObjC.
  **/
 - (IBAction)openTypingTerminal:(id)sender {
@@ -571,8 +563,7 @@
 }
 
 
-- (void)deviceSheetDidEnd:(NSWindow *)sheet returnCode:(NSInteger)returnCode contextInfo:(void *)contextInfo
-{
+- (void)deviceSheetDidEnd:(NSWindow *)sheet returnCode:(NSInteger)returnCode contextInfo:(void *)contextInfo {
     NSLog(@"Device Picker Sheet Finished %ld", returnCode);
     [sheetDevicePicker orderOut:self];
     if (returnCode == NSCancelButton) {
@@ -592,8 +583,7 @@
 /*
  Called when RemoteScreenSheet ends
  */
-- (void)remoteScreenDidEndSheet:(NSWindow *)sheet returnCode:(NSInteger)returnCode contextInfo:(void *)contextInfo
-{
+- (void)remoteScreenDidEndSheet:(NSWindow *)sheet returnCode:(NSInteger)returnCode contextInfo:(void *)contextInfo {
     NSLog(@"Remote Screen Sheet Did End: %ld", returnCode);
 
 }
@@ -800,6 +790,10 @@
 }
 
 - (void) onLogUpdated {
+    /*
+     This reloads the table for every log message. It is performming well right now. Maybe as multiple devices
+     are supported it may get sluggish. If so we should set a flag and periodically reload the veiw.
+     */
     loadedLogData = nil;
     logData = [logDatasource eventsForPredicate:predicate];
     [self.logDataTable reloadData];
@@ -874,13 +868,11 @@
 }
 
 #pragma -
-#pragma mark Predicate Editor
+#pragma mark Predicate/Filter Editor
 #pragma -
 
 - (IBAction)showPredicateEditor:(id)sender {
-    
-    // TODO: make default predicat this: (app ==[cd] 'YOUR_APP_NAME') AND (name ==[cd] 'YOUR_TAG')
-    
+
     NSLog(@"Filter Name: %@", @"This will be used for saved predicates");
     BOOL isFirstRun = NO;
     if (baseRowTemplates == nil)
@@ -908,11 +900,8 @@
 		  contextInfo:nil];
 }
 
-- (IBAction)onPredicateEdited:(id)sender
-{
+- (IBAction)onPredicateEdited:(id)sender {
     NSLog(@"onPredicateEdited: %@", [self.predicateEditor objectValue]);
-//    [self.generatedPredicateLabel setStringValue:[self.predicateEditor objectValue]];
-    
 }
 
 - (IBAction)closePredicateSheet:(id)sender {
@@ -953,7 +942,6 @@
     
     [filters setObject:[self.predicateEditor predicate] forKey: filterName];
     [self saveFilters];
-    //[self.savePredicateName setStringValue:@""];
     [filterListTable reloadData];
 }
 

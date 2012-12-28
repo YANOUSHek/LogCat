@@ -29,11 +29,9 @@
 
 @implementation BinaryDataScanner (Private)
 
--(id)initWithData:(NSData*)initData littleEndian:(BOOL)isLittleEndian defaultEncoding:(NSStringEncoding)theDefaultEncoding
-{
+-(id)initWithData:(NSData*)initData littleEndian:(BOOL)isLittleEndian defaultEncoding:(NSStringEncoding)theDefaultEncoding {
 	self = [super init];
-	if (self != nil)
-	{
+	if (self != nil) {
 		data = initData;
 		littleEndian = isLittleEndian;
 		encoding = theDefaultEncoding;
@@ -43,10 +41,8 @@
 	return self;
 }
 
--(void)moveBy:(NSUInteger)count
-{
-	if (scanRemain < count)
-	{
+-(void)moveBy:(NSUInteger)count {
+	if (scanRemain < count) {
 		@throw [self buildScanException];
 	}
     
@@ -54,8 +50,7 @@
 	current += count;
 }
 
--(NSException *)buildScanException
-{
+-(NSException *)buildScanException {
 	return [NSException exceptionWithName:@"OrangeDataScanException" reason:@"Failure scanning desired information from the bytes." userInfo:nil];
 }
 
@@ -64,90 +59,71 @@
 
 @implementation BinaryDataScanner
 
-+(id)binaryDataScannerWithData:(NSData*)data littleEndian:(BOOL)littleEndian defaultEncoding:(NSStringEncoding)defaultEncoding
-{
++(id)binaryDataScannerWithData:(NSData*)data littleEndian:(BOOL)littleEndian defaultEncoding:(NSStringEncoding)defaultEncoding {
 	return [[BinaryDataScanner alloc] initWithData:data littleEndian:littleEndian defaultEncoding:defaultEncoding];
 }
 
--(NSUInteger) remainingBytes
-{
+-(NSUInteger) remainingBytes {
 	return scanRemain;
 }
 
--(const uint8_t *) currentPointer
-{
+-(const uint8_t *) currentPointer {
 	return current;
 }
 
--(void) skipBytes:(NSUInteger)count
-{
+-(void) skipBytes:(NSUInteger)count {
 	[self moveBy:count];
 }
 
--(uint8_t) readByte
-{
+-(uint8_t) readByte {
 	const uint8_t *old = current;
 	[self moveBy:1];
 	return old[0];
 }
 
--(uint16_t) readWord
-{
+-(uint16_t) readWord {
 	const uint16_t *word = (const uint16_t *) current;
 	[self moveBy:sizeof(uint16_t)];
-	if (littleEndian)
-	{
+	if (littleEndian) {
 		return CFSwapInt16LittleToHost(*word);
-	}
-	else
-	{
+	} else {
 		return CFSwapInt16BigToHost(*word);
 	}
 }
 
--(uint32_t) readDoubleWord
-{
+-(uint32_t) readDoubleWord {
 	const uint32_t *dword = (const uint32_t *) current;
 	[self moveBy:sizeof(uint32_t)];
-	if (littleEndian)
-	{
+	if (littleEndian) {
 		return CFSwapInt32LittleToHost(*dword);
-	}
-	else
-	{
+	} else {
 		return CFSwapInt32BigToHost(*dword);
 	}
 }
 
--(NSString*) readNullTerminatedString
-{
+-(NSString*) readNullTerminatedString {
 	return [self readNullTerminatedStringWithEncoding:encoding];
 }
 
--(NSString*) readNullTerminatedStringWithEncoding:(NSStringEncoding)overrideEncoding
-{
+-(NSString*) readNullTerminatedStringWithEncoding:(NSStringEncoding)overrideEncoding {
 	return [self readStringUntilDelimiter:0 encoding:overrideEncoding];
 }
 
--(NSString*) readStringUntilDelimiter:(uint8_t)delim
-{
+-(NSString*) readStringUntilDelimiter:(uint8_t)delim {
 	return [self readStringUntilDelimiter:delim encoding:encoding];
 }
 
--(NSString*) readStringUntilDelimiter:(uint8_t)delim encoding:(NSStringEncoding)overrideEncoding
-{
+-(NSString*) readStringUntilDelimiter:(uint8_t)delim encoding:(NSStringEncoding)overrideEncoding {
 	const uint8_t *start = current;
 	NSUInteger stringLength = 0;
 	
-	while (scanRemain > 0 && *current != delim)
-	{
+	while (scanRemain > 0 && *current != delim) {
 		scanRemain -= 1;
 		current += 1;
 		stringLength += 1;
 	}
 	
-	if (scanRemain < 1 || *current != delim)
-	{
+	if (scanRemain < 1 || *current != delim) {
 		@throw [self buildScanException];
 	}
 	
@@ -158,22 +134,18 @@
 	return result;
 }
 
--(NSString*) readStringOfLength:(NSUInteger)count handleNullTerminatorAfter:(BOOL)handleNull
-{
+-(NSString*) readStringOfLength:(NSUInteger)count handleNullTerminatorAfter:(BOOL)handleNull {
 	return [self readStringOfLength:count handleNullTerminatorAfter:handleNull encoding:encoding];
 }
 
--(NSString*) readStringOfLength:(NSUInteger)count handleNullTerminatorAfter:(BOOL)handleNull encoding:(NSStringEncoding)overrideEncoding
-{
+-(NSString*) readStringOfLength:(NSUInteger)count handleNullTerminatorAfter:(BOOL)handleNull encoding:(NSStringEncoding)overrideEncoding {
 	const uint8_t *start = current;
 	[self moveBy:count];
     
-	if (handleNull)
-	{
+	if (handleNull) {
 		const uint8_t *nullTerminator = current;
 		[self moveBy:1];
-		if (*nullTerminator != 0)
-		{
+		if (*nullTerminator != 0) {
 			@throw [self buildScanException];
 		}
 	}
@@ -182,17 +154,14 @@
 	return result;
 }
 
--(NSArray*) readArrayOfNullTerminatedStrings:(NSUInteger)count
-{
+-(NSArray*) readArrayOfNullTerminatedStrings:(NSUInteger)count {
 	return [self readArrayOfNullTerminatedStrings:count encoding:encoding];
 }
 
--(NSArray*) readArrayOfNullTerminatedStrings:(NSUInteger)count encoding:(NSStringEncoding)overrideEncoding
-{
+-(NSArray*) readArrayOfNullTerminatedStrings:(NSUInteger)count encoding:(NSStringEncoding)overrideEncoding {
 	NSMutableArray *array = [NSMutableArray arrayWithCapacity:count];
 	
-	for (NSUInteger i = 0; i < count; i++)
-	{
+	for (NSUInteger i = 0; i < count; i++) {
 		[array addObject:[self readNullTerminatedStringWithEncoding:overrideEncoding]];
 	}
 	

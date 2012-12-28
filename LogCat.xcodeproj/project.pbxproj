@@ -70,7 +70,7 @@
 		A5B4D264147AC70300DA2336 /* LogCatPreferences.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LogCatPreferences.h; sourceTree = "<group>"; };
 		A5B4D265147AC70300DA2336 /* LogCatPreferences.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LogCatPreferences.m; sourceTree = "<group>"; };
 		A5B4D267147AC73800DA2336 /* Preferences.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = Preferences.xib; sourceTree = "<group>"; };
-		A5C03BF9147EF72B00D21B0E /* Icon.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = Icon.icns; sourceTree = "<group>"; };
+		A5C03BF9147EF72B00D21B0E /* Icon.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; name = Icon.icns; path = ../Icon.icns; sourceTree = "<group>"; };
 		A5FF10F214743296001A3B38 /* LogCat.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = LogCat.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		A5FF10F614743296001A3B38 /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
 		A5FF10F914743296001A3B38 /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = System/Library/Frameworks/AppKit.framework; sourceTree = SDKROOT; };
@@ -173,6 +173,7 @@
 		A5C27F37147E6E1E00112228 /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				A5C03BF9147EF72B00D21B0E /* Icon.icns */,
 				A52B597A167DDB14007B0030 /* Images */,
 				83E99EC5167D199F00ACF31A /* atext */,
 				B633C06B15DBB99F00B1C056 /* adb */,
@@ -183,7 +184,6 @@
 		A5FF10E714743294001A3B38 = {
 			isa = PBXGroup;
 			children = (
-				A5C03BF9147EF72B00D21B0E /* Icon.icns */,
 				A5FF10FC14743296001A3B38 /* LogCat */,
 				A5FF10F514743296001A3B38 /* Frameworks */,
 				A5FF10F314743296001A3B38 /* Products */,

@@ -513,8 +513,11 @@
 }
 
 - (IBAction)clearLog:(id)sender {
+    loadedLogData = nil;
     [logDatasource clearLog];
     logData = [NSArray array];
+    
+    [[self logDataTable] reloadData];
 }
 
 - (IBAction)restartAdb:(id)sender {
@@ -1098,6 +1101,40 @@
     }
     
     return unamedFilter;
+}
+
+- (BOOL)application:(NSApplication *)theApplication openFile:(NSString *)filename {
+    NSLog(@"openFile: %@", filename);
+    NSString* lowerCaseFilename = [filename lowercaseString];
+    
+    if ([[lowerCaseFilename lowercaseString] hasSuffix:@"logcat"]) {
+        if (logDatasource != nil && [logDatasource isLogging]) {
+            [logDatasource stopLogger];
+            logDatasource = nil;
+        }
+        
+        NSDictionary* savedData = [NSDictionary dictionaryWithContentsOfFile:filename];
+        loadedLogData = [savedData valueForKey:LOG_DATA_KEY];
+        logData = loadedLogData;
+        [[self logDataTable] reloadData];
+        return YES;
+        
+    } else if ([lowerCaseFilename hasSuffix:@"filters"]) {
+        NSDictionary* filtersToImport = [NSDictionary dictionaryWithContentsOfFile:filename];
+        
+        NSArray* keys = [filtersToImport keysSortedByValueUsingSelector:@selector(caseInsensitiveCompare:)];
+        for (NSString* key in keys) {
+            NSString* filter = [filtersToImport objectForKey:key];
+            // TODO: figure out what to do for filters that already exist. For now just overwrite
+            [filters setObject:[NSPredicate predicateWithFormat:filter] forKey:key];
+        }
+        
+        [self saveFilters];
+        [filterListTable reloadData];
+    }
+    
+    
+    return NO;
 }
 
 @end

@@ -1576,7 +1576,7 @@
 				<nil key="NSViewClass"/>
 				<nil key="NSUserInterfaceItemIdentifier"/>
 				<object class="NSView" key="NSWindowView" id="15170489">
-					<nil key="NSNextResponder"/>
+					<reference key="NSNextResponder"/>
 					<int key="NSvFlags">256</int>
 					<array class="NSMutableArray" key="NSSubviews">
 						<object class="NSButton" id="444461922">
@@ -2798,7 +2798,7 @@
 							<int key="NSvFlags">268</int>
 							<string key="NSFrame">{{15, 229}, {157, 18}}</string>
 							<reference key="NSSuperview" ref="15170489"/>
-							<reference key="NSNextKeyView" ref="506849314"/>
+							<reference key="NSNextKeyView"/>
 							<string key="NSReuseIdentifierKey">_NS:9</string>
 							<bool key="NSEnabled">YES</bool>
 							<object class="NSButtonCell" key="NSCell" id="989191107">
@@ -2824,32 +2824,10 @@
 							</object>
 							<bool key="NSAllowsLogicalLayoutDirection">NO</bool>
 						</object>
-						<object class="NSButton" id="506849314">
-							<reference key="NSNextResponder" ref="15170489"/>
-							<int key="NSvFlags">264</int>
-							<string key="NSFrame">{{373, 245}, {60, 32}}</string>
-							<reference key="NSSuperview" ref="15170489"/>
-							<reference key="NSNextKeyView" ref="497721271"/>
-							<bool key="NSEnabled">YES</bool>
-							<object class="NSButtonCell" key="NSCell" id="354913800">
-								<int key="NSCellFlags">67108864</int>
-								<int key="NSCellFlags2">134217728</int>
-								<string key="NSContents">Save</string>
-								<reference key="NSSupport" ref="904282758"/>
-								<reference key="NSControlView" ref="506849314"/>
-								<int key="NSButtonFlags">-2038284288</int>
-								<int key="NSButtonFlags2">129</int>
-								<string key="NSAlternateContents"/>
-								<string type="base64-UTF8" key="NSKeyEquivalent">DQ</string>
-								<int key="NSPeriodicDelay">200</int>
-								<int key="NSPeriodicInterval">25</int>
-							</object>
-							<bool key="NSAllowsLogicalLayoutDirection">NO</bool>
-						</object>
 						<object class="NSTextField" id="119325898">
 							<reference key="NSNextResponder" ref="15170489"/>
 							<int key="NSvFlags">264</int>
-							<string key="NSFrame">{{17, 251}, {354, 22}}</string>
+							<string key="NSFrame">{{17, 251}, {410, 22}}</string>
 							<reference key="NSSuperview" ref="15170489"/>
 							<reference key="NSNextKeyView" ref="60899520"/>
 							<string key="NSReuseIdentifierKey">_NS:9</string>
@@ -2875,6 +2853,7 @@
 						</object>
 					</array>
 					<string key="NSFrameSize">{444, 279}</string>
+					<reference key="NSSuperview"/>
 					<reference key="NSNextKeyView" ref="119325898"/>
 				</object>
 				<string key="NSScreenRect">{{0, 0}, {1440, 878}}</string>
@@ -3245,14 +3224,6 @@
 						<reference key="destination" ref="416610014"/>
 					</object>
 					<int key="connectionID">960</int>
-				</object>
-				<object class="IBConnectionRecord">
-					<object class="IBActionConnection" key="connection">
-						<string key="label">savePredicate:</string>
-						<reference key="source" ref="976324537"/>
-						<reference key="destination" ref="506849314"/>
-					</object>
-					<int key="connectionID">966</int>
 				</object>
 				<object class="IBConnectionRecord">
 					<object class="IBOutletConnection" key="connection">
@@ -4078,7 +4049,6 @@
 							<reference ref="462621589"/>
 							<reference ref="60899520"/>
 							<reference ref="119325898"/>
-							<reference ref="506849314"/>
 						</array>
 						<reference key="parent" ref="100940031"/>
 					</object>
@@ -4396,19 +4366,6 @@
 						<reference key="parent" ref="416610014"/>
 					</object>
 					<object class="IBObjectRecord">
-						<int key="objectID">961</int>
-						<reference key="object" ref="506849314"/>
-						<array class="NSMutableArray" key="children">
-							<reference ref="354913800"/>
-						</array>
-						<reference key="parent" ref="15170489"/>
-					</object>
-					<object class="IBObjectRecord">
-						<int key="objectID">962</int>
-						<reference key="object" ref="354913800"/>
-						<reference key="parent" ref="506849314"/>
-					</object>
-					<object class="IBObjectRecord">
 						<int key="objectID">964</int>
 						<reference key="object" ref="119325898"/>
 						<array class="NSMutableArray" key="children">
@@ -4702,8 +4659,6 @@
 				<string key="956.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
 				<string key="958.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
 				<string key="959.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
-				<string key="961.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
-				<string key="962.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
 				<string key="964.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
 				<string key="965.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
 				<string key="968.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
@@ -4786,10 +4741,7 @@
 						<string key="cancelSheet:">id</string>
 						<string key="clearLog:">id</string>
 						<string key="closePredicateSheet:">id</string>
-						<string key="copyMessageOnly:">id</string>
-						<string key="copyPlain:">id</string>
 						<string key="exportSelectedFilters:">id</string>
-						<string key="filterBySelected:">id</string>
 						<string key="filterToolbarClicked:">NSSegmentedControl</string>
 						<string key="find:">id</string>
 						<string key="findNext:">id</string>
@@ -4802,7 +4754,6 @@
 						<string key="preferences:">id</string>
 						<string key="remoteScreenMonitor:">id</string>
 						<string key="restartAdb:">id</string>
-						<string key="saveDocument:">id</string>
 						<string key="savePredicate:">id</string>
 						<string key="search:">id</string>
 						<string key="showPredicateEditor:">id</string>
@@ -4837,20 +4788,8 @@
 							<string key="name">closePredicateSheet:</string>
 							<string key="candidateClassName">id</string>
 						</object>
-						<object class="IBActionInfo" key="copyMessageOnly:">
-							<string key="name">copyMessageOnly:</string>
-							<string key="candidateClassName">id</string>
-						</object>
-						<object class="IBActionInfo" key="copyPlain:">
-							<string key="name">copyPlain:</string>
-							<string key="candidateClassName">id</string>
-						</object>
 						<object class="IBActionInfo" key="exportSelectedFilters:">
 							<string key="name">exportSelectedFilters:</string>
-							<string key="candidateClassName">id</string>
-						</object>
-						<object class="IBActionInfo" key="filterBySelected:">
-							<string key="name">filterBySelected:</string>
 							<string key="candidateClassName">id</string>
 						</object>
 						<object class="IBActionInfo" key="filterToolbarClicked:">
@@ -4899,10 +4838,6 @@
 						</object>
 						<object class="IBActionInfo" key="restartAdb:">
 							<string key="name">restartAdb:</string>
-							<string key="candidateClassName">id</string>
-						</object>
-						<object class="IBActionInfo" key="saveDocument:">
-							<string key="name">saveDocument:</string>
 							<string key="candidateClassName">id</string>
 						</object>
 						<object class="IBActionInfo" key="savePredicate:">

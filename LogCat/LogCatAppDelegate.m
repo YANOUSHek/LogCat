@@ -24,6 +24,8 @@
 #define LOG_DATA_KEY @"logdata"
 #define LOG_FILE_VERSION @"version"
 
+#define DEFAULT_PREDICATE @"(app ==[cd] 'YOUR_APP_NAME') AND ((type ==[cd] 'E') OR (type ==[cd] 'W'))"
+
 @interface LogCatAppDelegate () {
     LogDatasource* logDatasource;
     DeviceListDatasource* deviceSource;
@@ -947,7 +949,7 @@
     [self.predicateEditor setRowTemplates:allTemplates];
     if (isFirstRun)
     {
-        NSPredicate* defaultPredicate = [NSPredicate predicateWithFormat:@"(app ==[cd] 'YOUR_APP_NAME') AND ((type ==[cd] 'E') OR (type ==[cd] 'W'))"];
+        NSPredicate* defaultPredicate = [NSPredicate predicateWithFormat:DEFAULT_PREDICATE];
         [self.predicateEditor setObjectValue:defaultPredicate];
         [self.predicateEditor addRow:self];
     }
@@ -968,6 +970,25 @@
     NSLog(@"closePredicateSheet");
     [self applyPredicate:sender];
 
+    NSString* filterName = [self.savePredicateName stringValue];
+    if (filterName == nil || [filterName length] == 0) {
+        filterName = [self newUnusedPredicateName];
+    }
+    if ([filters objectForKey:filterName] != nil) {
+        NSAlert *alert = [NSAlert alertWithMessageText:@"Filter already exists"
+                                         defaultButton:@"Overwrite" alternateButton:@"Cancel"
+                                           otherButton:nil
+                             informativeTextWithFormat:@"Are you sure you want to overwrite the filter with the name \"%@\"", filterName];
+        if ([alert runModal] == NSAlertAlternateReturn) {
+            // User pressed cancel so don't overwrite filter...
+            return;
+        }
+    }
+    
+    [filters setObject:[self.predicateEditor predicate] forKey: filterName];
+    [self saveFilters];
+    [filterListTable reloadData];
+    
     [self.savePredicateName setStringValue:@""];
     [NSApp endSheet:self.predicateSheet];
 	[self.predicateSheet orderOut:sender];
@@ -992,17 +1013,6 @@
     [self.predicateText setStringValue:[self.predicateEditor objectValue]];
     logData = [logDatasource eventsForPredicate: predicate];
     [self.logDataTable reloadData];
-}
-
-- (IBAction)savePredicate:(id)sender {
-    NSString* filterName = [self.savePredicateName stringValue];
-    if (filterName == nil || [filterName length] == 0) {
-        filterName = [self newUnusedPredicateName];
-    }
-    
-    [filters setObject:[self.predicateEditor predicate] forKey: filterName];
-    [self saveFilters];
-    [filterListTable reloadData];
 }
 
 - (IBAction)importFilters:(id)sender {

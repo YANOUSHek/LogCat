@@ -70,7 +70,6 @@
 - (IBAction)closePredicateSheet:(id)sender;
 - (IBAction)cancelPredicateEditing:(id)sender;
 - (IBAction)applyPredicate:(id)sender;
-- (IBAction)savePredicate:(id)sender;
 - (IBAction)importFilters:(id)sender;
 - (IBAction) exportSelectedFilters:(id)sender;
 

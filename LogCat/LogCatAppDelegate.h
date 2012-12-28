@@ -48,6 +48,7 @@
 - (IBAction)cancelDevicePicker:(id)sender;
 - (IBAction)startLogForDevice:(id)sender;
 - (IBAction)openLogcatFile:(id)sender;
+- (IBAction)toggleAutoFollow:(id)sender;
 
 - (void)fontsChanged;
 - (IBAction)search:(id)sender;

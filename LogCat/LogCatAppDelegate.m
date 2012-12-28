@@ -951,6 +951,15 @@
     }
 }
 
+- (IBAction)toggleAutoFollow:(id)sender {
+    NSLog(@"toggleAutoFollow");
+    scrollToBottom = !scrollToBottom;
+    if (scrollToBottom) {
+        [self.logDataTable scrollRowToVisible:[logData count]-1];
+    }
+    
+}
+
 #pragma -
 #pragma mark Predicate/Filter Editor
 #pragma -
@@ -1131,8 +1140,8 @@
         
         [self saveFilters];
         [filterListTable reloadData];
+        return YES;
     }
-    
     
     return NO;
 }

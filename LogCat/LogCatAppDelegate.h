@@ -25,6 +25,7 @@
     
     bool scrollToBottom;
     
+    __weak NSSearchField *_quickFilter;
     NSMutableDictionary* filters;
     IBOutlet FilterSheet *sheetAddFilter;
     IBOutlet DevicePickerSheet* sheetDevicePicker;
@@ -49,6 +50,7 @@
 - (IBAction)startLogForDevice:(id)sender;
 - (IBAction)openLogcatFile:(id)sender;
 - (IBAction)toggleAutoFollow:(id)sender;
+- (IBAction)quickFilter:(id)sender;
 
 - (void)fontsChanged;
 - (IBAction)search:(id)sender;
@@ -74,6 +76,9 @@
 - (IBAction)importFilters:(id)sender;
 - (IBAction) exportSelectedFilters:(id)sender;
 
+- (IBAction)biggerFont:(id)sender;
+- (IBAction)smallerFont:(id)sender;
+
 @property (unsafe_unretained) IBOutlet NSWindow *predicateSheet;
 @property (weak) IBOutlet NSTextField *predicateText;
 @property (weak) IBOutlet NSTextField *statusTextField;
@@ -87,4 +92,5 @@
 @property (weak) IBOutlet NSTextField *savePredicateName;
 @property (weak) IBOutlet NSSearchFieldCell *searchFieldCell;
 @property (weak) IBOutlet NSSearchField *searchField;
+@property (weak) IBOutlet NSSearchField *quickFilter;
 @end

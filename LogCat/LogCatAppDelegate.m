@@ -44,6 +44,7 @@
 - (void)startAdb;
 - (void) copySelectedRow: (BOOL) escapeSpecialChars :(BOOL) messageOnly;
 - (NSDictionary*) dataForRow: (NSUInteger) rowIndex;
+- (void) applySelectedFilters;
 
 @end
 
@@ -288,7 +289,6 @@
     }
 }
 
-
 - (NSCell *)tableView:(NSTableView *)tableView dataCellForTableColumn:(NSTableColumn *)tableColumn row:(NSInteger)rowIndex {
     if (tableView == filterListTable) {        
         return [tableColumn dataCell];
@@ -427,6 +427,10 @@
         return;
     }
     
+    [self applySelectedFilters];
+}
+
+- (void) applySelectedFilters {
     NSArray *sortedKeys = [[filters allKeys] sortedArrayUsingSelector: @selector(caseInsensitiveCompare:)];
 
     NSMutableArray* predicates = [NSMutableArray arrayWithCapacity:1];
@@ -437,7 +441,7 @@
         if ([selectedIndexes count] == 1) {
             NSUInteger index = [selectedIndexes firstIndex];
             NSString* key = [sortedKeys objectAtIndex:index-1];
-            predicate = [filters objectForKey:key];
+            [predicates addObject:[filters objectForKey:key]];
         } else {
 
             NSUInteger index = [selectedIndexes firstIndex];
@@ -446,13 +450,19 @@
                 [predicates addObject:[filters objectForKey:key]];
                 index = [selectedIndexes indexGreaterThanIndex:index];
             }
-            predicate = [NSCompoundPredicate andPredicateWithSubpredicates:predicates];
         }
      } else {
          NSLog(@"No Predicated Selected");
      }
-
-    NSLog(@"Filter By: %@", [predicate description]);
+    
+    NSString* quickFilter = [[self quickFilter] stringValue];
+    if (quickFilter != nil && [quickFilter length] > 0) {
+        [predicates addObject:[NSPredicate predicateWithFormat:[NSString stringWithFormat:@"(name CONTAINS[cd] '%@' OR text CONTAINS[cd] '%@')", quickFilter, quickFilter]]];
+    }
+    
+    predicate = [NSCompoundPredicate andPredicateWithSubpredicates:predicates];
+    
+    NSLog(@"Filter By: %@", [predicates description]);
     if (loadedLogData != nil) {
         logData = [loadedLogData filteredArrayUsingPredicate: predicate];
     } else {
@@ -460,6 +470,11 @@
     }
     [logDataTable reloadData];
     [self updateStatus];
+}
+
+- (IBAction)quickFilter:(id)sender {
+    NSLog(@"TODO: quick filter %@", sender);
+    [self applySelectedFilters];
 }
 
 - (IBAction)addFilter {
@@ -663,6 +678,16 @@
         NSLog(@"Save filter to: %@", saveDocPath);
         [dataToExport writeToURL:saveDocPath atomically:NO];
     }
+    
+}
+
+- (IBAction)biggerFont:(id)sender {
+    NSLog(@"biggerFont");
+   
+}
+
+- (IBAction)smallerFont:(id)sender {
+    NSLog(@"smallerFont");
     
 }
 

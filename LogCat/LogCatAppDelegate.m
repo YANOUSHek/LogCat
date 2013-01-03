@@ -683,12 +683,34 @@
 
 - (IBAction)biggerFont:(id)sender {
     NSLog(@"biggerFont");
-   
+    NSMutableDictionary* scratchFonts = [NSMutableDictionary dictionary];
+    
+    NSArray* keys = [fonts allKeys];
+    for (NSString* key in keys) {
+        NSFont* font = [fonts objectForKey:key];
+        NSFont* newFont = [[NSFontManager sharedFontManager] convertFont:font toSize:[font pointSize] + 1];
+        [scratchFonts setObject:newFont forKey:key];
+    }
+    
+    fonts = scratchFonts;
+    
+    [logDataTable reloadData];
 }
 
 - (IBAction)smallerFont:(id)sender {
     NSLog(@"smallerFont");
+    NSMutableDictionary* scratchFonts = [NSMutableDictionary dictionary];
     
+    NSArray* keys = [fonts allKeys];
+    for (NSString* key in keys) {
+        NSFont* font = [fonts objectForKey:key];
+        NSFont* newFont = [[NSFontManager sharedFontManager] convertFont:font toSize:[font pointSize] - 1];
+        [scratchFonts setObject:newFont forKey:key];
+    }
+    
+    fonts = scratchFonts;
+    
+    [logDataTable reloadData];
 }
 
 - (void) newFilterFromSelected:(id)sender {

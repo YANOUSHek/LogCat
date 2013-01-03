@@ -19,6 +19,9 @@
 #define LOG_HEADER_LEN 20
 #define LOG_HEADER_LEN2 18
 
+#define MAX_EVENT (1024*1024)
+//#define MAX_EVENT 100
+
 @interface LogDatasource () {
     NSDate *startTime;
     
@@ -702,6 +705,13 @@
         }
     } else {
         [logData addObject:row];
+    }
+    
+    if ([logData count] > MAX_EVENT) {
+        // Make room for more events
+        while ([logData count] > (MAX_EVENT/2)) {
+            [logData removeObjectAtIndex:0];
+        }
     }
 }
 

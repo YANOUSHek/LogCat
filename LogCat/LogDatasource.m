@@ -93,7 +93,7 @@
     }
     
     startTime = [NSDate date];
-    [self clearLog];
+    //[self clearLog];
     thread = [[NSThread alloc] initWithTarget:self selector:@selector(internalStartLogger) object:nil];
     [thread start];
 }
@@ -692,7 +692,17 @@
 }
 
 - (void) appendRow: (NSDictionary*) row {
-    [logData addObject:row];
+    NSTimeInterval elapsedTime = -[startTime timeIntervalSinceNow];
+    if (elapsedTime < 30 && [logData count] > 0) {
+        NSDictionary* lastItem = [logData lastObject];
+        if ([[row objectForKey:KEY_TIME] compare:[lastItem objectForKey:KEY_TIME]] == NSOrderedAscending) {
+            NSLog(@"Event is older: row=%@, last=%@", [row objectForKey:KEY_TIME], [lastItem objectForKey:KEY_TIME]);
+        } else {
+            [logData addObject:row];
+        }
+    } else {
+        [logData addObject:row];
+    }
 }
 
 - (void) logMessage: (NSString*) message {

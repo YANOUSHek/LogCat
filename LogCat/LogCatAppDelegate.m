@@ -49,6 +49,8 @@
 @end
 
 @implementation LogCatAppDelegate
+
+@synthesize adbPath;
 @synthesize remoteScreenMonitorButton;
 
 @synthesize filterListTable;
@@ -143,7 +145,12 @@
     }
     
     [filterListTable reloadData];
-
+    adbPath = [defaults objectForKey:@"adbPath"];
+    if (adbPath == nil && [adbPath length] == 0) {
+        // Use built in adb
+        NSBundle *mainBundle = [NSBundle mainBundle];
+        adbPath = [mainBundle pathForResource:@"adb" ofType:nil];
+    }
 }
 
 - (void) updateStatus {
@@ -196,6 +203,18 @@
     
     [self readSettings];
     
+    if ([[NSFileManager defaultManager] fileExistsAtPath:adbPath]) {
+        [self startAdb];
+    } else {
+        NSAlert* alert = [NSAlert alertWithMessageText:@"ADB executable not found"
+                                         defaultButton:@"OK" alternateButton:nil
+                                           otherButton:nil
+                             informativeTextWithFormat:@"Please check your preferences and make sure the path is correct. By default, it's located in the platform-tools folder inside Android SDK."];
+        [alert runModal];
+        [self.window orderOut:self];
+        [[LogCatPreferences sharedPrefsWindowController] showWindow:nil];
+    }
+    
     previousString = nil;
     scrollToBottom = YES;
     
@@ -246,6 +265,17 @@
     [self readSettings];
     [self.logDataTable reloadData];
 }
+
+- (void)adbPathChanged:(NSString*)newPath
+{
+//    if (isRunning) {
+//        return;
+//    }
+    
+    adbPath = newPath;
+//    [self startAdb];
+}
+
 
 - (void)myBoundsChangeNotificationHandler:(NSNotification *)aNotification {
     if ([aNotification object] == [[self.logDataTable enclosingScrollView] contentView]) {

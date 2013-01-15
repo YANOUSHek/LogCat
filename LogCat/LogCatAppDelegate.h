@@ -79,6 +79,7 @@
 - (IBAction)biggerFont:(id)sender;
 - (IBAction)smallerFont:(id)sender;
 
+@property (strong, nonatomic) NSString* adbPath;
 @property (unsafe_unretained) IBOutlet NSWindow *predicateSheet;
 @property (weak) IBOutlet NSTextField *predicateText;
 @property (weak) IBOutlet NSTextField *statusTextField;
@@ -93,4 +94,8 @@
 @property (weak) IBOutlet NSSearchFieldCell *searchFieldCell;
 @property (weak) IBOutlet NSSearchField *searchField;
 @property (weak) IBOutlet NSSearchField *quickFilter;
+
+- (void)adbPathChanged:(NSString*)newPath;
+
+
 @end

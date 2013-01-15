@@ -12,10 +12,17 @@
 + (NSTask*) adbTask: (NSArray*) arguments {
     NSTask *task;
     task = [[NSTask alloc] init];
-    NSBundle *mainBundle=[NSBundle mainBundle];
-    NSString *path=[mainBundle pathForResource:@"adb" ofType:nil];
     
-    [task setLaunchPath:path];
+    NSUserDefaults* defaults = [NSUserDefaults standardUserDefaults];
+    NSString *adbPath = [defaults objectForKey:@"adbPath"];
+    if (adbPath == nil && [adbPath length] == 0) {
+        // Use built in adb
+        NSBundle *mainBundle = [NSBundle mainBundle];
+        adbPath = [mainBundle pathForResource:@"adb" ofType:nil];
+    }
+    NSLog(@"Will use ADB [%@]", adbPath);
+    
+    [task setLaunchPath:adbPath];
     [task setArguments: arguments];
     
     return task;

@@ -151,6 +151,8 @@
         NSBundle *mainBundle = [NSBundle mainBundle];
         adbPath = [mainBundle pathForResource:@"adb" ofType:nil];
     }
+    
+    NSLog(@"Will use ADB: [%@]", adbPath);
 }
 
 - (void) updateStatus {
@@ -266,14 +268,8 @@
     [self.logDataTable reloadData];
 }
 
-- (void)adbPathChanged:(NSString*)newPath
-{
-//    if (isRunning) {
-//        return;
-//    }
-    
+- (void)adbPathChanged:(NSString*)newPath {
     adbPath = newPath;
-//    [self startAdb];
 }
 
 

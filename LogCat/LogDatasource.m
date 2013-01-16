@@ -23,28 +23,24 @@
 //#define MAX_EVENT 100
 
 @interface LogDatasource () {
-    NSDate *startTime;
-    
-    NSString* previousString;
-    NSData* pendingData;
-    
-    NSThread* thread;
-    
-    NSMutableDictionary* pidMap;
-    NSMutableArray* logData;
-    
-    NSArray* keysArray;
-    
-    NSString* time;
-    NSString* app;
-    NSString* pid;
-    NSString* tid;
-    NSString* type;
-    NSString* name;
-    NSMutableString* text;
-    
-    NSUInteger counter;
 }
+
+
+@property (strong, nonatomic) NSDate *startTime;
+@property (strong, nonatomic) NSData* pendingData;
+@property (strong, nonatomic) NSThread* thread;
+@property (strong, nonatomic) NSMutableDictionary* pidMap;
+@property (strong, nonatomic) NSMutableArray* logData;
+@property (strong, nonatomic) NSArray* keysArray;
+@property (strong, nonatomic) NSString* time;
+@property (strong, nonatomic) NSString* app;
+@property (strong, nonatomic) NSString* pid;
+@property (strong, nonatomic) NSString* tid;
+@property (strong, nonatomic) NSString* type;
+@property (strong, nonatomic) NSString* name;
+@property (strong, nonatomic) NSMutableString* text;
+@property (nonatomic) NSUInteger counter;
+@property (strong, nonatomic) NSString* previousString;
 
 
 - (void) parsePID: (NSString*) pidInfo;
@@ -61,27 +57,61 @@
 
 @implementation LogDatasource
 @synthesize delegate = _delegate;
-@synthesize deviceId;
+@synthesize deviceId = _deviceId;
 @synthesize isLogging;
+
+@synthesize previousString = _previousString;
+@synthesize startTime = _startTime;
+@synthesize pendingData = _pendingData;
+@synthesize  thread = _thread;
+@synthesize  pidMap = _pidMap;
+@synthesize  logData = _logData;
+@synthesize  keysArray = _keysArray;
+@synthesize  time = _time;
+@synthesize  app = _app;
+@synthesize  pid = _pid;
+@synthesize  tid = _tid;
+@synthesize  type = _type;
+@synthesize  name = _name;
+@synthesize  text = _text;
+@synthesize  counter = _counter;
 
 
 - (id)init {
     if (self = [super init]) {
-        pidMap = [NSMutableDictionary dictionary];
-        logData = [NSMutableArray arrayWithCapacity:0];
-        text = [NSMutableString stringWithCapacity:0];
-        keysArray = [NSArray arrayWithObjects: KEY_TIME, KEY_APP, KEY_PID, KEY_TID, KEY_TYPE, KEY_NAME, KEY_TEXT, nil];
+        self.pidMap = [NSMutableDictionary dictionary];
+        self.logData = [NSMutableArray arrayWithCapacity:0];
+        self.text = [NSMutableString stringWithCapacity:0];
+        self.keysArray = [NSArray arrayWithObjects: KEY_TIME, KEY_APP, KEY_PID, KEY_TID, KEY_TYPE, KEY_NAME, KEY_TEXT, nil];
         isLogging = NO;
-        
-        counter = 0;
+        self.previousString = nil;
+        self.counter = 0;
     }
     return self;
 }
 
 - (NSArray*) eventsForPredicate: (NSPredicate*) predicate {
-    NSArray* filteredEvents = [logData copy];
-    if (predicate != nil) {
-        filteredEvents = [filteredEvents filteredArrayUsingPredicate:predicate];
+//    NSLog(@"eventsForPredicate: %ld", [self.logData count]);
+    @try {
+        if (self.logData == nil || [self.logData count] == 0) {
+            return [NSArray array];
+        }
+    } @catch(NSException* ex) {
+        NSLog(@"Bug captured");
+    }
+        
+    NSArray* filteredEvents = [self.logData copy];
+//    NSLog(@"eventsForPredicate::filteredEvents: %ld", [filteredEvents count]);
+    if (predicate != nil && filteredEvents != nil && [filteredEvents count] > 0) {
+        @try {
+            filteredEvents = [filteredEvents filteredArrayUsingPredicate:predicate];
+        } @catch(NSException* ex) {
+            NSLog(@"Bug captured");
+        }
+    }
+    
+    if (filteredEvents == nil) {
+        filteredEvents = [NSArray array];
     }
     
     return filteredEvents;
@@ -95,15 +125,15 @@
         return;
     }
     
-    startTime = [NSDate date];
+    self.startTime = [NSDate date];
     //[self clearLog];
-    thread = [[NSThread alloc] initWithTarget:self selector:@selector(internalStartLogger) object:nil];
-    [thread start];
+    self.thread = [[NSThread alloc] initWithTarget:self selector:@selector(internalStartLogger) object:nil];
+    [self.thread start];
 }
 
 - (void) stopLogger {
     isLogging = NO;
-    [thread cancel];
+    [self.thread cancel];
 }
 
 - (void) internalStartLogger {
@@ -113,8 +143,8 @@
 }
 
 - (void) clearLog {
-    [pidMap removeAllObjects];
-    [logData removeAllObjects];
+    [self.pidMap removeAllObjects];
+    [self.logData removeAllObjects];
     [self onLogUpdated];
     
 }
@@ -164,7 +194,7 @@
         if ([line hasPrefix:@"-"]) {
             continue;
         } else if ([line hasPrefix:@"error:"]) {
-            NSLog(@"%@", line);
+            NSLog(@"parsePID: %@", line);
             if ([line isEqualToString:MULTIPLE_DEVICE_MSG]) {
                 isLogging = NO;
                 [self onMultipleDevicesConnected];
@@ -197,7 +227,7 @@
             
             NSString* aName = [args objectAtIndex:[args count]-1];
             if ([aPid isInteger]) {
-                [pidMap setValue:aName forKey:aPid];
+                [self.pidMap setValue:aName forKey:aPid];
             } else {
                 NSLog(@"Could not get PID: %@", line);
             }
@@ -258,6 +288,7 @@
                 [self performSelectorOnMainThread:@selector(appendLongLog:) withObject:string waitUntilDone:YES];
                 
             } else if (LOG_FORMAT == 2) {
+//                [self performSelectorOnMainThread:@selector(appendThreadtimeLog:) withObject:string waitUntilDone:YES];
                 [self appendThreadtimeLog:string];
                 
             } else if (LOG_FORMAT == 3) {
@@ -272,9 +303,9 @@
     [task terminate];
     
     isLogging = NO;
-    [pidMap removeAllObjects];
+    [self.pidMap removeAllObjects];
     
-    [self logMessage:[NSString stringWithFormat:@"Disconnected. %@", deviceId]];
+    [self logMessage:[NSString stringWithFormat:@"Disconnected. %@", self.deviceId]];
     
     [self performSelectorOnMainThread:@selector(onLoggerStopped) withObject:nil waitUntilDone:NO];
     
@@ -293,7 +324,7 @@
 }
 
 - (NSUInteger) logEventCount {
-    return [logData count];
+    return [self.logData count];
 }
 
 /**
@@ -461,12 +492,13 @@
 
 - (void) appendThreadtimeLog: (NSString*) paramString {
 //    NSAssert([NSThread isMainThread], @"Method can only be called on main thread!");
-
-    NSMutableString* currentLine = [[NSMutableString alloc] initWithCapacity:1024];
-
-    if (previousString != nil && [previousString length] > 0) {
-        [currentLine appendString:previousString];
-        previousString = nil;
+//    NSLog(@"appendThreadtimeLog on thread: %@", [NSThread currentThread]);
+    NSMutableString* currentLine = [NSMutableString string];
+    
+//    NSString* defCopy = [previousString copy];
+    if (self.previousString != nil && [self.previousString length] > 0) {
+        [currentLine appendString:self.previousString];
+        self.previousString = nil;
     }
     
     for (int i = 0; i < [paramString length]; i++) {
@@ -486,7 +518,7 @@
         }
     }
     
-    previousString = currentLine;
+    self.previousString = currentLine;
     [self performSelectorOnMainThread:@selector(onLogUpdated) withObject:nil waitUntilDone:YES];
 
 }
@@ -496,19 +528,22 @@
     if ([line hasPrefix:@"-"]) {
         return;
     } else if ([line hasPrefix:@"error:"]) {
-        NSLog(@"%@", line);
-        if ([line isEqualToString:MULTIPLE_DEVICE_MSG]) {
+        NSLog(@"parseThreadTimeLine: \"%@\", %@", line, self);
+        if ([line hasPrefix:MULTIPLE_DEVICE_MSG]) {
             isLogging = NO;
-            [self onMultipleDevicesConnected];
+            NSLog(@"parseThreadTimeLine: %@, %@", line, self);
+            [self performSelectorOnMainThread:@selector(onMultipleDevicesConnected) withObject:nil waitUntilDone:YES];
+//            [self onMultipleDevicesConnected];
             return;
-        } else if ([line isEqualToString:DEVICE_NOT_FOUND_MSG]) {
+        } else if ([line hasPrefix:DEVICE_NOT_FOUND_MSG]) {
             isLogging = NO;
-            [self onMultipleDevicesConnected];
+            [self performSelectorOnMainThread:@selector(onMultipleDevicesConnected) withObject:nil waitUntilDone:YES];
+//            [self onMultipleDevicesConnected];
             return;
         }
         return;
     }
-    previousString = line;
+    self.previousString = line;
 //        NSLog(@"Parsing \"%@\"", line);
     NSScanner* scanner = [NSScanner scannerWithString:line];
     NSString* dateVal;
@@ -577,7 +612,7 @@
 
     //time, app, pid, tid, type, name, text, 
     NSArray* values = [NSArray arrayWithObjects: fullTimeVal, appVal, pidVal, tidVal, logLevelVal, tagVal, msgVal, nil];
-    NSDictionary* row = [NSDictionary dictionaryWithObjects:values forKeys:keysArray];
+    NSDictionary* row = [NSDictionary dictionaryWithObjects:values forKeys:self.keysArray];
     [self appendRow:row];
 
 }
@@ -588,29 +623,29 @@
     NSAssert([NSThread isMainThread], @"Method can only be called on main thread!");
     
     NSString* currentString;
-    if (previousString != nil) {
-        currentString = [NSString stringWithFormat:@"%@%@", previousString, paramString];
-        previousString = nil;
+    if (self.previousString != nil) {
+        currentString = [NSString stringWithFormat:@"%@%@", self.previousString, paramString];
+        self.previousString = nil;
     } else {
         currentString = [NSString stringWithFormat:@"%@", paramString];
     }
     
     if ([currentString rangeOfString:@"\n"].location == NSNotFound) {
-        previousString = [currentString copy];
+        self.previousString = [currentString copy];
         return;
     }
     
     NSArray* lines = [currentString componentsSeparatedByCharactersInSet: [NSCharacterSet newlineCharacterSet]];
     
     if (![currentString hasSuffix:@"\n"]) {
-        previousString = [[lines objectAtIndex:[lines count]-1] copy];
+        self.previousString = [[lines objectAtIndex:[lines count]-1] copy];
     }
     
     for (NSString* line in lines) {
         if ([line hasPrefix:@"-"]) {
             continue;
         } else if ([line hasPrefix:@"error:"]) {
-            NSLog(@"%@", line);
+            NSLog(@"appendLongLog: %@", line);
             if ([line isEqualToString:MULTIPLE_DEVICE_MSG]) {
                 isLogging = NO;
                 [self onMultipleDevicesConnected];
@@ -631,62 +666,62 @@
         NSTextCheckingResult* match = [expr firstMatchInString:line options:0 range:NSMakeRange(0, [line length])];
         if (match != nil) {
             // Header line of log
-            time = [line substringWithRange:[match rangeAtIndex:1]];
-            pid = [line substringWithRange:[match rangeAtIndex:2]];
-            tid = [line substringWithRange:[match rangeAtIndex:3]];
-            app = [pidMap objectForKey:pid];
-            if (app == nil) {
-                NSLog(@"%@ not found in pid map.", pid);
+            self.time = [line substringWithRange:[match rangeAtIndex:1]];
+            self.pid = [line substringWithRange:[match rangeAtIndex:2]];
+            self.tid = [line substringWithRange:[match rangeAtIndex:3]];
+            self.app = [self.pidMap objectForKey:self.pid];
+            if (self.app == nil) {
+                NSLog(@"%@ not found in pid map.", self.pid);
                 [self loadPID];
-                app = [pidMap objectForKey:pid];
-                if (app == nil) {
+                self.app = [self.pidMap objectForKey:self.pid];
+                if (self.app == nil) {
                     // This is normal during startup because there can be log
                     // messages from apps that are not running anymore.
-                    app = @"unknown";
+                    self.app = @"unknown";
 //                    [pidMap setValue:app forKey:pid];
                 }
             }
-            type = [line substringWithRange:[match rangeAtIndex:4]];
-            name = [line substringWithRange:[match rangeAtIndex:5]];
+            self.type = [line substringWithRange:[match rangeAtIndex:4]];
+            self.name = [line substringWithRange:[match rangeAtIndex:5]];
             
             // NSLog(@"xxx--- 1 time: %@, app: %@, pid: %@, tid: %@, type: %@, name: %@", time, app, pid, tid, type, name);
-        } else if (match == nil && [line length] != 0 && !([previousString length] > 0 && [line isEqualToString:previousString])) {
-            [text appendString:@"\n"];
-            [text appendString:line];
+        } else if (match == nil && [line length] != 0 && !([self.previousString length] > 0 && [line isEqualToString:self.previousString])) {
+            [self.text appendString:@"\n"];
+            [self.text appendString:line];
             
             // NSLog(@"xxx--- 2 text: %@", text);
         } else if ([line length] == 0 && time != nil) {
             // NSLog(@"xxx--- 3 text: %@", text);
             
-            if ([text rangeOfString:@"\n"].location != NSNotFound) {
+            if ([self.text rangeOfString:@"\n"].location != NSNotFound) {
                 // NSLog(@"JEST!");
-                NSArray* linesOfText = [text componentsSeparatedByString:@"\n"];
+                NSArray* linesOfText = [self.text componentsSeparatedByString:@"\n"];
                 for (NSString* lineOfText in linesOfText) {
                     if ([lineOfText length] == 0) {
                         continue;
                     }
-                    NSArray* values = [NSArray arrayWithObjects: time, app, pid, tid, type, name, lineOfText, nil];
+                    NSArray* values = [NSArray arrayWithObjects: self.time, self.app, self.pid, self.tid, self.type, self.name, lineOfText, nil];
                     NSDictionary* row = [NSDictionary dictionaryWithObjects:values
-                                                                    forKeys:keysArray];
+                                                                    forKeys:self.keysArray];
                     
                     [self appendRow:row];
                 }
             } else {
                 // NSLog(@"xxx--- 4 text: %@", text);
                 
-                NSArray* values = [NSArray arrayWithObjects: time, app, pid, tid, type, name, text, nil];
+                NSArray* values = [NSArray arrayWithObjects: self.time, self.app, self.pid, self.tid, self.type, self.name, self.text, nil];
                 NSDictionary* row = [NSDictionary dictionaryWithObjects:values
-                                                                forKeys:keysArray];
+                                                                forKeys:self.keysArray];
                 [self appendRow:row];                
             }
             
-            time = nil;
-            app = nil;
-            pid = nil;
-            tid = nil;
-            type = nil;
-            name = nil;
-            text = [NSMutableString new];
+            self.time = nil;
+            self.app = nil;
+            self.pid = nil;
+            self.tid = nil;
+            self.type = nil;
+            self.name = nil;
+            self.text = [NSMutableString new];
         }
     }
 
@@ -695,22 +730,23 @@
 }
 
 - (void) appendRow: (NSDictionary*) row {
-    NSTimeInterval elapsedTime = -[startTime timeIntervalSinceNow];
-    if (elapsedTime < 30 && [logData count] > 0) {
-        NSDictionary* lastItem = [logData lastObject];
+    NSTimeInterval elapsedTime = -[self.startTime timeIntervalSinceNow];
+    if (elapsedTime < 30 && self.logData != nil && [self.logData count] > 0) {
+        NSDictionary* lastItem = [self.logData lastObject];
         if ([[row objectForKey:KEY_TIME] compare:[lastItem objectForKey:KEY_TIME]] == NSOrderedAscending) {
-            NSLog(@"Event is older: row=%@, last=%@", [row objectForKey:KEY_TIME], [lastItem objectForKey:KEY_TIME]);
+//            NSLog(@"Event is older: row=%@, last=%@", [row objectForKey:KEY_TIME], [lastItem objectForKey:KEY_TIME]);
         } else {
-            [logData addObject:row];
+            [self.logData addObject:row];
         }
     } else {
-        [logData addObject:row];
+        [self.logData addObject:row];
     }
     
-    if ([logData count] > MAX_EVENT) {
+    if ([self.logData count] > MAX_EVENT) {
+        NSLog(@"Prune event. %ld > %d", [self.logData count], MAX_EVENT);
         // Make room for more events
-        while ([logData count] > (MAX_EVENT/2)) {
-            [logData removeObjectAtIndex:0];
+        while ([self.logData count] > (MAX_EVENT/2)) {
+            [self.logData removeObjectAtIndex:0];
         }
     }
 }
@@ -718,7 +754,7 @@
 - (void) logMessage: (NSString*) message {
     NSArray* values = [NSArray arrayWithObjects: @"----", @"LogCat", @"---", @"---", @"I", @"---", message, nil];
     NSDictionary* row = [NSDictionary dictionaryWithObjects:values
-                                                    forKeys:keysArray];
+                                                    forKeys:self.keysArray];
     
     [self appendRow:row];
     [self performSelectorOnMainThread:@selector(onLogUpdated) withObject:nil waitUntilDone:YES];
@@ -726,20 +762,20 @@
 }
 
 - (NSString*) appNameForPid:(NSString*) pidVal {
-    NSString* appVal = [pidMap objectForKey:pidVal];
+    NSString* appVal = [self.pidMap objectForKey:pidVal];
     if (appVal == nil) {
         NSLog(@"%@ not found in pid map.", pidVal);
         [self loadPID];
-        appVal = [pidMap objectForKey:pidVal];
+        appVal = [self.pidMap objectForKey:pidVal];
         if (appVal == nil) {
             // This is normal during startup because there can be log
             // messages from apps that are not running anymore.
             appVal = @"unknown";
-            NSTimeInterval elapsedTime = -[startTime timeIntervalSinceNow];
+            NSTimeInterval elapsedTime = -[self.startTime timeIntervalSinceNow];
             // NSLog(@"Elapsed: %f", elapsedTime);
             if (elapsedTime < 30) {
                 // There are potentially a lot of these when we first start reading the cached log
-                [pidMap setValue:appVal forKey:pidVal];
+                [self.pidMap setValue:appVal forKey:pidVal];
             }
         }
     }
@@ -886,11 +922,11 @@
 }
 
 - (NSArray*) argumentsForDevice: (NSArray*) args {
-    if (deviceId == nil || [deviceId length] == 0) {
+    if (self.deviceId == nil || [self.deviceId length] == 0) {
         return args;
     }
     
-    NSMutableArray* newArgs = [NSMutableArray arrayWithObjects: @"-s", deviceId, nil];
+    NSMutableArray* newArgs = [NSMutableArray arrayWithObjects: @"-s", self.deviceId, nil];
     return [newArgs arrayByAddingObjectsFromArray:args];
 }
 

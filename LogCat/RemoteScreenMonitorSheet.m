@@ -9,8 +9,10 @@
 #import "DeviceScreenDatasource.h"
 
 @interface RemoteScreenMonitorSheet () {
-    DeviceScreenDatasource* screenSource;
+    
 }
+
+@property (strong, nonatomic) DeviceScreenDatasource* screenSource;
 
 - (NSImage*) resize:(NSImage*)aImage width:(CGFloat)width height:(CGFloat)height scalingType:(NSImageScaling) type;
 
@@ -18,8 +20,9 @@
 
 @implementation RemoteScreenMonitorSheet
 
-@synthesize screenImage;
+@synthesize screenSource = _screenSource;
 
+@synthesize screenImage;
 @synthesize deviceId;
 
 - (id)init
@@ -33,9 +36,9 @@
 }
 
 - (IBAction)showWindow:(id)sender {
-    if (screenSource != nil) {
-        [screenSource setDeviceId:deviceId];
-        [screenSource startMonitoring];
+    if (self.screenSource != nil) {
+        [self.screenSource setDeviceId:deviceId];
+        [self.screenSource startMonitoring];
     }
     [super showWindow:sender];
 }
@@ -44,13 +47,13 @@
     NSLog(@"Remote Screen Window: windowDidLoad");
     [[self window] setTitle:@"Remote Screen Monitor"];
     
-    if (screenSource == nil) {
-        screenSource = [[DeviceScreenDatasource alloc] init];
-        [screenSource setDelegate:self];
+    if (self.screenSource == nil) {
+        self.screenSource = [[DeviceScreenDatasource alloc] init];
+        [self.screenSource setDelegate:self];
     }
     
-    [screenSource setDeviceId:deviceId];
-    [screenSource startMonitoring];
+    [self.screenSource setDeviceId:deviceId];
+    [self.screenSource startMonitoring];
 }
 
 - (void)windowWillBeginSheet:(NSNotification *)notification {
@@ -59,7 +62,7 @@
 
 - (void)windowWillClose:(NSNotification *)notification {
     NSLog(@"RemoteScreenMonitorSheet will close");
-    [screenSource stopMonitoring];
+    [self.screenSource stopMonitoring];
 }
 
 - (IBAction)refreshScreen:(id)sender {

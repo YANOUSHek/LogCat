@@ -9,8 +9,10 @@
 #import "AdbTaskHelper.h"
 
 @interface DeviceListDatasource () {
-    NSMutableArray* deviceList;
+    
 }
+
+@property (nonatomic, strong) NSMutableArray* deviceList;
 
 - (void) internalLoadDeviceList;
 
@@ -27,10 +29,11 @@
 // Device List: adb devices
 @implementation DeviceListDatasource
 
-@synthesize delegate;
+@synthesize deviceList = _deviceList;
+@synthesize delegate = _delegate;
 
 - (void) loadDeviceList {
-    deviceList = [NSMutableArray arrayWithCapacity:0];
+    self.deviceList = [NSMutableArray arrayWithCapacity:0];
     
     NSThread* thread = [[NSThread alloc] initWithTarget:self selector:@selector(internalLoadDeviceList) object:nil];
     [thread start];
@@ -40,7 +43,7 @@
 - (void) internalLoadDeviceList {
     [self fetchDevices];
     
-    [self performSelectorOnMainThread:@selector(onDevicesConneceted:) withObject:deviceList waitUntilDone:NO];
+    [self performSelectorOnMainThread:@selector(onDevicesConneceted:) withObject:self.deviceList waitUntilDone:NO];
 }
 
 - (void) fetchDevices {
@@ -96,14 +99,14 @@
         [deviceInfo setValue:[args objectAtIndex:0] forKey:DEVICE_ID_KEY];
         [deviceInfo setValue:[args objectAtIndex:1] forKey:DEVICE_TYPE_KEY];
         
-        [deviceList addObject:deviceInfo];
+        [self.deviceList addObject:deviceInfo];
         
     }
 }
 
 - (void) onDevicesConneceted: (NSArray*) devices {
     if (self.delegate != nil) {
-        [self.delegate onDevicesConneceted:deviceList];
+        [self.delegate onDevicesConneceted:self.deviceList];
     }
 }
 

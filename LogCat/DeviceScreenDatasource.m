@@ -21,16 +21,19 @@
     uint32_t height;
     uint32_t bitsPerPixel;
     
-    NSThread* screenUpdateThread;
+   
     BOOL isRunning;
 }
+
+@property (nonatomic, strong)  NSThread* screenUpdateThread;
 
 @end
 
 @implementation DeviceScreenDatasource
 
-@synthesize delegate;
-@synthesize deviceId;
+@synthesize screenUpdateThread = _screenUpdateThread;
+@synthesize delegate = _delegate;
+@synthesize deviceId = _deviceId;
 
 - (id)init {
     if (self = [super init]) {
@@ -47,21 +50,21 @@
     }
     isRunning = YES;
     
-    if (screenUpdateThread == nil) {
-        screenUpdateThread = [[NSThread alloc] initWithTarget:self selector:@selector(internalStartMonitoring) object:nil];
+    if (self.screenUpdateThread == nil) {
+        self.screenUpdateThread = [[NSThread alloc] initWithTarget:self selector:@selector(internalStartMonitoring) object:nil];
     }
     
-    if (![screenUpdateThread isExecuting]) {
+    if (![self.screenUpdateThread isExecuting]) {
         NSLog(@"start monitoring screen");
-        [screenUpdateThread start];
+        [self.screenUpdateThread start];
     }
 }
 
 - (void) stopMonitoring {
     isRunning = NO;
-    if (screenUpdateThread != nil) {
-        [screenUpdateThread cancel];
-        screenUpdateThread = nil;
+    if (self.screenUpdateThread != nil) {
+        [self.screenUpdateThread cancel];
+        self.screenUpdateThread = nil;
     }
 }
 
@@ -79,14 +82,14 @@
             return;
         }
         
-        while (isRunning && [screenUpdateThread isCancelled] == false) {
+        while (isRunning && [self.screenUpdateThread isCancelled] == false) {
             [self pullScreenFromDevice];
             
             
             [NSThread sleepForTimeInterval:3]; // poll every N seconds
         }
     } else if (SCREEN_CAP_TYPE == SCREEN_CAP_SCREENCAP) {
-        while (isRunning && [screenUpdateThread isCancelled] == false) {
+        while (isRunning && [self.screenUpdateThread isCancelled] == false) {
             [self pullScreenFromDeviceWithScreenCap];
             
             
@@ -331,17 +334,17 @@
 }
 
 - (void) updateImage: (NSImage*) image {
-    if (delegate != nil) {
-        [delegate onScreenUpdate:@"TODO:" :image];
+    if (self.delegate != nil) {
+        [self.delegate onScreenUpdate:@"TODO:" :image];
     }
 }
 
 - (NSArray*) argumentsForDevice: (NSArray*) args {
-    if (deviceId == nil || [deviceId length] == 0) {
+    if (self.deviceId == nil || [self.deviceId length] == 0) {
         return args;
     }
     
-    NSMutableArray* newArgs = [NSMutableArray arrayWithObjects: @"-s", deviceId, nil];
+    NSMutableArray* newArgs = [NSMutableArray arrayWithObjects: @"-s", self.deviceId, nil];
     
     return [newArgs arrayByAddingObjectsFromArray:args];
 }

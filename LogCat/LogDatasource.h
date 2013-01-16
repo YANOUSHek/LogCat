@@ -33,7 +33,7 @@
 @property (weak) id <LogDatasourceDelegate> delegate;
 
 @property (strong) NSString* deviceId;
-@property BOOL isLogging;
+@property (atomic) BOOL isLogging;
 
 - (void) startLogger;
 - (void) stopLogger;

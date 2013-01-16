@@ -137,7 +137,7 @@ my $thr = threads->create(sub {
  								my $buffer = "";
                                 while (1) {
                                 	my $char = $q->dequeue();
-                                	if ( ord( $char ) <= 32 || ord( $char ) > 126) {
+                                	if ( ord( $char ) <= 32 || ord( $char ) > 126 || $char eq '\'') {
                                 		if (length($buffer) > 0) {
                                 			print "'" . $buffer . "'";
                                 			system("./adb shell input text '". $buffer . "'");
@@ -146,6 +146,12 @@ my $thr = threads->create(sub {
 										sendKeyEvent($char);									
 										next;
 									}
+									
+									# the system shell doesn't like some chars without a backslash before them
+									if ( $char eq '(' || $char eq ')' || $char eq '"') {
+										$buffer .= '\\'
+									}
+
 									print "\n\nappend: ". $char."\n";
                                     $buffer .= $char;
                                     
@@ -223,6 +229,12 @@ sub sendKeyEvent {
 		adbKeyEvent($KEYCODE_DEL);
 		return;
 	}
+	if ( $char eq '\'') {
+		print "\'";
+		adbKeyEvent($KEYCODE_APOSTROPHE);
+		return;
+	}
+
 	if ( ord( $char ) == 27 ) {
 	    # This is for keys like Arrow keys
 		extendedKeyCode($char);
@@ -266,3 +278,4 @@ sub adbKeyEvent {
 	system("./adb shell input keyevent " . $keyCode);
 	return;
 }
+

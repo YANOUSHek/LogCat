@@ -30,7 +30,7 @@
 @property (strong, nonatomic) NSData* pendingData;
 @property (strong, nonatomic) NSThread* thread;
 @property (strong, nonatomic) NSMutableDictionary* pidMap;
-@property (strong, nonatomic) NSMutableArray* logData;
+@property (strong, atomic) NSMutableArray* logData;
 @property (strong, nonatomic) NSArray* keysArray;
 @property (strong, nonatomic) NSString* time;
 @property (strong, nonatomic) NSString* app;
@@ -93,7 +93,7 @@
 - (NSArray*) eventsForPredicate: (NSPredicate*) predicate {
 //    NSLog(@"eventsForPredicate: %ld", [self.logData count]);
     @try {
-        if (self.logData == nil || [self.logData count] == 0) {
+        if (self.logData == nil) {
             return [NSArray array];
         }
     } @catch(NSException* ex) {
@@ -127,13 +127,16 @@
     
     self.startTime = [NSDate date];
     //[self clearLog];
-    self.thread = [[NSThread alloc] initWithTarget:self selector:@selector(internalStartLogger) object:nil];
-    [self.thread start];
+    if (self.thread == nil) {
+        self.thread = [[NSThread alloc] initWithTarget:self selector:@selector(internalStartLogger) object:nil];
+        [self.thread start];
+    }
 }
 
 - (void) stopLogger {
     isLogging = NO;
     [self.thread cancel];
+    self.thread = nil;
 }
 
 - (void) internalStartLogger {
@@ -198,10 +201,12 @@
             if ([line isEqualToString:MULTIPLE_DEVICE_MSG]) {
                 isLogging = NO;
                 [self onMultipleDevicesConnected];
+                [self stopLogger];
                 return;
             } else if ([line isEqualToString:DEVICE_NOT_FOUND_MSG]) {
                 isLogging = NO;
                 [self onDeviceNotFound];
+                [self stopLogger];
                 return;
             }
             continue;
@@ -309,6 +314,7 @@
     
     [self performSelectorOnMainThread:@selector(onLoggerStopped) withObject:nil waitUntilDone:NO];
     
+    [self stopLogger];
     NSLog(@"ADB Exited.");
 }
 
@@ -495,9 +501,9 @@
 //    NSLog(@"appendThreadtimeLog on thread: %@", [NSThread currentThread]);
     NSMutableString* currentLine = [NSMutableString string];
     
-//    NSString* defCopy = [previousString copy];
-    if (self.previousString != nil && [self.previousString length] > 0) {
-        [currentLine appendString:self.previousString];
+    NSString* defCopy = [self.previousString copy];
+    if (defCopy != nil && [defCopy length] > 0) {
+        [currentLine appendString:defCopy];
         self.previousString = nil;
     }
     
@@ -520,6 +526,10 @@
     
     self.previousString = currentLine;
     [self performSelectorOnMainThread:@selector(onLogUpdated) withObject:nil waitUntilDone:YES];
+    
+    if ([self.previousString length] > 0 && [self.previousString hasPrefix:@"0"] == NO) {
+        NSLog(@"x Invalid previous line: \"%@\"", self.previousString);
+    }
 
 }
 

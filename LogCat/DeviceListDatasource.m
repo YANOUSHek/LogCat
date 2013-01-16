@@ -13,6 +13,7 @@
 }
 
 @property (nonatomic, strong) NSMutableArray* deviceList;
+@property (nonatomic, strong) NSThread* thread;
 
 - (void) internalLoadDeviceList;
 
@@ -31,12 +32,18 @@
 
 @synthesize deviceList = _deviceList;
 @synthesize delegate = _delegate;
+@synthesize thread = _thread;
 
 - (void) loadDeviceList {
     self.deviceList = [NSMutableArray arrayWithCapacity:0];
     
-    NSThread* thread = [[NSThread alloc] initWithTarget:self selector:@selector(internalLoadDeviceList) object:nil];
-    [thread start];
+    if (self.thread == nil) {
+        self.thread = [[NSThread alloc] initWithTarget:self selector:@selector(internalLoadDeviceList) object:nil];
+    }
+    
+    if ([self.thread isExecuting] == NO) {
+        [self.thread start];
+    }
     
 }
 
@@ -44,6 +51,7 @@
     [self fetchDevices];
     
     [self performSelectorOnMainThread:@selector(onDevicesConneceted:) withObject:self.deviceList waitUntilDone:NO];
+    
 }
 
 - (void) fetchDevices {

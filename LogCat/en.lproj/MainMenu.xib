@@ -225,8 +225,26 @@
 								</object>
 								<object class="NSMenuItem" id="582044689">
 									<reference key="NSMenu" ref="720053764"/>
-									<string key="NSTitle">Save Log to File</string>
+									<string key="NSTitle">Save as LogCat</string>
 									<string key="NSKeyEquiv">s</string>
+									<int key="NSKeyEquivModMask">1048576</int>
+									<int key="NSMnemonicLoc">2147483647</int>
+									<reference key="NSOnImage" ref="35465992"/>
+									<reference key="NSMixedImage" ref="502551668"/>
+								</object>
+								<object class="NSMenuItem" id="635522629">
+									<reference key="NSMenu" ref="720053764"/>
+									<string key="NSTitle">Save as Text</string>
+									<string key="NSKeyEquiv">s</string>
+									<int key="NSKeyEquivModMask">1572864</int>
+									<int key="NSMnemonicLoc">2147483647</int>
+									<reference key="NSOnImage" ref="35465992"/>
+									<reference key="NSMixedImage" ref="502551668"/>
+								</object>
+								<object class="NSMenuItem" id="605888130">
+									<reference key="NSMenu" ref="720053764"/>
+									<string key="NSTitle">Save Visable as Text</string>
+									<string key="NSKeyEquiv">S</string>
 									<int key="NSKeyEquivModMask">1048576</int>
 									<int key="NSMnemonicLoc">2147483647</int>
 									<reference key="NSOnImage" ref="35465992"/>
@@ -543,10 +561,9 @@
 							<string key="NSToolbarItemPaletteLabel">Virtual Keyboard</string>
 							<string key="NSToolbarItemToolTip"/>
 							<object class="NSButton" key="NSToolbarItemView" id="161158095">
-								<reference key="NSNextResponder"/>
+								<nil key="NSNextResponder"/>
 								<int key="NSvFlags">268</int>
 								<string key="NSFrame">{{34, 14}, {28, 25}}</string>
-								<reference key="NSSuperview"/>
 								<string key="NSReuseIdentifierKey">_NS:22</string>
 								<bool key="NSEnabled">YES</bool>
 								<object class="NSButtonCell" key="NSCell" id="543291403">
@@ -592,10 +609,9 @@
 							<string key="NSToolbarItemPaletteLabel">Restart ADB</string>
 							<nil key="NSToolbarItemToolTip"/>
 							<object class="NSButton" key="NSToolbarItemView" id="968872158">
-								<reference key="NSNextResponder"/>
+								<nil key="NSNextResponder"/>
 								<int key="NSvFlags">268</int>
 								<string key="NSFrame">{{0, 14}, {92, 25}}</string>
-								<reference key="NSSuperview"/>
 								<string key="NSReuseIdentifierKey">_NS:687</string>
 								<bool key="NSEnabled">YES</bool>
 								<object class="NSButtonCell" key="NSCell" id="907716433">
@@ -633,10 +649,9 @@
 							<string key="NSToolbarItemPaletteLabel">New Window</string>
 							<nil key="NSToolbarItemToolTip"/>
 							<object class="NSButton" key="NSToolbarItemView" id="140941504">
-								<reference key="NSNextResponder"/>
+								<nil key="NSNextResponder"/>
 								<int key="NSvFlags">268</int>
 								<string key="NSFrame">{{0, 14}, {94, 25}}</string>
-								<reference key="NSSuperview"/>
 								<string key="NSReuseIdentifierKey">_NS:22</string>
 								<bool key="NSEnabled">YES</bool>
 								<object class="NSButtonCell" key="NSCell" id="548753392">
@@ -674,10 +689,9 @@
 							<string key="NSToolbarItemPaletteLabel">Remote Screen</string>
 							<nil key="NSToolbarItemToolTip"/>
 							<object class="NSButton" key="NSToolbarItemView" id="832395915">
-								<reference key="NSNextResponder"/>
+								<nil key="NSNextResponder"/>
 								<int key="NSvFlags">268</int>
 								<string key="NSFrame">{{15, 14}, {56, 25}}</string>
-								<reference key="NSSuperview"/>
 								<string key="NSReuseIdentifierKey">_NS:22</string>
 								<bool key="NSEnabled">YES</bool>
 								<object class="NSButtonCell" key="NSCell" id="325043364">
@@ -715,10 +729,9 @@
 							<string key="NSToolbarItemPaletteLabel">Filter Data</string>
 							<nil key="NSToolbarItemToolTip"/>
 							<object class="NSSegmentedControl" key="NSToolbarItemView" id="324910824">
-								<reference key="NSNextResponder"/>
+								<nil key="NSNextResponder"/>
 								<int key="NSvFlags">268</int>
 								<string key="NSFrame">{{10, 14}, {42, 28}}</string>
-								<reference key="NSSuperview"/>
 								<string key="NSReuseIdentifierKey">_NS:9</string>
 								<bool key="NSEnabled">YES</bool>
 								<object class="NSSegmentedCell" key="NSCell" id="1034694076">
@@ -767,10 +780,9 @@
 							<string key="NSToolbarItemPaletteLabel">Search</string>
 							<string key="NSToolbarItemToolTip">Search log</string>
 							<object class="NSSearchField" key="NSToolbarItemView" id="968405569">
-								<reference key="NSNextResponder"/>
+								<nil key="NSNextResponder"/>
 								<int key="NSvFlags">268</int>
 								<string key="NSFrame">{{0, 14}, {150, 22}}</string>
-								<reference key="NSSuperview"/>
 								<string key="NSReuseIdentifierKey">_NS:918</string>
 								<bool key="NSEnabled">YES</bool>
 								<object class="NSSearchFieldCell" key="NSCell" id="380091620">
@@ -857,10 +869,9 @@
 							<string key="NSToolbarItemPaletteLabel">Clear Log</string>
 							<nil key="NSToolbarItemToolTip"/>
 							<object class="NSButton" key="NSToolbarItemView" id="74607214">
-								<reference key="NSNextResponder"/>
+								<nil key="NSNextResponder"/>
 								<int key="NSvFlags">268</int>
 								<string key="NSFrame">{{0, 14}, {100, 25}}</string>
-								<reference key="NSSuperview"/>
 								<string key="NSReuseIdentifierKey">_NS:687</string>
 								<bool key="NSEnabled">YES</bool>
 								<object class="NSButtonCell" key="NSCell" id="993804070">
@@ -1618,7 +1629,6 @@
 											<string key="NSFrame">{{2, 2}, {443, 17}}</string>
 											<reference key="NSSuperview" ref="89269519"/>
 											<reference key="NSWindow"/>
-											<reference key="NSNextKeyView"/>
 											<string key="NSReuseIdentifierKey">_NS:1535</string>
 											<bool key="NSEnabled">YES</bool>
 											<object class="NSTextFieldCell" key="NSCell" id="322661613">
@@ -1688,7 +1698,6 @@
 							<string key="NSFrame">{{342, 12}, {94, 32}}</string>
 							<reference key="NSSuperview" ref="15170489"/>
 							<reference key="NSWindow"/>
-							<reference key="NSNextKeyView"/>
 							<bool key="NSEnabled">YES</bool>
 							<object class="NSButtonCell" key="NSCell" id="229962679">
 								<int key="NSCellFlags">67108864</int>
@@ -3476,6 +3485,22 @@
 					<int key="connectionID">1052</int>
 				</object>
 				<object class="IBConnectionRecord">
+					<object class="IBActionConnection" key="connection">
+						<string key="label">saveDocumentAsText:</string>
+						<reference key="source" ref="976324537"/>
+						<reference key="destination" ref="635522629"/>
+					</object>
+					<int key="connectionID">1057</int>
+				</object>
+				<object class="IBConnectionRecord">
+					<object class="IBActionConnection" key="connection">
+						<string key="label">saveDocumentVisableAsText:</string>
+						<reference key="source" ref="976324537"/>
+						<reference key="destination" ref="605888130"/>
+					</object>
+					<int key="connectionID">1058</int>
+				</object>
+				<object class="IBConnectionRecord">
 					<object class="IBOutletConnection" key="connection">
 						<string key="label">delegate</string>
 						<reference key="source" ref="832524515"/>
@@ -3587,6 +3612,8 @@
 							<reference ref="614484235"/>
 							<reference ref="445225002"/>
 							<reference ref="582044689"/>
+							<reference ref="635522629"/>
+							<reference ref="605888130"/>
 						</array>
 						<reference key="parent" ref="379814623"/>
 					</object>
@@ -4683,6 +4710,16 @@
 						<reference key="object" ref="896617870"/>
 						<reference key="parent" ref="521736620"/>
 					</object>
+					<object class="IBObjectRecord">
+						<int key="objectID">1053</int>
+						<reference key="object" ref="635522629"/>
+						<reference key="parent" ref="720053764"/>
+					</object>
+					<object class="IBObjectRecord">
+						<int key="objectID">1055</int>
+						<reference key="object" ref="605888130"/>
+						<reference key="parent" ref="720053764"/>
+					</object>
 				</array>
 			</object>
 			<dictionary class="NSMutableDictionary" key="flattenedProperties">
@@ -4709,6 +4746,8 @@
 				</object>
 				<string key="1049.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
 				<string key="1050.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
+				<string key="1053.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
+				<string key="1055.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
 				<string key="129.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
 				<string key="130.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
 				<string key="131.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
@@ -4894,7 +4933,7 @@
 			<nil key="activeLocalization"/>
 			<dictionary class="NSMutableDictionary" key="localizations"/>
 			<nil key="sourceID"/>
-			<int key="maxID">1052</int>
+			<int key="maxID">1058</int>
 		</object>
 		<object class="IBClassDescriber" key="IBDocument.Classes">
 			<array class="NSMutableArray" key="referencedPartialClassDescriptions">
@@ -4956,7 +4995,10 @@
 						<string key="cancelSheet:">id</string>
 						<string key="clearLog:">id</string>
 						<string key="closePredicateSheet:">id</string>
+						<string key="copyMessageOnly:">id</string>
+						<string key="copyPlain:">id</string>
 						<string key="exportSelectedFilters:">id</string>
+						<string key="filterBySelected:">id</string>
 						<string key="filterToolbarClicked:">NSSegmentedControl</string>
 						<string key="find:">id</string>
 						<string key="findNext:">id</string>
@@ -4970,6 +5012,9 @@
 						<string key="quickFilter:">id</string>
 						<string key="remoteScreenMonitor:">id</string>
 						<string key="restartAdb:">id</string>
+						<string key="saveDocument:">id</string>
+						<string key="saveDocumentAsText:">id</string>
+						<string key="saveDocumentVisableAsText:">id</string>
 						<string key="search:">id</string>
 						<string key="showPredicateEditor:">id</string>
 						<string key="smallerFont:">id</string>
@@ -5009,8 +5054,20 @@
 							<string key="name">closePredicateSheet:</string>
 							<string key="candidateClassName">id</string>
 						</object>
+						<object class="IBActionInfo" key="copyMessageOnly:">
+							<string key="name">copyMessageOnly:</string>
+							<string key="candidateClassName">id</string>
+						</object>
+						<object class="IBActionInfo" key="copyPlain:">
+							<string key="name">copyPlain:</string>
+							<string key="candidateClassName">id</string>
+						</object>
 						<object class="IBActionInfo" key="exportSelectedFilters:">
 							<string key="name">exportSelectedFilters:</string>
+							<string key="candidateClassName">id</string>
+						</object>
+						<object class="IBActionInfo" key="filterBySelected:">
+							<string key="name">filterBySelected:</string>
 							<string key="candidateClassName">id</string>
 						</object>
 						<object class="IBActionInfo" key="filterToolbarClicked:">
@@ -5063,6 +5120,18 @@
 						</object>
 						<object class="IBActionInfo" key="restartAdb:">
 							<string key="name">restartAdb:</string>
+							<string key="candidateClassName">id</string>
+						</object>
+						<object class="IBActionInfo" key="saveDocument:">
+							<string key="name">saveDocument:</string>
+							<string key="candidateClassName">id</string>
+						</object>
+						<object class="IBActionInfo" key="saveDocumentAsText:">
+							<string key="name">saveDocumentAsText:</string>
+							<string key="candidateClassName">id</string>
+						</object>
+						<object class="IBActionInfo" key="saveDocumentVisableAsText:">
+							<string key="name">saveDocumentVisableAsText:</string>
 							<string key="candidateClassName">id</string>
 						</object>
 						<object class="IBActionInfo" key="search:">

@@ -44,6 +44,8 @@
     __weak NSButtonCell *remoteScreenMonitorButton;
     __weak NSTextField *_statusTextField;
 }
+- (IBAction)saveDocumentAsText:(id)sender;
+- (IBAction)saveDocumentVisableAsText:(id)sender;
 
 - (IBAction)remoteScreenMonitor:(id)sender;
 - (IBAction)cancelDevicePicker:(id)sender;

@@ -256,6 +256,7 @@
     [self.logDatasource startLogger];
 }
 
+
 - (IBAction)remoteScreenMonitor:(id)sender {
 
     if (remoteScreen  == nil) {
@@ -1058,6 +1059,89 @@
         [saveDict setObject:@"1" forKey:LOG_FILE_VERSION];
         [saveDict setObject:self.logData forKey:LOG_DATA_KEY];
         [saveDict writeToURL:saveDocPath atomically:NO];
+    }
+}
+
+- (IBAction)saveDocumentAsText:(id)sender {
+    if (self.logDatasource != nil && [self.logDatasource isLogging]) {
+        NSAlert *alert = [NSAlert alertWithMessageText:@"Cannot save."
+                                         defaultButton:@"OK" alternateButton:nil
+                                           otherButton:nil
+                             informativeTextWithFormat:@"Disconnect from device and try again."];
+        [alert runModal];
+        return;
+    }
+    
+    NSSavePanel* saveDlg = [NSSavePanel savePanel];
+    NSArray* extensions = [[NSArray alloc] initWithObjects:@"log", nil];
+    [saveDlg setAllowedFileTypes:extensions];
+    
+    if ( [saveDlg runModal] == NSOKButton ) {
+        
+        NSURL*  saveDocPath = [saveDlg URL];
+        NSLog(@"saveDocumentAsText to: %@", saveDocPath);
+        
+        NSMutableString* logDataToSave = [NSMutableString stringWithCapacity:0];
+        
+        for (NSDictionary* data in [self.logDatasource eventsForPredicate:nil]) {
+            // Example:
+            //     01-25 12:19:59.739 24323 24323 D ViewRootImpl: [ViewRootImpl] action cancel - 1, s:70
+            [logDataToSave appendFormat:@"%@ ", [data valueForKey:KEY_TIME]];
+            [logDataToSave appendFormat:@"%@ ", [data valueForKey:KEY_APP]];
+            [logDataToSave appendFormat:@"%@ ", [data valueForKey:KEY_PID]];
+            [logDataToSave appendFormat:@"%@ ", [data valueForKey:KEY_TID]];
+            [logDataToSave appendFormat:@"%@ ", [data valueForKey:KEY_TYPE]];
+            [logDataToSave appendFormat:@"%@ ", [data valueForKey:KEY_NAME]];
+            [logDataToSave appendFormat:@"%@ ", [data valueForKey:KEY_TEXT]];
+            
+            
+            [logDataToSave appendFormat:@"\n"];
+        }
+        
+        
+        [logDataToSave writeToURL:saveDocPath atomically:NO encoding:NSUTF8StringEncoding error:nil];
+    }
+
+}
+
+- (IBAction)saveDocumentVisableAsText:(id)sender {
+    if (self.logDatasource != nil && [self.logDatasource isLogging]) {
+        NSAlert *alert = [NSAlert alertWithMessageText:@"Cannot save."
+                                         defaultButton:@"OK" alternateButton:nil
+                                           otherButton:nil
+                             informativeTextWithFormat:@"Disconnect from device and try again."];
+        [alert runModal];
+        return;
+    }
+    
+    NSSavePanel* saveDlg = [NSSavePanel savePanel];
+    NSArray* extensions = [[NSArray alloc] initWithObjects:@"log", nil];
+    [saveDlg setAllowedFileTypes:extensions];
+    
+    if ( [saveDlg runModal] == NSOKButton ) {
+        
+        NSURL*  saveDocPath = [saveDlg URL];
+        NSLog(@"saveDocumentVisableAsText to: %@", saveDocPath);
+        
+        NSMutableString* logDataToSave = [NSMutableString stringWithCapacity:0];
+        
+        for (NSDictionary* data in self.logData) {
+            // Example:
+            //     01-25 12:19:59.739 24323 24323 D ViewRootImpl: [ViewRootImpl] action cancel - 1, s:70
+            [logDataToSave appendFormat:@"%@ ", [data valueForKey:KEY_TIME]];
+            [logDataToSave appendFormat:@"%@ ", [data valueForKey:KEY_APP]];
+            [logDataToSave appendFormat:@"%@ ", [data valueForKey:KEY_PID]];
+            [logDataToSave appendFormat:@"%@ ", [data valueForKey:KEY_TID]];
+            [logDataToSave appendFormat:@"%@ ", [data valueForKey:KEY_TYPE]];
+            [logDataToSave appendFormat:@"%@ ", [data valueForKey:KEY_NAME]];
+            [logDataToSave appendFormat:@"%@ ", [data valueForKey:KEY_TEXT]];
+            
+            
+            [logDataToSave appendFormat:@"\n"];
+        }
+        
+        
+        [logDataToSave writeToURL:saveDocPath atomically:NO encoding:NSUTF8StringEncoding error:nil];
     }
 }
 

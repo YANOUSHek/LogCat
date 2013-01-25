@@ -29,6 +29,7 @@
 
 @interface LogCatAppDelegate () {
     CGFloat fontHeight;
+    CGFloat fontPointSize;
 }
 
 @property (strong, nonatomic) LogDatasource* logDatasource;
@@ -99,12 +100,19 @@
     colors = [NSDictionary dictionaryWithObjects:[NSArray arrayWithObjects:v, d, i, w, e, f, nil]
                                           forKeys:typeKeys];
     
-    NSFont* vfont = [[defaults objectForKey:@"logVerboseBold"] boolValue] ? BOLD_FONT : REGULAR_FONT;
-    NSFont* dfont = [[defaults objectForKey:@"logDebugBold"] boolValue] ? BOLD_FONT : REGULAR_FONT;
-    NSFont* ifont = [[defaults objectForKey:@"logInfoBold"] boolValue] ? BOLD_FONT : REGULAR_FONT;
-    NSFont* wfont = [[defaults objectForKey:@"logWarningBold"] boolValue] ? BOLD_FONT : REGULAR_FONT;
-    NSFont* efont = [[defaults objectForKey:@"logErrorBold"] boolValue] ? BOLD_FONT : REGULAR_FONT;
-    NSFont* ffont = [[defaults objectForKey:@"logFatalBold"] boolValue] ? BOLD_FONT : REGULAR_FONT;
+    
+    fontPointSize = [defaults floatForKey:FONT_SIZE_KEY];
+    if (fontPointSize == 0) {
+        NSLog(@"Will use font size 11 as default");
+        fontPointSize = 11;
+    }
+    
+    NSFont* vfont = [[defaults objectForKey:@"logVerboseBold"] boolValue] ? BOLD_FONT(fontPointSize) : REGULAR_FONT(fontPointSize);
+    NSFont* dfont = [[defaults objectForKey:@"logDebugBold"] boolValue] ? BOLD_FONT(fontPointSize) : REGULAR_FONT(fontPointSize);
+    NSFont* ifont = [[defaults objectForKey:@"logInfoBold"] boolValue] ? BOLD_FONT(fontPointSize) : REGULAR_FONT(fontPointSize);
+    NSFont* wfont = [[defaults objectForKey:@"logWarningBold"] boolValue] ? BOLD_FONT(fontPointSize) : REGULAR_FONT(fontPointSize);
+    NSFont* efont = [[defaults objectForKey:@"logErrorBold"] boolValue] ? BOLD_FONT(fontPointSize) : REGULAR_FONT(fontPointSize);
+    NSFont* ffont = [[defaults objectForKey:@"logFatalBold"] boolValue] ? BOLD_FONT(fontPointSize) : REGULAR_FONT(fontPointSize);
     
     fonts = [NSDictionary dictionaryWithObjects:[NSArray arrayWithObjects:vfont, dfont, ifont, wfont, efont, ffont, nil]
                                          forKeys:typeKeys];
@@ -737,13 +745,22 @@
     NSLog(@"biggerFont");
     NSMutableDictionary* scratchFonts = [NSMutableDictionary dictionary];
     
+    fontPointSize += 1;
+    if (fontPointSize > 30) {
+        fontPointSize = 11;
+    }
+    NSUserDefaults* defaults = [NSUserDefaults standardUserDefaults];
+    [defaults setFloat:fontPointSize forKey:FONT_SIZE_KEY];
+    
     NSArray* keys = [fonts allKeys];
     for (NSString* key in keys) {
         NSFont* font = [fonts objectForKey:key];
-        NSFont* newFont = [[NSFontManager sharedFontManager] convertFont:font toSize:[font pointSize] + 1];
+        NSFont* newFont = [[NSFontManager sharedFontManager] convertFont:font toSize:fontPointSize];
         [scratchFonts setObject:newFont forKey:key];
     }
+
     
+        
     fonts = scratchFonts;
     
     [self.logDataTable reloadData];
@@ -753,10 +770,17 @@
     NSLog(@"smallerFont");
     NSMutableDictionary* scratchFonts = [NSMutableDictionary dictionary];
     
+    fontPointSize -= 1;
+    if (fontPointSize < 1) {
+        fontPointSize = 11;
+    }
+    NSUserDefaults* defaults = [NSUserDefaults standardUserDefaults];
+    [defaults setFloat:fontPointSize forKey:FONT_SIZE_KEY];
+    
     NSArray* keys = [fonts allKeys];
     for (NSString* key in keys) {
         NSFont* font = [fonts objectForKey:key];
-        NSFont* newFont = [[NSFontManager sharedFontManager] convertFont:font toSize:[font pointSize] - 1];
+        NSFont* newFont = [[NSFontManager sharedFontManager] convertFont:font toSize:fontPointSize];
         [scratchFonts setObject:newFont forKey:key];
     }
     

@@ -6,6 +6,7 @@
     #import <Cocoa/Cocoa.h>
 #endif
 
+#define KEY_IDX @"idx"
 #define KEY_TIME @"time"
 #define KEY_APP @"app"
 #define KEY_PID @"pid"

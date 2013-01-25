@@ -49,8 +49,8 @@
 - (void) onLogUpdated;
 - (void) onLoggerStarted;
 - (void) onLoggerStopped;
-
 - (NSArray*) argumentsForDevice: (NSArray*) args;
+- (NSNumber*) getIndex;
 
 @end
 
@@ -82,7 +82,7 @@
         self.pidMap = [NSMutableDictionary dictionary];
         self.logData = [NSMutableArray arrayWithCapacity:0];
         self.text = [NSMutableString stringWithCapacity:0];
-        self.keysArray = [NSArray arrayWithObjects: KEY_TIME, KEY_APP, KEY_PID, KEY_TID, KEY_TYPE, KEY_NAME, KEY_TEXT, nil];
+        self.keysArray = [NSArray arrayWithObjects: KEY_IDX, KEY_TIME, KEY_APP, KEY_PID, KEY_TID, KEY_TYPE, KEY_NAME, KEY_TEXT, nil];
         isLogging = NO;
         self.previousString = nil;
         self.counter = 0;
@@ -621,10 +621,18 @@
     }
 
     //time, app, pid, tid, type, name, text, 
-    NSArray* values = [NSArray arrayWithObjects: fullTimeVal, appVal, pidVal, tidVal, logLevelVal, tagVal, msgVal, nil];
+    NSArray* values = [NSArray arrayWithObjects: [self getIndex], fullTimeVal, appVal, pidVal, tidVal, logLevelVal, tagVal, msgVal, nil];
     NSDictionary* row = [NSDictionary dictionaryWithObjects:values forKeys:self.keysArray];
     [self appendRow:row];
 
+}
+
+- (NSNumber*) getIndex {
+    if (self.logData == nil || [self.logData count] == 0) {
+        return [NSNumber numberWithInt:0];
+    }
+    
+    return [NSNumber numberWithUnsignedLong:[self.logData count]];
 }
 
 
@@ -710,18 +718,16 @@
                     if ([lineOfText length] == 0) {
                         continue;
                     }
-                    NSArray* values = [NSArray arrayWithObjects: self.time, self.app, self.pid, self.tid, self.type, self.name, lineOfText, nil];
-                    NSDictionary* row = [NSDictionary dictionaryWithObjects:values
-                                                                    forKeys:self.keysArray];
+                    NSArray* values = [NSArray arrayWithObjects: [self getIndex], self.time, self.app, self.pid, self.tid, self.type, self.name, lineOfText, nil];
+                    NSDictionary* row = [NSDictionary dictionaryWithObjects:values forKeys:self.keysArray];
                     
                     [self appendRow:row];
                 }
             } else {
                 // NSLog(@"xxx--- 4 text: %@", text);
                 
-                NSArray* values = [NSArray arrayWithObjects: self.time, self.app, self.pid, self.tid, self.type, self.name, self.text, nil];
-                NSDictionary* row = [NSDictionary dictionaryWithObjects:values
-                                                                forKeys:self.keysArray];
+                NSArray* values = [NSArray arrayWithObjects:[self getIndex] ,self.time, self.app, self.pid, self.tid, self.type, self.name, self.text, nil];
+                NSDictionary* row = [NSDictionary dictionaryWithObjects:values forKeys:self.keysArray];
                 [self appendRow:row];                
             }
             
@@ -762,7 +768,7 @@
 }
 
 - (void) logMessage: (NSString*) message {
-    NSArray* values = [NSArray arrayWithObjects: @"----", @"LogCat", @"---", @"---", @"I", @"---", message, nil];
+    NSArray* values = [NSArray arrayWithObjects:[self getIndex], @"----", @"LogCat", @"---", @"---", @"I", @"---", message, nil];
     NSDictionary* row = [NSDictionary dictionaryWithObjects:values
                                                     forKeys:self.keysArray];
     

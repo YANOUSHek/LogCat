@@ -244,7 +244,6 @@
 - (void)startAdb {
     [self.window makeKeyAndOrderFront:self];
     [self.logDatasource startLogger];
-
 }
 
 - (IBAction)remoteScreenMonitor:(id)sender {
@@ -323,6 +322,18 @@
     }
 }
 
+- (CGFloat)tableView:(NSTableView *)tableView heightOfRow:(NSInteger)row {
+    if (tableView == self.logDataTable) {
+        NSDictionary* data = [self.logData objectAtIndex: row];
+        NSString* rowType = [data objectForKey:KEY_TYPE];
+        NSFont* font = [fonts objectForKey:rowType];
+                
+        return [font pointSize]*1.5;
+    }
+    return [tableView rowHeight];
+}
+
+
 - (NSCell *)tableView:(NSTableView *)tableView dataCellForTableColumn:(NSTableColumn *)tableColumn row:(NSInteger)rowIndex {
     if (tableView == self.filterListTable) {        
         return [tableColumn dataCell];
@@ -335,9 +346,11 @@
     rowType = [data objectForKey:KEY_TYPE];
     NSIndexSet *selection = [tableView selectedRowIndexes];
     if ([selection containsIndex:rowIndex]) {
+        NSFont* font = [fonts objectForKey:rowType];
+        
         // Make selected cell text selected color so it is easier to read
         [aCell setTextColor:[NSColor selectedControlTextColor]];
-        [aCell setFont:[NSFont boldSystemFontOfSize:12]];
+        [aCell setFont:[NSFont boldSystemFontOfSize:[font pointSize]]];
         
     } else {
         [aCell setTextColor:[colors objectForKey:rowType]];
@@ -507,7 +520,7 @@
 }
 
 - (IBAction)quickFilter:(id)sender {
-    NSLog(@"TODO: quick filter %@", sender);
+    NSLog(@"quick filter %@", sender);    
     [self applySelectedFilters];
 }
 

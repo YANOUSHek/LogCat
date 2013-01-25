@@ -28,7 +28,7 @@
 #define DEFAULT_PREDICATE @"(app ==[cd] 'YOUR_APP_NAME') AND ((type ==[cd] 'E') OR (type ==[cd] 'W'))"
 
 @interface LogCatAppDelegate () {
-    
+    CGFloat fontHeight;
 }
 
 @property (strong, nonatomic) LogDatasource* logDatasource;
@@ -108,6 +108,8 @@
     
     fonts = [NSDictionary dictionaryWithObjects:[NSArray arrayWithObjects:vfont, dfont, ifont, wfont, efont, ffont, nil]
                                          forKeys:typeKeys];
+    
+    fontHeight = [vfont pointSize]*1.5;
     
     // Load User Defined Filters
     filters = [NSMutableDictionary new];
@@ -283,9 +285,11 @@
 - (void)myBoundsChangeNotificationHandler:(NSNotification *)aNotification {
     if ([aNotification object] == [[self.logDataTable enclosingScrollView] contentView]) {
         NSRect visibleRect = [[[self.logDataTable enclosingScrollView] contentView] visibleRect];
-        float maxy = 0;
-        maxy = [self.logData count] * 19;
-        if (visibleRect.origin.y + visibleRect.size.height >= maxy) {
+        float maxy = ([self.logData count] * (fontHeight)) - (fontHeight * 10);
+        float location = (visibleRect.origin.y + visibleRect.size.height);
+//        NSLog(@"loc : %f", location);
+//        NSLog(@"maxy: %f", maxy);
+        if (location > maxy) {
             scrollToBottom = YES;
         } else {
             scrollToBottom = NO;
@@ -327,8 +331,9 @@
         NSDictionary* data = [self.logData objectAtIndex: row];
         NSString* rowType = [data objectForKey:KEY_TYPE];
         NSFont* font = [fonts objectForKey:rowType];
-                
-        return [font pointSize]*1.5;
+        fontHeight = [font pointSize]*1.5;
+//        NSLog(@"Height: %f", height);
+        return fontHeight; //
     }
     return [tableView rowHeight];
 }

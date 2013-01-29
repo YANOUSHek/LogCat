@@ -55,7 +55,7 @@
 }
 
 - (void) fetchDevices {
-    NSArray *arguments = [NSArray arrayWithObjects: @"devices", nil];
+    NSArray *arguments = @[@"devices"];
     
     NSTask *task = [AdbTaskHelper adbTask: arguments];
     
@@ -104,8 +104,8 @@
         NSLog(@"Device: %@", args);
         NSMutableDictionary* deviceInfo = [NSMutableDictionary dictionaryWithCapacity:2];
                 
-        [deviceInfo setValue:[args objectAtIndex:0] forKey:DEVICE_ID_KEY];
-        [deviceInfo setValue:[args objectAtIndex:1] forKey:DEVICE_TYPE_KEY];
+        [deviceInfo setValue:args[0] forKey:DEVICE_ID_KEY];
+        [deviceInfo setValue:args[1] forKey:DEVICE_TYPE_KEY];
         
         [self.deviceList addObject:deviceInfo];
         
@@ -127,7 +127,7 @@
     // adb shell cat /system/build.prop
     //ro.product.model=SAMSUNG-SGH-I747
 
-    NSArray *arguments = [NSArray arrayWithObjects: @"-s", deviceId, @"shell", @"cat", @"/system/build.prop", nil];
+    NSArray *arguments = @[@"-s", deviceId, @"shell", @"cat", @"/system/build.prop"];
     
     NSTask *task = [AdbTaskHelper adbTask: arguments];
     
@@ -155,15 +155,15 @@
     for (NSString* line in lines) {
         if ([line hasPrefix:@"ro.product.model="]) {
             NSString* model = [line substringFromIndex:17];
-            [self onDeviceModel:deviceId :model];
+            [self onDeviceModel:deviceId model:model];
         }
     }
     
 }
 
-- (void) onDeviceModel: (NSString*) deviceId: (NSString*) model {
+- (void) onDeviceModel: (NSString*) deviceId model:(NSString*) model {
     if (delegate != nil) {
-        [delegate  onDeviceModel: deviceId: model];
+        [delegate  onDeviceModel: deviceId model: model];
     } else {
         NSLog(@"DeviceListDatasource delegate was nil.");
     }

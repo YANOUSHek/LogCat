@@ -124,7 +124,7 @@
  */
 - (void) loadDeviceConfiguration {
     
-    NSArray *arguments = [NSArray arrayWithObjects: @"shell", @"ioctl", @"-rl", @"28", @"/dev/graphics/fb0", @"17920", nil];
+    NSArray *arguments = @[@"shell", @"ioctl", @"-rl", @"28", @"/dev/graphics/fb0", @"17920"];
     
     NSTask *task = [AdbTaskHelper adbTask: [self argumentsForDevice:arguments]];
     
@@ -202,7 +202,7 @@
     [self doScreenshot];
     
     
-    NSArray *arguments = [NSArray arrayWithObjects: @"pull", SCREEN_CAP_FILE, @"/tmp/logcat.png", nil];
+    NSArray *arguments = @[@"pull", SCREEN_CAP_FILE, @"/tmp/logcat.png"];
     
     NSTask *task = [AdbTaskHelper adbTask: [self argumentsForDevice:arguments]];
     
@@ -244,33 +244,37 @@
 }
 
 - (void) doScreenshot {
-    NSArray *arguments = [NSArray arrayWithObjects: @"shell", @"/system/bin/screencap", @"-p", SCREEN_CAP_FILE, nil];
+    NSArray *arguments = @[@"shell", @"/system/bin/screencap", @"-p", SCREEN_CAP_FILE];
+    @try {
     
-    NSTask *task = [AdbTaskHelper adbTask: [self argumentsForDevice:arguments]];
-    
-    NSPipe *pipe;
-    pipe = [NSPipe pipe];
-    [task setStandardOutput: pipe];
-    [task setStandardError:pipe];
-    [task setStandardInput:[NSPipe pipe]];
-    
-    NSFileHandle *file;
-    file = [pipe fileHandleForReading];
-    
-    [task launch];
-    
-    NSMutableData *readData = [[NSMutableData alloc] init];
-    
-    NSData *data = nil;
-    while ((data = [file availableData]) && [data length]) {
-        [readData appendData:data];
+        NSTask *task = [AdbTaskHelper adbTask: [self argumentsForDevice:arguments]];
+        
+        NSPipe *pipe;
+        pipe = [NSPipe pipe];
+        [task setStandardOutput: pipe];
+        [task setStandardError:pipe];
+        [task setStandardInput:[NSPipe pipe]];
+        
+        NSFileHandle *file;
+        file = [pipe fileHandleForReading];
+        
+        [task launch];
+        
+        NSMutableData *readData = [[NSMutableData alloc] init];
+        
+        NSData *data = nil;
+        while ((data = [file availableData]) && [data length]) {
+            [readData appendData:data];
+        }
+        
+        // Just assume it worked and we will find out when we try to pull the file
+        NSString *string;
+        string = [[NSString alloc] initWithData: readData encoding: NSUTF8StringEncoding];
+        
+        NSLog(@"screen shot result: %@", string);
+    } @catch(NSException* ex) {
+        NSLog(@"Failed to get screen capture from device because %@", ex);
     }
-    
-    // Just assume it worked and we will find out when we try to pull the file
-    NSString *string;
-    string = [[NSString alloc] initWithData: readData encoding: NSUTF8StringEncoding];
-    
-    NSLog(@"screen shot result: %@", string);
 }
 
 
@@ -281,7 +285,7 @@
     // TODO: Need better naming once we support multi-device
     [fileManager removeItemAtPath:@"/tmp/logcat.fb0" error:NULL];
     
-    NSArray *arguments = [NSArray arrayWithObjects: @"pull", @"/dev/graphics/fb0", @"/tmp/logcat.fb0", nil];
+    NSArray *arguments = @[@"pull", @"/dev/graphics/fb0", @"/tmp/logcat.fb0"];
     
     NSTask *task = [AdbTaskHelper adbTask: [self argumentsForDevice:arguments]];
     
@@ -335,7 +339,7 @@
 
 - (void) updateImage: (NSImage*) image {
     if (self.delegate != nil) {
-        [self.delegate onScreenUpdate:@"TODO:" :image];
+        [self.delegate onScreenUpdate:@"TODO:" screen:image];
     }
 }
 

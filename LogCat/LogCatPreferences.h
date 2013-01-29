@@ -19,8 +19,6 @@
 
 - (IBAction)browseForADB:(id)sender;
 - (IBAction)fontChanged:(id)sender;
-- (IBAction)browseForADB:(id)sender;
-
 
 
 @end

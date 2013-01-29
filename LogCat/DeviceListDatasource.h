@@ -14,7 +14,7 @@
 
 - (void) onDevicesConneceted: (NSArray*) devices;
 
-- (void) onDeviceModel: (NSString*) deviceId: (NSString*) model;
+- (void) onDeviceModel: (NSString*) deviceId model:(NSString*) model;
 
 @end
 

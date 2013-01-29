@@ -157,7 +157,7 @@ uint32_t RemapColor(uint32_t value) {
 	uint32_t *src;
 	uint32_t *dest;
 	
-	NSInteger dstRowBytes;
+//	NSInteger dstRowBytes;
     
 	NSBitmapImageRep* bitmap = [[NSBitmapImageRep alloc]
                                 initWithBitmapDataPlanes: nil
@@ -174,7 +174,7 @@ uint32_t RemapColor(uint32_t value) {
 	src = (uint32_t *) (data);
 	dest = (uint32_t *) [bitmap bitmapData];
     
-	dstRowBytes = [bitmap bytesPerRow];
+//	dstRowBytes = [bitmap bytesPerRow];
     
 	int i, end = width * height;
     

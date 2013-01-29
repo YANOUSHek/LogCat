@@ -69,7 +69,7 @@
     NSLog(@"TODO: refresh screen");
 }
 
-- (void) onScreenUpdate: (NSString*) deviceId: (NSImage*) screen {
+- (void) onScreenUpdate: (NSString*) deviceId screen:(NSImage*) screen {
     [[self screenImage] setImage:screen];
     
 }
@@ -101,7 +101,7 @@
     if (image != nil) {
         NSPasteboard *pasteboard = [NSPasteboard generalPasteboard];
         [pasteboard clearContents];
-        NSArray *copiedObjects = [NSArray arrayWithObject:image];
+        NSArray *copiedObjects = @[image];
         [pasteboard writeObjects:copiedObjects];
     }
 }

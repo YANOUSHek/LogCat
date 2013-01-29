@@ -70,19 +70,19 @@
 - (void)registerDefaults {
     NSUserDefaults* defaults = [NSUserDefaults standardUserDefaults];
     NSMutableDictionary* s = [NSMutableDictionary dictionary];
-    [s setObject:[NSNumber numberWithInt:0] forKey:@"logVerboseBold"];
-    [s setObject:[NSNumber numberWithInt:0] forKey:@"logDebugBold"];
-    [s setObject:[NSNumber numberWithInt:0] forKey:@"logInfoBold"];
-    [s setObject:[NSNumber numberWithInt:0] forKey:@"logWarningBold"];
-    [s setObject:[NSNumber numberWithInt:0] forKey:@"logErrorBold"];
-    [s setObject:[NSNumber numberWithInt:1] forKey:@"logFatalBold"];
-    [s setObject:[NSArchiver archivedDataWithRootObject:[NSColor blueColor]] forKey:@"logVerboseColor"];
-    [s setObject:[NSArchiver archivedDataWithRootObject:[NSColor blackColor]] forKey:@"logDebugColor"];
-    [s setObject:[NSArchiver archivedDataWithRootObject:DARK_GREEN_COLOR] forKey:@"logInfoColor"];
+    s[@"logVerboseBold"] = @0;
+    s[@"logDebugBold"] = @0;
+    s[@"logInfoBold"] = @0;
+    s[@"logWarningBold"] = @0;
+    s[@"logErrorBold"] = @0;
+    s[@"logFatalBold"] = @1;
+    s[@"logVerboseColor"] = [NSArchiver archivedDataWithRootObject:[NSColor blueColor]];
+    s[@"logDebugColor"] = [NSArchiver archivedDataWithRootObject:[NSColor blackColor]];
+    s[@"logInfoColor"] = [NSArchiver archivedDataWithRootObject:DARK_GREEN_COLOR];
     
-    [s setObject:[NSArchiver archivedDataWithRootObject:[NSColor orangeColor]] forKey:@"logWarningColor"];
-    [s setObject:[NSArchiver archivedDataWithRootObject:[NSColor redColor]] forKey:@"logErrorColor"];
-    [s setObject:[NSArchiver archivedDataWithRootObject:[NSColor redColor]] forKey:@"logFatalColor"];
+    s[@"logWarningColor"] = [NSArchiver archivedDataWithRootObject:[NSColor orangeColor]];
+    s[@"logErrorColor"] = [NSArchiver archivedDataWithRootObject:[NSColor redColor]];
+    s[@"logFatalColor"] = [NSArchiver archivedDataWithRootObject:[NSColor redColor]];
     [defaults registerDefaults:s];
 }
 
@@ -95,9 +95,9 @@
     NSColor* e = [NSUnarchiver unarchiveObjectWithData:[defaults objectForKey:@"logErrorColor"]];
     NSColor* f = [NSUnarchiver unarchiveObjectWithData:[defaults objectForKey:@"logFatalColor"]];
     
-    NSArray* typeKeys = [NSArray arrayWithObjects:@"V", @"D", @"I", @"W", @"E", @"F", nil];
+    NSArray* typeKeys = @[@"V", @"D", @"I", @"W", @"E", @"F"];
     
-    colors = [NSDictionary dictionaryWithObjects:[NSArray arrayWithObjects:v, d, i, w, e, f, nil]
+    colors = [NSDictionary dictionaryWithObjects:@[v, d, i, w, e, f]
                                           forKeys:typeKeys];
     
     
@@ -114,7 +114,7 @@
     NSFont* efont = [[defaults objectForKey:@"logErrorBold"] boolValue] ? BOLD_FONT(fontPointSize) : REGULAR_FONT(fontPointSize);
     NSFont* ffont = [[defaults objectForKey:@"logFatalBold"] boolValue] ? BOLD_FONT(fontPointSize) : REGULAR_FONT(fontPointSize);
     
-    fonts = [NSDictionary dictionaryWithObjects:[NSArray arrayWithObjects:vfont, dfont, ifont, wfont, efont, ffont, nil]
+    fonts = [NSDictionary dictionaryWithObjects:@[vfont, dfont, ifont, wfont, efont, ffont]
                                          forKeys:typeKeys];
     
     fontHeight = [vfont pointSize]*1.5;
@@ -123,34 +123,31 @@
     filters = [NSMutableDictionary new];
     NSDictionary* loadedFilters = [[NSUserDefaults standardUserDefaults] valueForKey:KEY_PREFS_FILTERS];
     if (loadedFilters == nil) {
-        NSArray* keys = [NSArray arrayWithObjects:
-                         @"LogLevel Verbose",
+        NSArray* keys = @[@"LogLevel Verbose",
                          @"LogLevel Info",
                          @"LogLevel Debug",
                          @"LogLevel Warn",
-                         @"LogLevel Error", nil];
+                         @"LogLevel Error"];
         
-        NSArray* logLevels = [NSArray arrayWithObjects:
-                 @"type ==[cd] 'V' OR type ==[cd] 'I' OR type ==[cd] 'W' OR type ==[cd] 'E' OR type ==[cd] 'F' OR type ==[cd] 'A'",
+        NSArray* logLevels = @[@"type ==[cd] 'V' OR type ==[cd] 'I' OR type ==[cd] 'W' OR type ==[cd] 'E' OR type ==[cd] 'F' OR type ==[cd] 'A'",
                  @"type ==[cd] 'I' OR type ==[cd] 'W' OR type ==[cd] 'E' OR type ==[cd] 'F' OR type ==[cd] 'A'",
                  @"type ==[cd] 'D' OR type ==[cd] 'I' OR type ==[cd] 'W' OR type ==[cd] 'E' OR type ==[cd] 'F' OR type ==[cd] 'A'",
                  @"type ==[cd] 'W' OR type CONTAINS[cd] 'E' OR type ==[cd] 'F'",
-                 @"type ==[cd] 'E' OR type ==[cd] 'F' OR type ==[cd] 'A'",
-                 nil];
+                 @"type ==[cd] 'E' OR type ==[cd] 'F' OR type ==[cd] 'A'"];
 
         for(int i = 0; i < [keys count]; i++) {
-            NSString* key = [keys objectAtIndex:i];
-            NSString* value = [logLevels objectAtIndex:i];
+            NSString* key = keys[i];
+            NSString* value = logLevels[i];
             
             NSPredicate* savePredicate = [NSPredicate predicateWithFormat:value];
-            [filters setObject:savePredicate forKey:key];
+            filters[key] = savePredicate;
         }
         
     } else {
         NSArray *sortedKeys = [[loadedFilters allKeys] sortedArrayUsingSelector: @selector(caseInsensitiveCompare:)];
         for (NSString* key in sortedKeys) {
-            NSPredicate* savePredicate = [NSPredicate predicateWithFormat:[loadedFilters objectForKey:key]];
-            [filters setObject:savePredicate forKey:key];
+            NSPredicate* savePredicate = [NSPredicate predicateWithFormat:loadedFilters[key]];
+            filters[key] = savePredicate;
         }
     }
     
@@ -324,22 +321,22 @@
 - (id)tableView:(NSTableView *)aTableView objectValueForTableColumn:(NSTableColumn *)aTableColumn row:(NSInteger)rowIndex {
     if (aTableView == self.logDataTable) {
         NSDictionary* row;
-        row = [self.logData objectAtIndex: rowIndex];
-        return [row objectForKey:[aTableColumn identifier]];
+        row = (self.logData)[rowIndex];
+        return row[[aTableColumn identifier]];
     }
     if (rowIndex == 0) {
         return @"All messages";
     } else {
         NSArray *sortedKeys = [[filters allKeys] sortedArrayUsingSelector: @selector(caseInsensitiveCompare:)];
-        return [sortedKeys objectAtIndex:rowIndex-1];
+        return sortedKeys[rowIndex-1];
     }
 }
 
 - (CGFloat)tableView:(NSTableView *)tableView heightOfRow:(NSInteger)row {
     if (tableView == self.logDataTable) {
-        NSDictionary* data = [self.logData objectAtIndex: row];
-        NSString* rowType = [data objectForKey:KEY_TYPE];
-        NSFont* font = [fonts objectForKey:rowType];
+        NSDictionary* data = (self.logData)[row];
+        NSString* rowType = data[KEY_TYPE];
+        NSFont* font = fonts[rowType];
         fontHeight = [font pointSize]*1.5;
 //        NSLog(@"Height: %f", height);
         return fontHeight; //
@@ -355,20 +352,20 @@
 
     NSTextFieldCell *aCell = [tableColumn dataCell];
     NSString* rowType;
-    NSDictionary* data = [self.logData objectAtIndex: rowIndex];
+    NSDictionary* data = (self.logData)[rowIndex];
 
-    rowType = [data objectForKey:KEY_TYPE];
+    rowType = data[KEY_TYPE];
     NSIndexSet *selection = [tableView selectedRowIndexes];
     if ([selection containsIndex:rowIndex]) {
-        NSFont* font = [fonts objectForKey:rowType];
+        NSFont* font = fonts[rowType];
         
         // Make selected cell text selected color so it is easier to read
         [aCell setTextColor:[NSColor selectedControlTextColor]];
         [aCell setFont:[NSFont boldSystemFontOfSize:[font pointSize]]];
         
     } else {
-        [aCell setTextColor:[colors objectForKey:rowType]];
-        [aCell setFont:[fonts objectForKey:rowType]];
+        [aCell setTextColor:colors[rowType]];
+        [aCell setFont:fonts[rowType]];
         
     }
     return aCell;
@@ -402,7 +399,7 @@
         self.findIndex += direction;
         searchedRows++;
         self.findIndex = (self.findIndex%[self.logData count]);
-        NSDictionary* logEvent = [self.logData objectAtIndex: self.findIndex ];
+        NSDictionary* logEvent = (self.logData)[self.findIndex];
         NSString* stringToSearch = [NSString stringWithFormat:@"%@ %@ %@ %@ %@ %@",
                                     [logEvent valueForKey:KEY_APP],
                                     [logEvent valueForKey:KEY_TEXT],
@@ -501,14 +498,14 @@
         NSIndexSet* selectedIndexes = [self.filterListTable selectedRowIndexes];
         if ([selectedIndexes count] == 1) {
             NSUInteger index = [selectedIndexes firstIndex];
-            NSString* key = [sortedKeys objectAtIndex:index-1];
-            [predicates addObject:[filters objectForKey:key]];
+            NSString* key = sortedKeys[index-1];
+            [predicates addObject:filters[key]];
         } else {
 
             NSUInteger index = [selectedIndexes firstIndex];
             while (index != NSNotFound) {
-                NSString* key = [sortedKeys objectAtIndex: (index-1) ];
-                [predicates addObject:[filters objectForKey:key]];
+                NSString* key = sortedKeys[(index-1)];
+                [predicates addObject:filters[key]];
                 index = [selectedIndexes indexGreaterThanIndex:index];
             }
         }
@@ -541,13 +538,13 @@
 - (IBAction)addFilter {
     NSString* unamedFilter = @"unamed";
     
-    NSPredicate* filter = [filters objectForKey:unamedFilter];
+    NSPredicate* filter = filters[unamedFilter];
     if (filter != nil) {
         NSUInteger unamedCounter = 0;
         while (filter != nil) {
             // Find a filter name that has not been used yet
             unamedFilter = [NSString stringWithFormat:@"unamed_%ld", unamedCounter];
-            filter = [filters objectForKey:unamedFilter];
+            filter = filters[unamedFilter];
         }
     }
     
@@ -574,7 +571,7 @@
     }
     
     NSArray *sortedKeys = [[filters allKeys] sortedArrayUsingSelector: @selector(caseInsensitiveCompare:)];
-    NSString* sortKey = [sortedKeys objectAtIndex:selectedIndex];
+    NSString* sortKey = sortedKeys[selectedIndex];
 
     // This is a destructive action. Give user a chance to back out.
     NSAlert *alert = [NSAlert alertWithMessageText:@"Delete Filter?"
@@ -604,7 +601,7 @@
 - (IBAction)clearLog:(id)sender {
     self.loadedLogData = nil;
     [self.logDatasource clearLog];
-    self.logData = [NSArray array];
+    self.logData = @[];
     
     [[self logDataTable] reloadData];
 }
@@ -658,7 +655,7 @@
     NSString *path = @"/usr/bin/open";
     [task setLaunchPath:path];
     
-    NSArray* arguments = [NSArray arrayWithObjects: @"-n", [mainBundle bundlePath], nil];
+    NSArray* arguments = @[@"-n", [mainBundle bundlePath]];
     [task setArguments: arguments];
     [task launch];
 
@@ -674,7 +671,7 @@
     
     NSInteger index = [[sheetDevicePicker deviceButton] indexOfSelectedItem];
     
-    NSDictionary* device = [[sheetDevicePicker devices] objectAtIndex:index];
+    NSDictionary* device = [sheetDevicePicker devices][index];
     if (device != nil) {
         [self.logDatasource setDeviceId:[device valueForKey:DEVICE_ID_KEY]];
         [[self window] setTitle:[[sheetDevicePicker deviceButton] titleOfSelectedItem]];
@@ -720,9 +717,9 @@
             continue;
         }
         
-        NSString* key = [sortedKeys objectAtIndex:currentIndex-1];
-        NSPredicate* aPredicate = [filters objectForKey:key];
-        [dataToExport setObject:[aPredicate predicateFormat] forKey:key];
+        NSString* key = sortedKeys[currentIndex-1];
+        NSPredicate* aPredicate = filters[key];
+        dataToExport[key] = [aPredicate predicateFormat];
         
         // Next Index
         currentIndex = [selectedRows indexGreaterThanIndex: currentIndex];
@@ -730,7 +727,7 @@
     }
     
     NSSavePanel* saveDlg = [NSSavePanel savePanel];
-    NSArray* extensions = [[NSArray alloc] initWithObjects:@"filters", nil];
+    NSArray* extensions = @[@"filters"];
     [saveDlg setAllowedFileTypes:extensions];
     
     if ( [saveDlg runModal] == NSOKButton ) {
@@ -755,9 +752,9 @@
     
     NSArray* keys = [fonts allKeys];
     for (NSString* key in keys) {
-        NSFont* font = [fonts objectForKey:key];
+        NSFont* font = fonts[key];
         NSFont* newFont = [[NSFontManager sharedFontManager] convertFont:font toSize:fontPointSize];
-        [scratchFonts setObject:newFont forKey:key];
+        scratchFonts[key] = newFont;
     }
 
     
@@ -780,9 +777,9 @@
     
     NSArray* keys = [fonts allKeys];
     for (NSString* key in keys) {
-        NSFont* font = [fonts objectForKey:key];
+        NSFont* font = fonts[key];
         NSFont* newFont = [[NSFontManager sharedFontManager] convertFont:font toSize:fontPointSize];
-        [scratchFonts setObject:newFont forKey:key];
+        scratchFonts[key] = newFont;
     }
     
     fonts = scratchFonts;
@@ -816,8 +813,8 @@
     NSArray *sortedKeys = [[filters allKeys] sortedArrayUsingSelector: @selector(caseInsensitiveCompare:)];
     NSInteger selected = [self.filterListTable rightClickedRow]-1;
     
-    NSString* key = [sortedKeys objectAtIndex:selected];
-    NSPredicate* savedPredicate = [filters objectForKey:key];
+    NSString* key = sortedKeys[selected];
+    NSPredicate* savedPredicate = filters[key];
     [self.predicateEditor setObjectValue:savedPredicate];
     [self.savePredicateName setStringValue:key];
     
@@ -835,7 +832,7 @@
 - (IBAction)filterBySelected:(id)sender {
     NSLog(@"filterBySelected: %ld, %ld [%@]", [self.logDataTable rightClickedColumn], [self.logDataTable rightClickedRow], sender);
 
-    NSTableColumn* aColumn = [[self.logDataTable tableColumns] objectAtIndex:[self.logDataTable rightClickedColumn]];
+    NSTableColumn* aColumn = [self.logDataTable tableColumns][[self.logDataTable rightClickedColumn]];
     NSDictionary* rowDetails = [self dataForRow: [self.logDataTable rightClickedRow]];
 
     NSString* columnName = [[aColumn headerCell] title];
@@ -883,7 +880,7 @@
 }
 
 - (NSDictionary*) dataForRow: (NSUInteger) rowIndex {
-    NSDictionary* rowDetails = [self.logData objectAtIndex:rowIndex];
+    NSDictionary* rowDetails = (self.logData)[rowIndex];
 
     return rowDetails;
 }
@@ -917,17 +914,17 @@
             
             if (messageOnly) {
                 [rowType appendFormat:@"%@",
-                         [rowDetails objectForKey:KEY_TEXT]];
+                         rowDetails[KEY_TEXT]];
                 
             } else {
                 [rowType appendFormat:@"%@\t%@\t%@\t%@\t%@\t%@\t%@",
-                 [rowDetails objectForKey:KEY_TIME],
-                 [rowDetails objectForKey:KEY_APP],
-                 [rowDetails objectForKey:KEY_PID],
-                 [rowDetails objectForKey:KEY_TID],
-                 [rowDetails objectForKey:KEY_TYPE],
-                 [rowDetails objectForKey:KEY_NAME],
-                 [rowDetails objectForKey:KEY_TEXT]];
+                 rowDetails[KEY_TIME],
+                 rowDetails[KEY_APP],
+                 rowDetails[KEY_PID],
+                 rowDetails[KEY_TID],
+                 rowDetails[KEY_TYPE],
+                 rowDetails[KEY_NAME],
+                 rowDetails[KEY_TEXT]];
             }
             
             NSString* value = rowType;
@@ -957,7 +954,7 @@
     NSLog(@"Connected Devices: %@", devices);
     
     if ([devices count] == 1) {
-        NSDictionary* device = [devices objectAtIndex:0];
+        NSDictionary* device = devices[0];
         if (device != nil) {
             [self.logDatasource setDeviceId:[device valueForKey:DEVICE_ID_KEY]];
             //[[self window] setTitle:[device objectForKey:@"id"]];
@@ -985,7 +982,7 @@
     [devicePicker addItemsWithTitles:titles];    
 }
 
-- (void) onDeviceModel: (NSString*) deviceId: (NSString*) model {
+- (void) onDeviceModel: (NSString*) deviceId model:(NSString*) model {
     NSLog(@"DeviceID: %@, Model: %@", deviceId, model);
     [[self window] setTitle:[NSString stringWithFormat:@"%@ - %@", model, deviceId]];
 }
@@ -1047,7 +1044,7 @@
     }
     
     NSSavePanel* saveDlg = [NSSavePanel savePanel];
-    NSArray* extensions = [[NSArray alloc] initWithObjects:@"logcat", nil];
+    NSArray* extensions = @[@"logcat"];
     [saveDlg setAllowedFileTypes:extensions];
     
     if ( [saveDlg runModal] == NSOKButton ) {
@@ -1056,8 +1053,8 @@
         NSLog(@"Save document to: %@", saveDocPath);
         
         NSMutableDictionary* saveDict = [NSMutableDictionary dictionaryWithCapacity:1];
-        [saveDict setObject:@"1" forKey:LOG_FILE_VERSION];
-        [saveDict setObject:self.logData forKey:LOG_DATA_KEY];
+        saveDict[LOG_FILE_VERSION] = @"1";
+        saveDict[LOG_DATA_KEY] = self.logData;
         [saveDict writeToURL:saveDocPath atomically:NO];
     }
 }
@@ -1073,7 +1070,7 @@
     }
     
     NSSavePanel* saveDlg = [NSSavePanel savePanel];
-    NSArray* extensions = [[NSArray alloc] initWithObjects:@"log", nil];
+    NSArray* extensions = @[@"log"];
     [saveDlg setAllowedFileTypes:extensions];
     
     if ( [saveDlg runModal] == NSOKButton ) {
@@ -1115,7 +1112,7 @@
     }
     
     NSSavePanel* saveDlg = [NSSavePanel savePanel];
-    NSArray* extensions = [[NSArray alloc] initWithObjects:@"log", nil];
+    NSArray* extensions = @[@"log"];
     [saveDlg setAllowedFileTypes:extensions];
     
     if ( [saveDlg runModal] == NSOKButton ) {
@@ -1161,7 +1158,7 @@
                 self.logDatasource = nil;
             }
             
-            NSURL* url = [urls objectAtIndex:0];
+            NSURL* url = urls[0];
             NSLog(@"Open url: %@", url);
             NSDictionary* savedData = [NSDictionary dictionaryWithContentsOfURL:url];
             self.loadedLogData = [savedData valueForKey:LOG_DATA_KEY];
@@ -1231,7 +1228,7 @@
     if (filterName == nil || [filterName length] == 0) {
         filterName = [self newUnusedPredicateName];
     }
-    if ([filters objectForKey:filterName] != nil) {
+    if (filters[filterName] != nil) {
         NSAlert *alert = [NSAlert alertWithMessageText:@"Filter already exists"
                                          defaultButton:@"Overwrite" alternateButton:@"Cancel"
                                            otherButton:nil
@@ -1242,7 +1239,7 @@
         }
     }
     
-    [filters setObject:[self.predicateEditor predicate] forKey: filterName];
+    filters[filterName] = [self.predicateEditor predicate];
     [self saveFilters];
     [self.filterListTable reloadData];
     
@@ -1287,15 +1284,15 @@
                 self.logDatasource = nil;
             }
             
-            NSURL* url = [urls objectAtIndex:0];
+            NSURL* url = urls[0];
             NSLog(@"Open url: %@", url);
             NSDictionary* filtersToImport = [NSDictionary dictionaryWithContentsOfURL:url];
             
             NSArray* keys = [filtersToImport keysSortedByValueUsingSelector:@selector(caseInsensitiveCompare:)];
             for (NSString* key in keys) {
-                NSString* filter = [filtersToImport objectForKey:key];
+                NSString* filter = filtersToImport[key];
                 // TODO: figure out what to do for filters that already exist. For now just overwrite
-                [filters setObject:[NSPredicate predicateWithFormat:filter] forKey:key];
+                filters[key] = [NSPredicate predicateWithFormat:filter];
             }
             
             [self saveFilters];
@@ -1308,8 +1305,8 @@
     NSMutableDictionary* filtersToSave = [NSMutableDictionary dictionaryWithCapacity:[filters count]];
     NSArray *sortedKeys = [[filters allKeys] sortedArrayUsingSelector: @selector(caseInsensitiveCompare:)];
     for(NSString* key in sortedKeys) {
-        NSPredicate* aPredicate = [filters objectForKey:key];
-        [filtersToSave setObject:[aPredicate predicateFormat] forKey:key];
+        NSPredicate* aPredicate = filters[key];
+        filtersToSave[key] = [aPredicate predicateFormat];
     }
     
     [[NSUserDefaults standardUserDefaults] setValue:filtersToSave forKey:KEY_PREFS_FILTERS];
@@ -1318,13 +1315,13 @@
 - (NSString*) newUnusedPredicateName {
     NSString* unamedFilter = @"unamed";
     
-    NSPredicate* filter = [filters objectForKey:unamedFilter];
+    NSPredicate* filter = filters[unamedFilter];
     if (filter != nil) {
         NSUInteger unamedCounter = 0;
         while (filter != nil) {
             // Find a filter name that has not been used yet
             unamedFilter = [NSString stringWithFormat:@"unamed_%ld", unamedCounter];
-            filter = [filters objectForKey:unamedFilter];
+            filter = filters[unamedFilter];
         }
     }
     
@@ -1352,9 +1349,9 @@
         
         NSArray* keys = [filtersToImport keysSortedByValueUsingSelector:@selector(caseInsensitiveCompare:)];
         for (NSString* key in keys) {
-            NSString* filter = [filtersToImport objectForKey:key];
+            NSString* filter = filtersToImport[key];
             // TODO: figure out what to do for filters that already exist. For now just overwrite
-            [filters setObject:[NSPredicate predicateWithFormat:filter] forKey:key];
+            filters[key] = [NSPredicate predicateWithFormat:filter];
         }
         
         [self saveFilters];

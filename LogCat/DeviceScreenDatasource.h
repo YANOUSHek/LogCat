@@ -9,7 +9,7 @@
 
 @protocol DeviceScreenDatasourceDelegate <NSObject>
 
-- (void) onScreenUpdate: (NSString*) deviceId: (NSImage*) screen;
+- (void) onScreenUpdate: (NSString*) deviceId screen:(NSImage*) screen;
 
 @end
 

@@ -82,7 +82,7 @@
         self.pidMap = [NSMutableDictionary dictionary];
         self.logData = [NSMutableArray arrayWithCapacity:0];
         self.text = [NSMutableString stringWithCapacity:0];
-        self.keysArray = [NSArray arrayWithObjects: KEY_IDX, KEY_TIME, KEY_APP, KEY_PID, KEY_TID, KEY_TYPE, KEY_NAME, KEY_TEXT, nil];
+        self.keysArray = @[KEY_IDX, KEY_TIME, KEY_APP, KEY_PID, KEY_TID, KEY_TYPE, KEY_NAME, KEY_TEXT];
         isLogging = NO;
         self.previousString = nil;
         self.counter = 0;
@@ -94,7 +94,7 @@
 //    NSLog(@"eventsForPredicate: %ld", [self.logData count]);
     @try {
         if (self.logData == nil) {
-            return [NSArray array];
+            return @[];
         }
     } @catch(NSException* ex) {
         NSLog(@"Bug captured");
@@ -111,7 +111,7 @@
     }
     
     if (filteredEvents == nil) {
-        filteredEvents = [NSArray array];
+        filteredEvents = @[];
     }
     
     return filteredEvents;
@@ -158,7 +158,7 @@
 
 - (void) loadPID {
     NSArray *arguments = nil;
-    arguments = [NSArray arrayWithObjects: @"shell", @"ps", nil];
+    arguments = @[@"shell", @"ps"];
     
     NSTask *task = [AdbTaskHelper adbTask: [self argumentsForDevice:arguments]];
     
@@ -230,7 +230,7 @@
                 }
             }
             
-            NSString* aName = [args objectAtIndex:[args count]-1];
+            NSString* aName = args[[args count]-1];
             if ([aPid isInteger]) {
                 [self.pidMap setValue:aName forKey:aPid];
             } else {
@@ -253,14 +253,14 @@
     
     NSArray *arguments = nil;
     if (LOG_FORMAT == 1) {
-        arguments = [NSArray arrayWithObjects: @"logcat", @"-v", @"long", nil];
+        arguments = @[@"logcat", @"-v", @"long"];
         
     } else if (LOG_FORMAT == 2) {
     
-        arguments = [NSArray arrayWithObjects: @"logcat", @"-v", @"threadtime", nil];
+        arguments = @[@"logcat", @"-v", @"threadtime"];
     } else if (LOG_FORMAT == 3) {
         
-        arguments = [NSArray arrayWithObjects: @"logcat", @"-B", nil];
+        arguments = @[@"logcat", @"-B"];
     }
     
     
@@ -621,7 +621,7 @@
     }
 
     //time, app, pid, tid, type, name, text, 
-    NSArray* values = [NSArray arrayWithObjects: [self getIndex], fullTimeVal, appVal, pidVal, tidVal, logLevelVal, tagVal, msgVal, nil];
+    NSArray* values = @[[self getIndex], fullTimeVal, appVal, pidVal, tidVal, logLevelVal, tagVal, msgVal];
     NSDictionary* row = [NSDictionary dictionaryWithObjects:values forKeys:self.keysArray];
     [self appendRow:row];
 
@@ -629,10 +629,10 @@
 
 - (NSNumber*) getIndex {
     if (self.logData == nil || [self.logData count] == 0) {
-        return [NSNumber numberWithInt:0];
+        return @0;
     }
     
-    return [NSNumber numberWithUnsignedLong:[self.logData count]];
+    return @([self.logData count]);
 }
 
 
@@ -656,7 +656,7 @@
     NSArray* lines = [currentString componentsSeparatedByCharactersInSet: [NSCharacterSet newlineCharacterSet]];
     
     if (![currentString hasSuffix:@"\n"]) {
-        self.previousString = [[lines objectAtIndex:[lines count]-1] copy];
+        self.previousString = [lines[[lines count]-1] copy];
     }
     
     for (NSString* line in lines) {
@@ -687,11 +687,11 @@
             self.time = [line substringWithRange:[match rangeAtIndex:1]];
             self.pid = [line substringWithRange:[match rangeAtIndex:2]];
             self.tid = [line substringWithRange:[match rangeAtIndex:3]];
-            self.app = [self.pidMap objectForKey:self.pid];
+            self.app = (self.pidMap)[self.pid];
             if (self.app == nil) {
                 NSLog(@"%@ not found in pid map.", self.pid);
                 [self loadPID];
-                self.app = [self.pidMap objectForKey:self.pid];
+                self.app = (self.pidMap)[self.pid];
                 if (self.app == nil) {
                     // This is normal during startup because there can be log
                     // messages from apps that are not running anymore.
@@ -718,7 +718,7 @@
                     if ([lineOfText length] == 0) {
                         continue;
                     }
-                    NSArray* values = [NSArray arrayWithObjects: [self getIndex], self.time, self.app, self.pid, self.tid, self.type, self.name, lineOfText, nil];
+                    NSArray* values = @[[self getIndex], self.time, self.app, self.pid, self.tid, self.type, self.name, lineOfText];
                     NSDictionary* row = [NSDictionary dictionaryWithObjects:values forKeys:self.keysArray];
                     
                     [self appendRow:row];
@@ -726,7 +726,7 @@
             } else {
                 // NSLog(@"xxx--- 4 text: %@", text);
                 
-                NSArray* values = [NSArray arrayWithObjects:[self getIndex] ,self.time, self.app, self.pid, self.tid, self.type, self.name, self.text, nil];
+                NSArray* values = @[[self getIndex] ,self.time, self.app, self.pid, self.tid, self.type, self.name, self.text];
                 NSDictionary* row = [NSDictionary dictionaryWithObjects:values forKeys:self.keysArray];
                 [self appendRow:row];                
             }
@@ -749,7 +749,7 @@
     NSTimeInterval elapsedTime = -[self.startTime timeIntervalSinceNow];
     if (elapsedTime < 30 && self.logData != nil && [self.logData count] > 0) {
         NSDictionary* lastItem = [self.logData lastObject];
-        if ([[row objectForKey:KEY_TIME] compare:[lastItem objectForKey:KEY_TIME]] == NSOrderedAscending) {
+        if ([row[KEY_TIME] compare:lastItem[KEY_TIME]] == NSOrderedAscending) {
 //            NSLog(@"Event is older: row=%@, last=%@", [row objectForKey:KEY_TIME], [lastItem objectForKey:KEY_TIME]);
         } else {
             [self.logData addObject:row];
@@ -768,7 +768,7 @@
 }
 
 - (void) logMessage: (NSString*) message {
-    NSArray* values = [NSArray arrayWithObjects:[self getIndex], @"----", @"LogCat", @"---", @"---", @"I", @"---", message, nil];
+    NSArray* values = @[[self getIndex], @"----", @"LogCat", @"---", @"---", @"I", @"---", message];
     NSDictionary* row = [NSDictionary dictionaryWithObjects:values
                                                     forKeys:self.keysArray];
     
@@ -778,11 +778,11 @@
 }
 
 - (NSString*) appNameForPid:(NSString*) pidVal {
-    NSString* appVal = [self.pidMap objectForKey:pidVal];
+    NSString* appVal = (self.pidMap)[pidVal];
     if (appVal == nil) {
         NSLog(@"%@ not found in pid map.", pidVal);
         [self loadPID];
-        appVal = [self.pidMap objectForKey:pidVal];
+        appVal = (self.pidMap)[pidVal];
         if (appVal == nil) {
             // This is normal during startup because there can be log
             // messages from apps that are not running anymore.

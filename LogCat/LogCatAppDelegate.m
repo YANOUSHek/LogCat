@@ -30,6 +30,8 @@
 @interface LogCatAppDelegate () {
     CGFloat fontHeight;
     CGFloat fontPointSize;
+    
+    BOOL resizeCellHeightBasedOnFontSize;
 }
 
 @property (strong, nonatomic) LogDatasource* logDatasource;
@@ -207,6 +209,7 @@
 
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification {
     NSLog(@"applicationDidFinishLaunching: %@", aNotification);
+    resizeCellHeightBasedOnFontSize = NO;
     self.findIndex = -1;
     self.baseRowTemplates = nil;
     
@@ -289,18 +292,37 @@
 
 
 - (void)myBoundsChangeNotificationHandler:(NSNotification *)aNotification {
-    if ([aNotification object] == [[self.logDataTable enclosingScrollView] contentView]) {
-        NSRect visibleRect = [[[self.logDataTable enclosingScrollView] contentView] visibleRect];
-        float maxy = ([self.logData count] * (fontHeight)) - (fontHeight * 10);
-        float location = (visibleRect.origin.y + visibleRect.size.height);
-//        NSLog(@"loc : %f", location);
-//        NSLog(@"maxy: %f", maxy);
-        if (location > maxy) {
-            scrollToBottom = YES;
-        } else {
-            scrollToBottom = NO;
+    if (resizeCellHeightBasedOnFontSize) {
+        // This is not working properly when the cell heights are dynamically adjusted.
+        // TODO: fix this calculation
+        if ([aNotification object] == [[self.logDataTable enclosingScrollView] contentView]) {
+            NSRect visibleRect = [[[self.logDataTable enclosingScrollView] contentView] visibleRect];
+            float maxy = ([self.logData count] * (fontHeight)) - (fontHeight * 10);
+            float location = (visibleRect.origin.y + visibleRect.size.height);
+            //        NSLog(@"loc : %f", location);
+            //        NSLog(@"maxy: %f", maxy);
+            if (location > maxy) {
+                scrollToBottom = YES;
+            } else {
+                scrollToBottom = NO;
+            }
         }
+        
+    } else {
+        // Assume the cell heights are fixed.
+        if ([aNotification object] == [[self.logDataTable enclosingScrollView] contentView]) {
+            NSRect visibleRect = [[[self.logDataTable enclosingScrollView] contentView] visibleRect];
+            float maxy = 0;
+            maxy = [self.logData count] * 19;
+            if (visibleRect.origin.y + visibleRect.size.height >= maxy) {
+                scrollToBottom = YES;
+            } else {
+                scrollToBottom = NO;
+            }
+        }
+
     }
+    
 }
 
 - (NSInteger)numberOfRowsInTableView:(NSTableView *)aTableView {
@@ -333,13 +355,16 @@
 }
 
 - (CGFloat)tableView:(NSTableView *)tableView heightOfRow:(NSInteger)row {
-    if (tableView == self.logDataTable) {
-        NSDictionary* data = (self.logData)[row];
-        NSString* rowType = data[KEY_TYPE];
-        NSFont* font = fonts[rowType];
-        fontHeight = [font pointSize]*1.5;
-//        NSLog(@"Height: %f", height);
-        return fontHeight; //
+    if (resizeCellHeightBasedOnFontSize) {
+    
+        if (tableView == self.logDataTable) {
+            NSDictionary* data = (self.logData)[row];
+            NSString* rowType = data[KEY_TYPE];
+            NSFont* font = fonts[rowType];
+            fontHeight = [font pointSize]*1.5;
+        //        NSLog(@"Height: %f", height);
+            return fontHeight; //
+        }
     }
     return [tableView rowHeight];
 }

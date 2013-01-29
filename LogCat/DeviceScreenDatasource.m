@@ -203,44 +203,58 @@
     
     
     NSArray *arguments = @[@"pull", SCREEN_CAP_FILE, @"/tmp/logcat.png"];
-    
-    NSTask *task = [AdbTaskHelper adbTask: [self argumentsForDevice:arguments]];
-    
-    NSPipe *pipe;
-    pipe = [NSPipe pipe];
-    [task setStandardOutput: pipe];
-    [task setStandardError:pipe];
-    [task setStandardInput:[NSPipe pipe]];
-    
-    NSFileHandle *file;
-    file = [pipe fileHandleForReading];
-    
-    [task launch];
-    
-    NSMutableData *readData = [[NSMutableData alloc] init];
-    
-    NSData *data = nil;
-    while ((data = [file availableData]) && [data length]) {
-        [readData appendData:data];
+    @try {
+        NSTask *task = [AdbTaskHelper adbTask: [self argumentsForDevice:arguments]];
+        
+        NSPipe *pipe;
+        pipe = [NSPipe pipe];
+        [task setStandardOutput: pipe];
+        [task setStandardError:pipe];
+        [task setStandardInput:[NSPipe pipe]];
+        
+        NSFileHandle *file;
+        file = [pipe fileHandleForReading];
+        
+        [task launch];
+        
+        NSMutableData *readData = [[NSMutableData alloc] init];
+        
+        NSData *data = nil;
+        /*
+         Crashing here some times because of: NSFileHandleOperationException "Bad file descriptor"
+         
+         NSFileHandle::availableData
+         This method raises NSFileHandleOperationException if attempts to determine the file-handle 
+         type fail or if attempts to read from the file or channel fail.
+         **/
+        while ((data = [file availableData]) && [data length]) {
+            [readData appendData:data];
+        }
+        
+        NSString *string;
+        string = [[NSString alloc] initWithData: readData encoding: NSUTF8StringEncoding];
+        
+        
+        NSLog(@"Screen pulled: %@", string);
+        
+        // Transcode data
+        BOOL exists = [fileManager fileExistsAtPath:@"/tmp/logcat.png"];
+        if (!exists) {
+            return;
+        }
+        
+        NSImage* image = [[NSImage alloc] initWithContentsOfFile:@"/tmp/logcat.png"];
+        if (image != nil) {
+            [self updateImage:image];
+        }
+    } @catch(NSException* ex) {
+        // NSTask::launch Raises an NSInvalidArgumentException if the
+        // launch path has not been set or is invalid or if it fails
+        // to create a process.
+        NSLog(@"************\n* Failed to get screen capture from device because %@\n***********************", ex);
+        NSBeep();
     }
-    
-    NSString *string;
-    string = [[NSString alloc] initWithData: readData encoding: NSUTF8StringEncoding];
-    
-    
-    NSLog(@"Screen pulled: %@", string);
-    
-    // Transcode data
-    BOOL exists = [fileManager fileExistsAtPath:@"/tmp/logcat.png"];
-    if (!exists) {
-        return;
-    }
-    
-    NSImage* image = [[NSImage alloc] initWithContentsOfFile:@"/tmp/logcat.png"];
-    if (image != nil) {
-        [self updateImage:image];
-    }
-    
+
 }
 
 - (void) doScreenshot {

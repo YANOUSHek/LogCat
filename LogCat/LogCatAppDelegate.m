@@ -169,7 +169,7 @@
         self.adbPath = [mainBundle pathForResource:@"adb" ofType:nil];
     }
     
-    NSLog(@"Will use ADB: [%@]", self.adbPath);
+//    NSLog(@"Will use ADB: [%@]", self.adbPath);
 }
 
 - (void) updateStatus {

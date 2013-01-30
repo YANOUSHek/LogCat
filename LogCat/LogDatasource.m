@@ -161,28 +161,35 @@
     arguments = @[@"shell", @"ps"];
     
     NSTask *task = [AdbTaskHelper adbTask: [self argumentsForDevice:arguments]];
-    
-    NSPipe *pipe;
-    pipe = [NSPipe pipe];
-    [task setStandardOutput: pipe];
-    [task setStandardError:pipe];
-    [task setStandardInput:[NSPipe pipe]];
-    
-    NSFileHandle *file;
-    file = [pipe fileHandleForReading];
-    
-    [task launch];
-    
-    NSMutableData *readData = [[NSMutableData alloc] init];
-    
-    NSData *data = nil;
-    while ((data = [file availableData]) && [data length]) {
-        [readData appendData:data];
+    @try {
+        NSPipe *pipe;
+        pipe = [NSPipe pipe];
+        [task setStandardOutput: pipe];
+        [task setStandardError:pipe];
+        [task setStandardInput:[NSPipe pipe]];
+        
+        NSFileHandle *file;
+        file = [pipe fileHandleForReading];
+        
+        [task launch];
+        
+        NSMutableData *readData = [[NSMutableData alloc] init];
+        
+        NSData *data = nil;
+        while ((data = [file availableData]) && [data length]) {
+            [readData appendData:data];
+        }
+        
+        NSString *string;
+        string = [[NSString alloc] initWithData: readData encoding: NSUTF8StringEncoding];
+        [self performSelectorOnMainThread:@selector(parsePID:) withObject:string waitUntilDone:YES];
+    } @catch(NSException* ex) {
+        // NSTask::launch Raises an NSInvalidArgumentException if the
+        // launch path has not been set or is invalid or if it fails
+        // to create a process.
+        NSLog(@"************\n* Failed to get PID list from device because %@\n***********************", ex);
+        NSBeep();
     }
-    
-    NSString *string;
-    string = [[NSString alloc] initWithData: readData encoding: NSUTF8StringEncoding];
-    [self performSelectorOnMainThread:@selector(parsePID:) withObject:string waitUntilDone:YES];
     
 }
 
@@ -263,49 +270,57 @@
         arguments = @[@"logcat", @"-B"];
     }
     
+    @try {
     
-    NSTask *task = [AdbTaskHelper adbTask:[self argumentsForDevice:arguments]];
-    
-    NSPipe *pipe;
-    pipe = [NSPipe pipe];
-    [task setStandardOutput: pipe];
-    [task setStandardError:pipe];
-    [task setStandardInput:[NSPipe pipe]];
-    
-    NSFileHandle *file;
-    file = [pipe fileHandleForReading];
-    
-    [task launch];
-    
-    while (isLogging && [task isRunning]) {
-        NSData *data = nil;
-        while (data == nil) {
-            data = [file availableData];
-        }
+        NSTask *task = [AdbTaskHelper adbTask:[self argumentsForDevice:arguments]];
         
+        NSPipe *pipe;
+        pipe = [NSPipe pipe];
+        [task setStandardOutput: pipe];
+        [task setStandardError:pipe];
+        [task setStandardInput:[NSPipe pipe]];
         
-        if (data != nil) {
-            
-            NSString *string;
-            string = [[NSString alloc] initWithData: data encoding: NSUTF8StringEncoding];
-//            NSLog(@"Data: %@", string);
-            if (LOG_FORMAT == 1) {
-                [self performSelectorOnMainThread:@selector(appendLongLog:) withObject:string waitUntilDone:YES];
-                
-            } else if (LOG_FORMAT == 2) {
-//                [self performSelectorOnMainThread:@selector(appendThreadtimeLog:) withObject:string waitUntilDone:YES];
-                [self appendThreadtimeLog:string];
-                
-            } else if (LOG_FORMAT == 3) {
-                [self appendBinaryLog:data];
-                
+        NSFileHandle *file;
+        file = [pipe fileHandleForReading];
+        
+        [task launch];
+        
+        while (isLogging && [task isRunning]) {
+            NSData *data = nil;
+            while (data == nil) {
+                data = [file availableData];
             }
-        } else {
-            NSLog(@"Data was nil...");
+            
+            
+            if (data != nil) {
+                
+                NSString *string;
+                string = [[NSString alloc] initWithData: data encoding: NSUTF8StringEncoding];
+    //            NSLog(@"Data: %@", string);
+                if (LOG_FORMAT == 1) {
+                    [self performSelectorOnMainThread:@selector(appendLongLog:) withObject:string waitUntilDone:YES];
+                    
+                } else if (LOG_FORMAT == 2) {
+    //                [self performSelectorOnMainThread:@selector(appendThreadtimeLog:) withObject:string waitUntilDone:YES];
+                    [self appendThreadtimeLog:string];
+                    
+                } else if (LOG_FORMAT == 3) {
+                    [self appendBinaryLog:data];
+                    
+                }
+            } else {
+                NSLog(@"Data was nil...");
+            }
         }
+        
+        [task terminate];
+    } @catch(NSException* ex) {
+        // NSTask::launch Raises an NSInvalidArgumentException if the
+        // launch path has not been set or is invalid or if it fails
+        // to create a process.
+        NSLog(@"************\n* Failed to get read log from device because %@\n***********************", ex);
+        NSBeep();
     }
-    
-    [task terminate];
     
     isLogging = NO;
     [self.pidMap removeAllObjects];

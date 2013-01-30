@@ -194,7 +194,7 @@
 }
 
 - (void) pullScreenFromDeviceWithScreenCap {
-    NSLog(@"pullScreenFromDeviceWithScreenCap");
+//    NSLog(@"pullScreenFromDeviceWithScreenCap");
     
     NSFileManager *fileManager = [NSFileManager defaultManager];
     // TODO: Need better naming once we support multi-device
@@ -235,7 +235,7 @@
         string = [[NSString alloc] initWithData: readData encoding: NSUTF8StringEncoding];
         
         
-        NSLog(@"Screen pulled: %@", string);
+//        NSLog(@"Screen pulled: %@", string);
         
         // Transcode data
         BOOL exists = [fileManager fileExistsAtPath:@"/tmp/logcat.png"];
@@ -285,7 +285,7 @@
         NSString *string;
         string = [[NSString alloc] initWithData: readData encoding: NSUTF8StringEncoding];
         
-        NSLog(@"screen shot result: %@", string);
+//        NSLog(@"screen shot result: %@", string);
     } @catch(NSException* ex) {
         NSLog(@"Failed to get screen capture from device because %@", ex);
     }

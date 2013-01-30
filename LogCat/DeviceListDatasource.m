@@ -56,30 +56,37 @@
 
 - (void) fetchDevices {
     NSArray *arguments = @[@"devices"];
-    
-    NSTask *task = [AdbTaskHelper adbTask: arguments];
-    
-    NSPipe *pipe;
-    pipe = [NSPipe pipe];
-    [task setStandardOutput: pipe];
-    [task setStandardError:pipe];
-    [task setStandardInput:[NSPipe pipe]];
-    
-    NSFileHandle *file;
-    file = [pipe fileHandleForReading];
-    
-    [task launch];
-    
-    NSMutableData *readData = [[NSMutableData alloc] init];
-    
-    NSData *data = nil;
-    while ((data = [file availableData]) && [data length]) {
-        [readData appendData:data];
+    @try {
+        NSTask *task = [AdbTaskHelper adbTask: arguments];
+        
+        NSPipe *pipe;
+        pipe = [NSPipe pipe];
+        [task setStandardOutput: pipe];
+        [task setStandardError:pipe];
+        [task setStandardInput:[NSPipe pipe]];
+        
+        NSFileHandle *file;
+        file = [pipe fileHandleForReading];
+        
+        [task launch];
+        
+        NSMutableData *readData = [[NSMutableData alloc] init];
+        
+        NSData *data = nil;
+        while ((data = [file availableData]) && [data length]) {
+            [readData appendData:data];
+        }
+        
+        NSString *string;
+        string = [[NSString alloc] initWithData: readData encoding: NSUTF8StringEncoding];
+        [self performSelectorOnMainThread:@selector(parseDeviceList:) withObject:string waitUntilDone:YES];
+    } @catch(NSException* ex) {
+        // NSTask::launch Raises an NSInvalidArgumentException if the
+        // launch path has not been set or is invalid or if it fails
+        // to create a process.
+        NSLog(@"************\n* Failed to get screen capture from device because %@\n***********************", ex);
+        NSBeep();
     }
-    
-    NSString *string;
-    string = [[NSString alloc] initWithData: readData encoding: NSUTF8StringEncoding];
-    [self performSelectorOnMainThread:@selector(parseDeviceList:) withObject:string waitUntilDone:YES];
 }
 
 - (void) parseDeviceList: (NSString*) pidInfo {

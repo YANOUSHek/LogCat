@@ -19,8 +19,8 @@
 #define LOG_HEADER_LEN 20
 #define LOG_HEADER_LEN2 18
 
-#define MAX_EVENT (1024*1024)
-//#define MAX_EVENT 100
+#define MAX_EVENT 20000
+#define PRUNE_COUNT 1000
 
 @interface LogDatasource () {
 }
@@ -776,7 +776,7 @@
     if ([self.logData count] > MAX_EVENT) {
         NSLog(@"Prune event. %ld > %d", [self.logData count], MAX_EVENT);
         // Make room for more events
-        while ([self.logData count] > (MAX_EVENT/2)) {
+        while ([self.logData count] > (MAX_EVENT-PRUNE_COUNT)) {
             [self.logData removeObjectAtIndex:0];
         }
     }

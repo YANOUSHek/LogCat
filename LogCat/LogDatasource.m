@@ -643,11 +643,7 @@
 }
 
 - (NSNumber*) getIndex {
-    if (self.logData == nil || [self.logData count] == 0) {
-        return @0;
-    }
-    
-    return @([self.logData count]);
+    return [NSNumber numberWithUnsignedInteger:self.counter++];
 }
 
 

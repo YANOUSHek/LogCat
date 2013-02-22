@@ -32,6 +32,8 @@
     CGFloat fontPointSize;
     
     BOOL resizeCellHeightBasedOnFontSize;
+    
+    NSNumber* selectedLogMessage;
 }
 
 @property (strong, nonatomic) LogDatasource* logDatasource;
@@ -41,6 +43,7 @@
 @property (strong, nonatomic) NSPredicate* predicate;
 @property (strong, nonatomic) NSArray* loadedLogData;
 @property (nonatomic) NSInteger findIndex;
+@property (strong, nonatomic) NSNumber* selectedLogMessage;
 
 
 - (void)registerDefaults;
@@ -68,6 +71,7 @@
 @synthesize window = _window;
 @synthesize logDataTable = _logDataTable;
 @synthesize textEntry = _textEntry;
+@synthesize selectedLogMessage = _selectedLogMessage;
 
 - (void)registerDefaults {
     NSUserDefaults* defaults = [NSUserDefaults standardUserDefaults];
@@ -131,11 +135,12 @@
                          @"LogLevel Warn",
                          @"LogLevel Error"];
         
-        NSArray* logLevels = @[@"type ==[cd] 'V' OR type ==[cd] 'I' OR type ==[cd] 'W' OR type ==[cd] 'E' OR type ==[cd] 'F' OR type ==[cd] 'A'",
-                 @"type ==[cd] 'I' OR type ==[cd] 'W' OR type ==[cd] 'E' OR type ==[cd] 'F' OR type ==[cd] 'A'",
-                 @"type ==[cd] 'D' OR type ==[cd] 'I' OR type ==[cd] 'W' OR type ==[cd] 'E' OR type ==[cd] 'F' OR type ==[cd] 'A'",
-                 @"type ==[cd] 'W' OR type CONTAINS[cd] 'E' OR type ==[cd] 'F'",
-                 @"type ==[cd] 'E' OR type ==[cd] 'F' OR type ==[cd] 'A'"];
+        NSArray* logLevels = @[
+                 @"type IN[cd] 'V,I,W,E,F,A'",
+                 @"type IN[cd] 'I,W,E,F,A'",
+                 @"type IN[cd] 'D,I,W,E,F,A'",
+                 @"type IN[cd] 'W,E,F,A'",
+                 @"type IN[cd] 'E,F,A"];
 
         for(int i = 0; i < [keys count]; i++) {
             NSString* key = keys[i];
@@ -506,7 +511,21 @@
 - (void)tableViewSelectionDidChange:(NSNotification *)aNotification {
     NSLog(@"Selected Did Change... %@", aNotification);
     NSTableView* tv = [aNotification object];
-    if (tv != self.filterListTable) {
+    if (tv == self.logDataTable) {
+        
+        NSInteger selectedItem = [self.logDataTable selectedRow];
+        if (self.logData != nil && selectedItem >= 0 && selectedItem < [self.logData count]) {
+            NSLog(@"Selected logDataTable row: %ld", selectedItem);
+            NSDictionary* selectedItem = [self.logData objectAtIndex:[self.logDataTable selectedRow]];
+            selectedLogMessage = [selectedItem objectForKey:KEY_IDX];
+            
+        } else {
+            selectedLogMessage = nil;
+        }
+        
+        NSLog(@"Selected Log item: %@", selectedLogMessage);
+        return;
+    } else if (tv != self.filterListTable) {
         return;
     }
     
@@ -558,6 +577,20 @@
 - (IBAction)quickFilter:(id)sender {
     NSLog(@"quick filter %@", sender);    
     [self applySelectedFilters];
+    
+    if (self.logData && selectedLogMessage != nil) {
+        int i = 0;
+        for (NSDictionary* logLine in self.logData) {
+            i++;
+            if (selectedLogMessage == [logLine objectForKey:KEY_IDX]) {
+                [self.logDataTable scrollRowToVisible:i];
+                NSIndexSet *indexSet = [NSIndexSet indexSetWithIndex:i];
+                [self.logDataTable selectRowIndexes:indexSet byExtendingSelection:NO];
+                break;
+            }
+        }
+    }
+    
 }
 
 - (IBAction)addFilter {

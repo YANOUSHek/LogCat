@@ -579,15 +579,26 @@
     [self applySelectedFilters];
     
     if (self.logData && selectedLogMessage != nil) {
-        int i = 0;
+        int rowIndex = 0;
         for (NSDictionary* logLine in self.logData) {
-            i++;
             if (selectedLogMessage == [logLine objectForKey:KEY_IDX]) {
-                [self.logDataTable scrollRowToVisible:i];
-                NSIndexSet *indexSet = [NSIndexSet indexSetWithIndex:i];
+                NSRect rowRect = [self.logDataTable rectOfRow:rowIndex];
+                NSRect viewRect = [[self.logDataTable superview] frame];
+                NSPoint scrollOrigin = rowRect.origin;
+                scrollOrigin.y = scrollOrigin.y + (rowRect.size.height - viewRect.size.height) / 2;
+                if (scrollOrigin.y < 0) {
+                    scrollOrigin.y = 0;
+                }
+                [[[self.logDataTable superview] animator] setBoundsOrigin:scrollOrigin];
+
+                // Select the row again
+                NSIndexSet *indexSet = [NSIndexSet indexSetWithIndex:rowIndex];
                 [self.logDataTable selectRowIndexes:indexSet byExtendingSelection:NO];
+
+                [self.window makeFirstResponder: self.logDataTable];
                 break;
             }
+            rowIndex++;
         }
     }
     

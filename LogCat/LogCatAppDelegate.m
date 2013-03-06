@@ -559,7 +559,13 @@
     
     NSString* quickFilter = [[self quickFilter] stringValue];
     if (quickFilter != nil && [quickFilter length] > 0) {
-        [predicates addObject:[NSPredicate predicateWithFormat:[NSString stringWithFormat:@"(name CONTAINS[cd] '%@' OR text CONTAINS[cd] '%@')", quickFilter, quickFilter]]];
+        if ([quickFilter hasPrefix:@"p: "]) {
+            // User interested predicate
+            NSString* userPredicate = [quickFilter substringFromIndex:2];
+            [predicates addObject:[NSPredicate predicateWithFormat:userPredicate]];
+        } else {
+            [predicates addObject:[NSPredicate predicateWithFormat:[NSString stringWithFormat:@"(name CONTAINS[cd] '%@' OR text CONTAINS[cd] '%@')", quickFilter, quickFilter]]];
+        }
     }
     
     self.predicate = [NSCompoundPredicate andPredicateWithSubpredicates:predicates];
@@ -705,12 +711,15 @@
     NSLog(@"openTypingTerminal");
     NSBundle *mainBundle=[NSBundle mainBundle];
     NSString *path=[mainBundle pathForResource:@"atext" ofType:nil];
-    
+
+//    NSUserDefaults* defaults = [NSUserDefaults standardUserDefaults];
+//    NSString *adbPath = [defaults objectForKey:@"adbPath"];
+
+    // TODO: pass the ADB that the app is currently configured to use.
     NSString *s = [NSString stringWithFormat: @"tell application \"Terminal\" to do script \"%@\"", path];
-    
+
     NSAppleScript *as = [[NSAppleScript alloc] initWithSource: s];
     [as executeAndReturnError:nil];
-    
     
 }
 

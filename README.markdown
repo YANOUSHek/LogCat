@@ -10,8 +10,9 @@ basis which allowed him to write code in Vim but he was lacking a small app that
 
 Download
 --------
-* [Download LogCat Release Dec 28](https://github.com/yepher/LogCat/wiki/LogCat.app_build_2012122800.zip)
-* [Download LogCat DEV Dec 28](https://github.com/yepher/LogCat/wiki/LogCat.app_build_2012122800.zip)
+
+* May 09 [Download LogCat May 09 build](https://github.com/yepher/LogCat/wiki/LogCat.app_build_2013050900.zi) - 7ff81cf
+
 
 Features
 --------

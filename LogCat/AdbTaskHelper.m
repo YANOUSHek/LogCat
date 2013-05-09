@@ -17,8 +17,8 @@
     NSString *adbPath = [defaults objectForKey:@"adbPath"];
     if (adbPath == nil && [adbPath length] == 0) {
         // Use built in adb
-        NSBundle *mainBundle = [NSBundle mainBundle];
-        adbPath = [mainBundle pathForResource:@"adb" ofType:nil];
+        //NSBundle *mainBundle = [NSBundle mainBundle];
+        //adbPath = [mainBundle pathForResource:@"adb" ofType:nil];
     }
 //    NSLog(@"Will use ADB [%@]", adbPath);
     

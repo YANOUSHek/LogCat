@@ -170,8 +170,8 @@
     self.adbPath = [defaults objectForKey:@"adbPath"];
     if (self.adbPath == nil && [self.adbPath length] == 0) {
         // Use built in adb
-        NSBundle *mainBundle = [NSBundle mainBundle];
-        self.adbPath = [mainBundle pathForResource:@"adb" ofType:nil];
+        //NSBundle *mainBundle = [NSBundle mainBundle];
+        //self.adbPath = [mainBundle pathForResource:@"adb" ofType:nil];
     }
     
 //    NSLog(@"Will use ADB: [%@]", self.adbPath);
@@ -1112,15 +1112,6 @@
 }
 
 - (IBAction)saveDocument:(id)sender {
-    if (self.logDatasource != nil && [self.logDatasource isLogging]) {
-        NSAlert *alert = [NSAlert alertWithMessageText:@"Cannot save."
-                                         defaultButton:@"OK" alternateButton:nil
-                                           otherButton:nil
-                             informativeTextWithFormat:@"Disconnect from device and try again."];
-        [alert runModal];
-        return;
-    }
-    
     NSSavePanel* saveDlg = [NSSavePanel savePanel];
     NSArray* extensions = @[@"logcat"];
     [saveDlg setAllowedFileTypes:extensions];
@@ -1138,14 +1129,6 @@
 }
 
 - (IBAction)saveDocumentAsText:(id)sender {
-    if (self.logDatasource != nil && [self.logDatasource isLogging]) {
-        NSAlert *alert = [NSAlert alertWithMessageText:@"Cannot save."
-                                         defaultButton:@"OK" alternateButton:nil
-                                           otherButton:nil
-                             informativeTextWithFormat:@"Disconnect from device and try again."];
-        [alert runModal];
-        return;
-    }
     
     NSSavePanel* saveDlg = [NSSavePanel savePanel];
     NSArray* extensions = @[@"log"];

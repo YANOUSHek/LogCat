@@ -10,10 +10,10 @@
 @interface FilterSheet : NSWindow {
     
 }
+
 @property (weak) IBOutlet NSTextField *filterName;
 @property (weak) IBOutlet NSPopUpButton *filterType;
 @property (weak) IBOutlet NSTextField *filterCriteria;
-
 
 
 - (void) selectItemWithTitie: (NSString*) title;

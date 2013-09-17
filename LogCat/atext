@@ -7,12 +7,12 @@
 # Disclaimer
 # I almost never write perl script so don't laugh too hard at this script.
 # Perl was not my original choice
-# for doing this but Java System.in has a terrible problem where yoy
+# for doing this but Java System.in has a terrible problem where you
 # can't get characters as they are typed. Objective-C was just too
-# much upfront work to get this working they way I want. Bash is
+# much upfront work to get this working the way I want. Bash is
 # probably a good way to do this but it I have not done much Bash 
-# scripting for years and was not working out very well. I was not
-# able to get PHP to work easy with system in so I finally used Perl.
+# scripting for years and it was not working out very well. I was not
+# able to get PHP to work easily with system in so I finally used Perl.
 #
 #
 # TODO:
@@ -35,6 +35,7 @@ use Cwd 'abs_path';
 my $path = abs_path($0);
 $path =~ s/atext//gi;
 chdir($path);
+my $ADB = $ARGV[0];
 
 
 #############################
@@ -137,7 +138,7 @@ my $thr = threads->create(sub {
  								my $buffer = "";
                                 while (1) {
                                 	my $char = $q->dequeue();
-                                	if ( ord( $char ) <= 32 || ord( $char ) > 126) {
+                                	if ( ord( $char ) <= 32 || ord( $char ) > 126 || $char eq '\'') {
                                 		if (length($buffer) > 0) {
                                 			print "'" . $buffer . "'";
                                 			system("./adb shell input text '". $buffer . "'");
@@ -146,6 +147,12 @@ my $thr = threads->create(sub {
 										sendKeyEvent($char);									
 										next;
 									}
+									
+									# the system shell doesn't like some chars without a backslash before them
+									if ( $char eq '(' || $char eq ')' || $char eq '"') {
+										$buffer .= '\\'
+									}
+
 									print "\n\nappend: ". $char."\n";
                                     $buffer .= $char;
                                     
@@ -166,6 +173,7 @@ my $thr = threads->create(sub {
                              });
 
 eval {
+    print "Will use $ADB\n";
     print "***************************************************************************\n";
     print "* The character typed in this terminal will be sent to the connected device\n";
     print "* To exit press CNTL-C.\n";
@@ -223,6 +231,12 @@ sub sendKeyEvent {
 		adbKeyEvent($KEYCODE_DEL);
 		return;
 	}
+	if ( $char eq '\'') {
+		print "\'";
+		adbKeyEvent($KEYCODE_APOSTROPHE);
+		return;
+	}
+
 	if ( ord( $char ) == 27 ) {
 	    # This is for keys like Arrow keys
 		extendedKeyCode($char);
@@ -266,3 +280,4 @@ sub adbKeyEvent {
 	system("./adb shell input keyevent " . $keyCode);
 	return;
 }
+

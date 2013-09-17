@@ -14,18 +14,15 @@
 @synthesize rightClickedColumn;
 @synthesize menuDelegate;
 
-- (NSInteger)getRightClickedRow
-{
+- (NSInteger)getRightClickedRow {
     return rightClickedRow;
 }
 
-- (NSInteger)getRightClickedColumn
-{
+- (NSInteger)getRightClickedColumn {
     return rightClickedColumn;
 }
 
-- (NSMenu *)menuForEvent:(NSEvent *)event
-{
+- (NSMenu *)menuForEvent:(NSEvent *)event {
     
     rightClickedRow = [self rowAtPoint:[self convertPoint:[event locationInWindow] fromView:nil]];
     rightClickedColumn = [self columnAtPoint:[self convertPoint:[event locationInWindow] fromView:nil]];
@@ -37,7 +34,5 @@
 
     return nil;
 }
-
-
 
 @end

@@ -59,6 +59,7 @@
 @synthesize delegate = _delegate;
 @synthesize deviceId = _deviceId;
 @synthesize isLogging;
+@synthesize skipPidLookup;
 
 @synthesize previousString = _previousString;
 @synthesize startTime = _startTime;
@@ -79,6 +80,7 @@
 
 - (id)init {
     if (self = [super init]) {
+        self.skipPidLookup = false;
         self.pidMap = [NSMutableDictionary dictionary];
         self.logData = [NSMutableArray arrayWithCapacity:0];
         self.text = [NSMutableString stringWithCapacity:0];
@@ -134,6 +136,7 @@
 }
 
 - (void) stopLogger {
+    NSLog(@"Stop logging called.");
     isLogging = NO;
     [self.thread cancel];
     self.thread = nil;
@@ -157,6 +160,9 @@
 #pragma mark -
 
 - (void) loadPID {
+    if (self.skipPidLookup) {
+        return;
+    }
     NSArray *arguments = nil;
     arguments = @[@"shell", @"ps"];
     
@@ -201,16 +207,21 @@
     NSArray* lines = [pidInfo componentsSeparatedByCharactersInSet: [NSCharacterSet newlineCharacterSet]];
     
     for (NSString* line in lines) {
-        if ([line hasPrefix:@"-"]) {
+        if ([line length] == 0) {
+            // skip blank lines
+            continue;
+        } else if ([line hasPrefix:@"-"]) {
             continue;
         } else if ([line hasPrefix:@"error:"]) {
             NSLog(@"parsePID: %@", line);
             if ([line isEqualToString:MULTIPLE_DEVICE_MSG]) {
+                NSLog(@"Multiple devices. Abort. (1)");
                 isLogging = NO;
                 [self onMultipleDevicesConnected];
                 [self stopLogger];
                 return;
             } else if ([line isEqualToString:DEVICE_NOT_FOUND_MSG]) {
+                NSLog(@"Device not found. Abort. (1)");
                 isLogging = NO;
                 [self onDeviceNotFound];
                 [self stopLogger];
@@ -253,13 +264,19 @@
 #pragma mark Log Loader
 #pragma mark -
 
+
 - (void)readLog:(id)param
 {
     isLogging = YES;
     [self performSelectorOnMainThread:@selector(onLoggerStarted) withObject:nil waitUntilDone:NO];
     
     NSArray *arguments = nil;
-    if (LOG_FORMAT == 1) {
+    if (param != nil) {
+        // assume caller is passing the arguments we need
+        self.skipPidLookup = YES;
+        arguments = param;
+        
+    } else if (LOG_FORMAT == 1) {
         arguments = @[@"logcat", @"-v", @"long"];
         
     } else if (LOG_FORMAT == 2) {
@@ -272,7 +289,19 @@
     
     @try {
     
-        NSTask *task = [AdbTaskHelper adbTask:[self argumentsForDevice:arguments]];
+        NSTask *task = nil;
+        if (param != nil) {
+            task = [[NSTask alloc] init];
+            
+            NSString *catPath = @"/bin/cat";
+            
+            [task setLaunchPath:catPath];
+            [task setArguments: arguments];
+
+        } else {
+        
+            task = [AdbTaskHelper adbTask:[self argumentsForDevice:arguments]];
+        }
         
         NSPipe *pipe;
         pipe = [NSPipe pipe];
@@ -284,20 +313,28 @@
         file = [pipe fileHandleForReading];
         
         [task launch];
+        //NSLog(@"Task isRunning: %d", task.isRunning);
         
-        while (isLogging && [task isRunning]) {
-            NSData *data = nil;
-            while (data == nil) {
+        NSData *data = nil;
+        while (isLogging && (((data = [file availableData]) != nil) || [task isRunning])) {
+            //NSLog(@"Task: %d, data=%@", [task isRunning], data);
+            while (data == nil || [data length] == 0) {
                 data = [file availableData];
+                if ((data == nil || [data length] == 0) && ![task isRunning]) {
+                    isLogging = NO;
+                    break;
+                }
             }
-            
             
             if (data != nil) {
                 
                 NSString *string;
                 string = [[NSString alloc] initWithData: data encoding: NSUTF8StringEncoding];
     //            NSLog(@"Data: %@", string);
-                if (LOG_FORMAT == 1) {
+                if (param != nil) {
+                    NSLog(@"Parse: %@", string);
+                    [self appendThreadtimeLog:string];
+                } else if (LOG_FORMAT == 1) {
                     [self performSelectorOnMainThread:@selector(appendLongLog:) withObject:string waitUntilDone:YES];
                     
                 } else if (LOG_FORMAT == 2) {
@@ -311,6 +348,7 @@
             } else {
                 NSLog(@"Data was nil...");
             }
+            data = nil;
         }
         
         [task terminate];
@@ -322,6 +360,7 @@
         NSBeep();
     }
     
+    NSLog(@"Exited readlog loop.");
     isLogging = NO;
     [self.pidMap removeAllObjects];
     
@@ -331,6 +370,7 @@
     
     [self stopLogger];
     NSLog(@"ADB Exited.");
+    self.skipPidLookup = NO;
 }
 
 - (void) logData:(NSData*) data {    
@@ -549,8 +589,19 @@
 }
 
 - (void) parseThreadTimeLine: (NSString*) line {
+    
+    
+    if ([line hasPrefix:@"-appPID"] || [line hasPrefix:@"- appPID"]) {
+        NSArray *strings = [line componentsSeparatedByString:@","];
+        if ([strings count] == 3) {
+            NSString* pid = [strings[1] stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
+            NSString* app = [strings[2] stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
+            NSLog(@"Adding PID \"%@\" for app \"%@\"", pid, app);
+            [self.pidMap setValue:app forKey:pid];
+        }
         
-    if ([line hasPrefix:@"-"]) {
+        return;
+    } else if ([line hasPrefix:@"-"]) {
         return;
     } else if ([line hasPrefix:@"error:"]) {
         NSLog(@"parseThreadTimeLine: \"%@\", %@", line, self);
@@ -561,6 +612,7 @@
 //            [self onMultipleDevicesConnected];
             return;
         } else if ([line hasPrefix:DEVICE_NOT_FOUND_MSG]) {
+            NSLog(@"Device Not Found. Abort Logcat.");
             isLogging = NO;
             [self performSelectorOnMainThread:@selector(onMultipleDevicesConnected) withObject:nil waitUntilDone:YES];
 //            [self onMultipleDevicesConnected];
@@ -671,15 +723,27 @@
     }
     
     for (NSString* line in lines) {
-        if ([line hasPrefix:@"-"]) {
+        
+        if ([line hasPrefix:@"-appPID"] || [line hasPrefix:@"- appPID"]) {
+            NSArray *strings = [line componentsSeparatedByString:@","];
+            if ([strings count] == 3) {
+                [self.pidMap setValue:strings[2] forKey:strings[1]];
+            }
+            
+            continue;
+        } else if ([line hasPrefix:@"-"]) {
+            
+            
             continue;
         } else if ([line hasPrefix:@"error:"]) {
             NSLog(@"appendLongLog: %@", line);
             if ([line isEqualToString:MULTIPLE_DEVICE_MSG]) {
+                NSLog(@"Mulitple devices. Abort.");
                 isLogging = NO;
                 [self onMultipleDevicesConnected];
                 return;
             } else if ([line isEqualToString:DEVICE_NOT_FOUND_MSG]) {
+                NSLog(@"Device not found. Abort.");
                 isLogging = NO;
                 [self onMultipleDevicesConnected];
                 return;
@@ -700,7 +764,7 @@
             self.tid = [line substringWithRange:[match rangeAtIndex:3]];
             self.app = (self.pidMap)[self.pid];
             if (self.app == nil) {
-                NSLog(@"%@ not found in pid map.", self.pid);
+                NSLog(@"%@ not found in pid map. (1)", self.pid);
                 [self loadPID];
                 self.app = (self.pidMap)[self.pid];
                 if (self.app == nil) {
@@ -789,10 +853,13 @@
 }
 
 - (NSString*) appNameForPid:(NSString*) pidVal {
+    
     NSString* appVal = (self.pidMap)[pidVal];
     if (appVal == nil) {
-        NSLog(@"%@ not found in pid map.", pidVal);
-        [self loadPID];
+        NSLog(@"%@ not found in pid map. (2)", pidVal);
+        if (!self.skipPidLookup) {
+            [self loadPID];
+        }
         appVal = (self.pidMap)[pidVal];
         if (appVal == nil) {
             // This is normal during startup because there can be log

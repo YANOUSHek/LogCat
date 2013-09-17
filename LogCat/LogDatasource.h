@@ -34,6 +34,7 @@
 
 @property (strong) NSString* deviceId;
 @property (atomic) BOOL isLogging;
+@property (atomic) BOOL skipPidLookup;
 
 - (void) startLogger;
 - (void) stopLogger;
@@ -41,5 +42,7 @@
 - (NSUInteger) logEventCount;
 - (void) logMessage: (NSString*) message;
 - (NSArray*) eventsForPredicate: (NSPredicate*) predicate;
+
+- (void)readLog:(id)param;
 
 @end

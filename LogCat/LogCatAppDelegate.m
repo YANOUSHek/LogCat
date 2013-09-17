@@ -1330,6 +1330,50 @@
     [self.logDataTable reloadData];
 }
 
+- (IBAction)importTextLog:(id)sender {
+    NSOpenPanel* openDlg = [NSOpenPanel openPanel];
+    [openDlg setCanChooseFiles:YES];
+    [openDlg setAllowsMultipleSelection:NO];
+    [openDlg setCanChooseDirectories:NO];
+    
+    if ( [openDlg runModal] == NSOKButton )
+    {
+        [self.logDatasource stopLogger];
+        
+        NSArray* urls = [openDlg URLs];
+        if (urls != nil && [urls count] > 0) {
+            if (self.logDatasource != nil && [self.logDatasource isLogging]) {
+                [self.logDatasource stopLogger];
+                self.logDatasource = nil;
+            }
+            
+            NSURL* url = urls[0];
+            NSLog(@"Open url: %@", url);
+            [openDlg close];
+            
+            NSArray *arguments = nil;
+            arguments = @[[url path]];
+            NSLog(@"Will get log from: %@", arguments);
+            [self clearLog:nil];
+            [self.logDatasource readLog:arguments];
+            
+//            NSDictionary* filtersToImport = [NSDictionary dictionaryWithContentsOfURL:url];
+//            
+//            NSArray* keys = [filtersToImport keysSortedByValueUsingSelector:@selector(caseInsensitiveCompare:)];
+//            for (NSString* key in keys) {
+//                NSString* filter = filtersToImport[key];
+//                // TODO: figure out what to do for filters that already exist. For now just overwrite
+//                filters[key] = [NSPredicate predicateWithFormat:filter];
+//            }
+//            
+//            [self saveFilters];
+//            [self.filterListTable reloadData];
+        }
+    }
+
+    
+}
+
 - (IBAction)importFilters:(id)sender {
     NSOpenPanel* openDlg = [NSOpenPanel openPanel];
     [openDlg setCanChooseFiles:YES];

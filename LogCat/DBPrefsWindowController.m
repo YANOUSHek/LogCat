@@ -360,9 +360,6 @@ static DBPrefsWindowController *_sharedPrefsWindowController = nil;
 		// Get a list of all of the views in the window. Hopefully
 		// at this point there are two. One is visible and one is hidden.
 	NSEnumerator *subviewsEnum = [[contentSubview subviews] reverseObjectEnumerator];
-	
-		// This is our visible view. Just get past it.
-	subview = [subviewsEnum nextObject];
 
 		// Remove everything else. There should be just one, but
 		// if the user does a lot of fast clicking, we might have

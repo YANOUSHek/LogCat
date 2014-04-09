@@ -14,7 +14,13 @@
 
 - (void)awakeFromNib
 {
-  self.tfAdbPath.stringValue = [[NSUserDefaults standardUserDefaults] objectForKey:PREFS_ADB_PATH];
+    NSString *pathValue = nil;
+    if([[NSUserDefaults standardUserDefaults] objectForKey:PREFS_ADB_PATH] == nil) {
+        pathValue = @"";
+    } else {
+        pathValue = [[NSUserDefaults standardUserDefaults] objectForKey:PREFS_ADB_PATH];
+    }
+    self.tfAdbPath.stringValue = pathValue;
 }
 
 - (void)setupToolbar

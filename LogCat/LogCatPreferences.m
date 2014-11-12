@@ -14,7 +14,8 @@
 
 - (void)awakeFromNib
 {
-  self.tfAdbPath.stringValue = [[NSUserDefaults standardUserDefaults] objectForKey:PREFS_ADB_PATH];
+  NSString *adbPath = [[NSUserDefaults standardUserDefaults] objectForKey:PREFS_ADB_PATH];
+  self.tfAdbPath.stringValue = (adbPath == nil) ? @"" : adbPath;
 }
 
 - (void)setupToolbar

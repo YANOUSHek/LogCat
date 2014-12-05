@@ -1,7 +1,7 @@
 Now In App Store
 ==================
 
-I've written a new Android logcat viewer named LogRabbit. You can [Get It From App Store](http://lograbbit.com). I will continue to make bug fixes to this fork but new improved fucntionality will be available in LogRabbit.
+I've written a new Android logcat viewer named LogRabbit. You can [Get It From App Store](http://lograbbit.com). I will continue to make bug fixes to this fork but new improved functionality will be available in LogRabbit.
 
 New LogRabbit Features
 =====================

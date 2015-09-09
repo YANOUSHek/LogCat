@@ -1,19 +1,3 @@
-Now In App Store
-==================
-
-I've written a new Android logcat viewer named LogRabbit. You can [Get It From App Store](http://lograbbit.com). I will continue to make bug fixes to this fork but new improved functionality will be available in LogRabbit.
-
-New LogRabbit Features
-=====================
-* JSON Formatting
-* Base64 decode in log messages
-* Ability to open links directly from log message
-* Quickly search log message in Google
-* Reliable application name detection
-* Greatly improved integration with ADB
-* 10x faster than LogCat
-* Greatly improved stability
-
 LogCat
 ======
 
